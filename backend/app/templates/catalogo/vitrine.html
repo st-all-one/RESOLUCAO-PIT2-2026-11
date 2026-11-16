@@ -6,7 +6,7 @@
 <section class="secao">
   <h1>Cupcakes gourmet</h1>
 
-  <form class="linha" method="get" action="/" role="search">
+  <form class="busca" method="get" action="/" role="search">
     <div class="campo">
       <label for="q">Buscar</label>
       <input
@@ -40,26 +40,31 @@
 <div class="grade">
   {% for produto in produtos %}
   <article class="cartao produto-card">
-    <span class="produto-card__categoria">{{ produto.categoria.nome }}</span>
-    <h2><a href="/produtos/{{ produto.slug }}">{{ produto.nome }}</a></h2>
-    <p class="texto-suave">{{ produto.descricao }}</p>
-    <p class="produto-card__preco">{{ produto.preco|brl }}</p>
+    <figure class="produto-card__midia">
+      <img src="{{ produto.imagem }}" alt="{{ produto.nome }}" width="900" height="675" loading="lazy">
+    </figure>
+    <div class="produto-card__corpo">
+      <span class="produto-card__categoria">{{ produto.categoria.nome }}</span>
+      <h2><a href="/produtos/{{ produto.slug }}">{{ produto.nome }}</a></h2>
+      <p class="texto-suave">{{ produto.descricao }}</p>
+      <p class="produto-card__preco">{{ produto.preco|brl }}</p>
 
-    {% if produto.esgotado %}
-    <span class="selo selo--esgotado">Esgotado</span>
-    {% else %}
-    <form method="post" action="/carrinho/adicionar" class="produto-card__acoes">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
-      <input type="hidden" name="produto_id" value="{{ produto.id }}">
-      <input type="hidden" name="quantidade" value="1">
-      <input
-        type="hidden"
-        name="voltar"
-        value="{{ request.url.path }}{% if request.url.query %}?{{ request.url.query }}{% endif %}"
-      >
-      <button class="botao botao--pequeno" type="submit">Adicionar</button>
-    </form>
-    {% endif %}
+      {% if produto.esgotado %}
+      <span class="selo selo--esgotado">Esgotado</span>
+      {% else %}
+      <form method="post" action="/carrinho/adicionar" class="produto-card__acoes">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+        <input type="hidden" name="produto_id" value="{{ produto.id }}">
+        <input type="hidden" name="quantidade" value="1">
+        <input
+          type="hidden"
+          name="voltar"
+          value="{{ request.url.path }}{% if request.url.query %}?{{ request.url.query }}{% endif %}"
+        >
+        <button class="botao botao--pequeno" type="submit">Adicionar</button>
+      </form>
+      {% endif %}
+    </div>
   </article>
   {% endfor %}
 </div>

@@ -56,6 +56,7 @@ CREATE TABLE produtos (
     categoria_id  BIGINT UNSIGNED NOT NULL,
     nome          VARCHAR(120)    NOT NULL,
     slug          VARCHAR(140)    NOT NULL,
+    imagem        VARCHAR(255)    NOT NULL DEFAULT '/static/img/produtos/padrao.jpg',
     descricao     TEXT            NOT NULL,
     alergenicos   VARCHAR(255)    NOT NULL,
     preco         DECIMAL(10, 2)  NOT NULL,

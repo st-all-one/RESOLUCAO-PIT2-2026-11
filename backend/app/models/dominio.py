@@ -75,6 +75,9 @@ class Produto(Base):
     )
     nome: Mapped[str] = mapped_column(String(120), nullable=False)
     slug: Mapped[str] = mapped_column(String(140), nullable=False, unique=True)
+    imagem: Mapped[str] = mapped_column(
+        String(255), nullable=False, default="/static/img/produtos/padrao.jpg"
+    )
     descricao: Mapped[str] = mapped_column(Text, nullable=False)
     alergenicos: Mapped[str] = mapped_column(String(255), nullable=False)
     preco: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)

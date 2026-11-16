@@ -54,6 +54,11 @@ def vitrine(
     )
 
 
+@router.get("/creditos")
+def creditos(request: Request) -> Response:
+    return renderizar(request, "creditos.html")
+
+
 @router.get("/produtos/{slug}")
 def detalhe_produto(request: Request, banco: Sessao, slug: str) -> Response:
     produto = banco.scalar(

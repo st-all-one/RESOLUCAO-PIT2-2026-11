@@ -8,6 +8,9 @@
 </nav>
 
 <article class="cartao">
+  <figure class="produto-detalhe__midia">
+    <img src="{{ produto.imagem }}" alt="{{ produto.nome }}" width="900" height="675">
+  </figure>
   <span class="produto-card__categoria">{{ produto.categoria.nome }}</span>
   <h1>{{ produto.nome }}</h1>
   <p>{{ produto.descricao }}</p>
