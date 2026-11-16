@@ -14,21 +14,21 @@ MariaDB 11.4 em Docker, Chromium via sniff 0.5.1.
 | Stylelint | incluído em `npm run lint` | 0 erros |
 | pytest | `pytest` | **43 aprovados** |
 | Cobertura | `pytest --cov=app` | **83%** (1352 linhas) |
-| sniff | `sniff capture` + `sniff check` | WCAG AA sem falhas |
+| sniff | `sniff capture` + `sniff check` | 0 falhas; contraste AAA |
 
 ## Acessibilidade (sniff)
 
 Capturas em `artifacts/sniff-home.jsonl` e `artifacts/sniff-cadastro.jsonl`,
 com `--depth 8` para incluir a árvore da página.
 
-- **Home**: 146 verificações, 102 aprovadas e 44 falhas — todas de contraste
-  **AAA** (7:1). Nenhuma falha AA (4,5:1). Menor razão observada: 6,08:1.
-- **Cadastro**: 40 verificações, 25 aprovadas, 11 falhas AAA e 4 avisos.
+- **Home**: 146 verificações, **146 aprovadas, 0 falhas**.
+- **Cadastro**: 40 verificações, 36 aprovadas, 0 falhas e 4 avisos.
 - Os 4 avisos `control-without-name` são **falso positivo**: os campos possuem
   `<label for="...">`; o sniff não resolve a associação `for` no recorte.
 - Alvos de toque, foco visível, `alt` e uniformidade: sem falhas.
-- Conclusão: **WCAG 2.1 nível AA atendido**; AAA não é requisito do projeto e
-  exigiria escurecer a paleta primária.
+- Contraste mínimo após ajuste da paleta: **7,04:1** (AAA exige 7:1 para texto
+  normal).
+- Conclusão: **WCAG 2.1 níveis AA e AAA de contraste atendidos**.
 
 ## Usabilidade e IHC
 
@@ -57,12 +57,12 @@ com `--depth 8` para incluir a árvore da página.
 |---|---|
 | Deploy público ainda não realizado | Dockerfile multi-stage pronto; provedor com MariaDB a definir |
 | Cobertura de `admin.py` em 54% | Fluxos principais testados; ramos de erro no roteiro manual |
-| AAA de contraste não atendido | Requisito é AA; paleta pode ser escurecida se necessário |
+| Contraste AAA | Paleta escurecida; menor razão 7,04:1 |
 | Testadores externos não recrutados | Template em `docs/07-laudo/template-laudo-testador.md` |
 
 ## Parecer
 
 A solução atende aos requisitos funcionais das 15 histórias e aos requisitos não
-funcionais de segurança, consistência de estoque, acessibilidade AA e qualidade
-estática. Está apta à validação com usuários e ao deploy, condicionada à
+funcionais de segurança, consistência de estoque, acessibilidade AA/AAA de
+contraste e qualidade estática. Está apta à validação com usuários e ao deploy, condicionada à
 configuração do provedor.

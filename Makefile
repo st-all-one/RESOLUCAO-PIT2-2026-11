@@ -55,7 +55,9 @@ front-build: ## Compila TypeScript para src/static/js
 
 audit: ## Auditoria de UI com sniff (requer app rodando em :8000)
 	mkdir -p artifacts
-	sniff capture http://127.0.0.1:8000/ -s "body" --no-summary > artifacts/sniff-home.jsonl
+	sniff capture http://127.0.0.1:8000/ -s "body" --depth 8 > artifacts/sniff-home.jsonl
+	sniff capture http://127.0.0.1:8000/cadastro -s "body" --depth 8 > artifacts/sniff-cadastro.jsonl
 	sniff check artifacts/sniff-home.jsonl
+	sniff check artifacts/sniff-cadastro.jsonl
 
 check: lint typecheck test ## Pipeline completo local

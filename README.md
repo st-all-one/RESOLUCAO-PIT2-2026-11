@@ -43,7 +43,7 @@ make audit    # sniff contra a aplicação em execução
 ```
 
 Resultado atual: 43 testes aprovados, cobertura de 83%, ruff/mypy/ESLint/Stylelint
-sem erros e WCAG AA aprovado no sniff. Detalhes em
+sem erros e contraste WCAG AAA aprovado no sniff. Detalhes em
 [docs/06-testes/relatorio.md](docs/06-testes/relatorio.md) e
 [docs/07-laudo/laudo-qualidade.md](docs/07-laudo/laudo-qualidade.md).
 

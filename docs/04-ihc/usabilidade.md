@@ -41,7 +41,7 @@
 
 ## Evidências
 
-- Auditoria `sniff` com contraste AA aprovado, foco e alvos sem falhas.
+- Auditoria `sniff` com contraste AAA aprovado, foco e alvos sem falhas.
 - Testes automatizados cobrem os fluxos que sustentam as mensagens (43 casos).
 - Roteiro com 12 tarefas para testadores externos em
   `docs/07-laudo/template-laudo-testador.md`.
@@ -49,4 +49,4 @@
 ## Pendências de validação
 
 - Cinco testadores externos ainda não recrutados; o template está pronto.
-- AAA de contraste não é meta; caso o público solicite, escurecer a primária.
+- Contraste AAA atingido com a paleta atual (menor razão 7,04:1).
