@@ -111,7 +111,10 @@ def criar_app() -> FastAPI:
             "Content-Security-Policy",
             "default-src 'self'; base-uri 'self'; form-action 'self'; "
             "frame-ancestors 'none'; img-src 'self' data:; "
-            "object-src 'none'; script-src 'self'; style-src 'self'",
+            "object-src 'none'; "
+            "script-src 'self' https://static.cloudflareinsights.com; "
+            "connect-src 'self' https://cloudflareinsights.com; "
+            "style-src 'self'",
         )
         if settings.session_cookie_secure or settings.app_base_url.startswith("https://"):
             resposta.headers.setdefault(
