@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import re
 from decimal import Decimal
+from uuid import RFC_4122
 
 import pytest
 
 from app.core.problemas import ErroAplicacao
 from app.services.carrinho import adicionar, definir, quantidade_total, remover
+from app.services.identificador import codigo_pedido, uuid7
 from app.services.pagamento import simular, validar_luhn
 from app.services.pedido import pode_transicionar, validar_transicao
 from app.services.preco import calcular_frete, formatar_brl, somar_itens
@@ -52,6 +55,13 @@ def test_luhn_e_simulacao_de_pagamento() -> None:
     with pytest.raises(ErroAplicacao) as excinfo:
         simular("boleto")
     assert excinfo.value.codigo == "ERR-VAL-001"
+
+
+def test_codigo_publico_usa_uuid7_truncado() -> None:
+    identificador = uuid7()
+    assert identificador.version == 7
+    assert identificador.variant == RFC_4122
+    assert re.fullmatch(r"[0-9a-f]{8}", codigo_pedido())
 
 
 def test_slug_remove_acentos_e_pontuacao() -> None:

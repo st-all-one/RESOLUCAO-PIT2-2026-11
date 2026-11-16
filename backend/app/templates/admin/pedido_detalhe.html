@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
-{% block titulo %}Admin · Pedido #{{ pedido.id }}{% endblock %}
+{% block titulo %}Admin · Pedido #{{ pedido.referencia }}{% endblock %}
 
 {% block conteudo %}
-<nav class="texto-suave"><a href="/admin/pedidos">Pedidos</a> / #{{ pedido.id }}</nav>
-<h1>Pedido #{{ pedido.id }}</h1>
+<nav class="texto-suave"><a href="/admin/pedidos">Pedidos</a> / #{{ pedido.referencia }}</nav>
+<h1>Pedido #{{ pedido.referencia }}</h1>
 <p>
   <span class="selo selo--{{ pedido.status|replace('_', '-') }}">{{ rotulos_status[pedido.status] }}</span>
   · {{ pedido.criado_em|data_br }} · {{ pedido.cliente.nome }}

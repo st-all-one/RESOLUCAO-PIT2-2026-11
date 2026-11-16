@@ -101,6 +101,7 @@ CREATE TABLE enderecos (
 -- Subtotal e total são derivados dos itens + frete (3FN); não são armazenados.
 CREATE TABLE pedidos (
     id               BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    codigo           CHAR(8)         NOT NULL,
     cliente_id       BIGINT UNSIGNED NOT NULL,
     entregador_id    BIGINT UNSIGNED NULL,
     status           VARCHAR(20)     NOT NULL DEFAULT 'recebido',
@@ -117,6 +118,7 @@ CREATE TABLE pedidos (
     atualizado_em    TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP
                                      ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
+    UNIQUE KEY uq_pedidos_codigo (codigo),
     KEY ix_pedidos_cliente (cliente_id, criado_em),
     KEY ix_pedidos_status (status),
     KEY ix_pedidos_entregador (entregador_id),

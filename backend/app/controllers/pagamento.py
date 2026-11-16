@@ -33,8 +33,8 @@ from app.services.pagamento import simular
 router = APIRouter(dependencies=[Depends(validar_csrf)])
 
 
-def _pedido_do_cliente(banco: Sessao, pedido_id: int, usuario_id: int) -> Pedido:
-    pedido = banco.scalar(select(Pedido).where(Pedido.id == pedido_id))
+def _pedido_do_cliente(banco: Sessao, codigo: str, usuario_id: int) -> Pedido:
+    pedido = banco.scalar(select(Pedido).where(Pedido.codigo == codigo))
     if pedido is None or pedido.cliente_id != usuario_id:
         raise ErroAplicacao("ERR-PED-001")
     return pedido
@@ -47,22 +47,22 @@ def _esta_cancelado(pedido: Pedido) -> bool:
     )
 
 
-@router.get("/pedidos/{pedido_id}/pagamento")
+@router.get("/pedidos/{codigo}/pagamento")
 def pagamento_get(
     request: Request,
     banco: Sessao,
-    pedido_id: int,
+    codigo: str,
     usuario: Annotated[Usuario, Depends(exigir_usuario)],
 ) -> Response:
-    pedido = _pedido_do_cliente(banco, pedido_id, usuario.id)
+    pedido = _pedido_do_cliente(banco, codigo, usuario.id)
     if pedido.pagamento is None:
         raise ErroAplicacao("ERR-PED-004")
     if pedido.pagamento.status == StatusPagamento.APROVADO:
         avisar_codigo(request, "ERR-PAG-003", tipo="info")
-        return redirecionar(f"/pedidos/{pedido.id}")
+        return redirecionar(f"/pedidos/{pedido.codigo}")
     if _esta_cancelado(pedido):
         avisar_codigo(request, "ERR-PED-003")
-        return redirecionar(f"/pedidos/{pedido.id}")
+        return redirecionar(f"/pedidos/{pedido.codigo}")
     return renderizar(
         request,
         "pagamento/form.html",
@@ -71,16 +71,16 @@ def pagamento_get(
     )
 
 
-@router.post("/pedidos/{pedido_id}/pagamento")
+@router.post("/pedidos/{codigo}/pagamento")
 def pagamento_post(
     request: Request,
     banco: Sessao,
-    pedido_id: int,
+    codigo: str,
     usuario: Annotated[Usuario, Depends(exigir_usuario)],
     metodo: Annotated[str, Form()] = "",
     numero_cartao: Annotated[str, Form()] = "",
 ) -> Response:
-    pedido = banco.scalar(select(Pedido).where(Pedido.id == pedido_id).with_for_update())
+    pedido = banco.scalar(select(Pedido).where(Pedido.codigo == codigo).with_for_update())
     if pedido is None or pedido.cliente_id != usuario.id:
         raise ErroAplicacao("ERR-PED-001")
     pagamento = pedido.pagamento
@@ -108,7 +108,7 @@ def pagamento_post(
         pagamento.cartao_ultimos4 = resultado.ultimos4
         banco.commit()
         avisar_codigo(request, "ERR-PAG-001")
-        return redirecionar(f"/pedidos/{pedido.id}/pagamento")
+        return redirecionar(f"/pedidos/{pedido.codigo}/pagamento")
 
     for item in pedido.itens:
         atualizacao = cast(
@@ -143,4 +143,4 @@ def pagamento_post(
     )
     banco.commit()
     avisar(request, "Pagamento aprovado. Seu pedido entrou na fila.")
-    return redirecionar(f"/pedidos/{pedido.id}")
+    return redirecionar(f"/pedidos/{pedido.codigo}")

@@ -2,13 +2,16 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 from decimal import Decimal
+from zoneinfo import ZoneInfo
 
 from sqlalchemy import BigInteger, Boolean, DateTime, ForeignKey, Numeric, String, Text, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 from app.models.tipos import Papel
+
+FUSO_BRASIL = ZoneInfo("America/Sao_Paulo")
 
 
 class Base(DeclarativeBase):
@@ -113,6 +116,7 @@ class Pedido(Base):
     __tablename__ = "pedidos"
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    codigo: Mapped[str] = mapped_column(String(8), nullable=False, unique=True)
     cliente_id: Mapped[int] = mapped_column(
         BigInteger,
         ForeignKey("usuarios.id", ondelete="RESTRICT", onupdate="CASCADE"),
@@ -173,6 +177,15 @@ class Pedido(Base):
     @property
     def pago(self) -> bool:
         return self.pagamento is not None and self.pagamento.status == "aprovado"
+
+    @property
+    def referencia(self) -> str:
+        """Número humano: AAMMDD + id, no fuso de Brasília."""
+        criado = self.criado_em
+        if criado.tzinfo is None:
+            criado = criado.replace(tzinfo=UTC)
+        data = criado.astimezone(FUSO_BRASIL)
+        return f"{data:%y%m%d}{self.id:02d}"
 
 
 class ItemPedido(Base):

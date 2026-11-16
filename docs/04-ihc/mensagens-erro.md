@@ -42,6 +42,8 @@ fica reservado para senha incorreta de uma conta existente.
 | `ERR-CHK-001` | Preencha todos os campos obrigatórios do endereço. | Campo vazio | Completar o endereço |
 | `ERR-CHK-002` | CEP inválido. Informe 8 dígitos. | CEP fora do padrão | Corrigir o CEP |
 | `ERR-CHK-003` | UF inválida. | UF diferente de 2 letras | Corrigir a UF |
+| `ERR-CHK-004` | Não foi possível consultar o CEP agora. Preencha o endereço manualmente. | ViaCEP indisponível ou tempo esgotado | Preencher os campos manualmente |
+| `ERR-CHK-005` | CEP não encontrado. Confira os 8 dígitos. | Código inexistente na base dos Correios | Corrigir o CEP |
 | `ERR-PAG-001` | Pagamento recusado pela operadora simulada. | Regra de recusa (final 0000) | Tentar outro método |
 | `ERR-PAG-002` | Número de cartão inválido. | Falha na validação de Luhn | Conferir o número |
 | `ERR-PAG-003` | Este pedido já está pago. | Pagamento aprovado repetido | Ir para o acompanhamento |

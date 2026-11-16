@@ -10,7 +10,7 @@
 <div class="grade">
   {% for pedido in pedidos %}
   <article class="cartao">
-    <h2>Pedido #{{ pedido.id }}</h2>
+    <h2>Pedido #{{ pedido.referencia }}</h2>
     <p>
       {{ pedido.logradouro }}, {{ pedido.numero }}{% if pedido.complemento %} — {{ pedido.complemento }}{% endif %}<br>
       {{ pedido.bairro }} · {{ pedido.cidade }}/{{ pedido.uf }}<br>

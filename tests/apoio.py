@@ -12,7 +12,7 @@ from sqlalchemy import text
 from app.core.db import engine
 
 PADRAO_TOKEN = re.compile(r'name="csrf_token" value="([^"]+)"')
-PADRAO_PEDIDO = re.compile(r"/pedidos/(\d+)/pagamento")
+PADRAO_PEDIDO = re.compile(r"/pedidos/([0-9a-f]{8})/pagamento")
 
 ENDERECO = {
     "cep": "01310100",
@@ -34,6 +34,17 @@ def escalar(sql: str, **parametros: object) -> object:
 def executar(sql: str, **parametros: object) -> None:
     with engine.begin() as conexao:
         conexao.execute(text(sql), parametros)
+
+
+def codigo_de(pedido_id: int) -> str:
+    return cast(
+        str,
+        escalar("SELECT codigo FROM pedidos WHERE id=:id", id=pedido_id),
+    )
+
+
+def url_pedido(pedido_id: int, sufixo: str = "") -> str:
+    return f"/pedidos/{codigo_de(pedido_id)}{sufixo}"
 
 
 def token_csrf(cliente: TestClient, caminho: str = "/login") -> str:
@@ -96,7 +107,12 @@ def finalizar_pedido(cliente: TestClient, **alteracoes: str) -> int:
     assert resposta.status_code == 303, (resposta.status_code, resposta.text[:300])
     achado = PADRAO_PEDIDO.search(resposta.headers["location"])
     assert achado is not None, resposta.headers["location"]
-    return int(achado.group(1))
+    return int(
+        cast(
+            int,
+            escalar("SELECT id FROM pedidos WHERE codigo=:codigo", codigo=achado.group(1)),
+        )
+    )
 
 
 def pagar(
@@ -109,12 +125,8 @@ def pagar(
     dados = {"metodo": metodo}
     if numero_cartao:
         dados["numero_cartao"] = numero_cartao
-    return postar(
-        cliente,
-        f"/pedidos/{pedido_id}/pagamento",
-        dados,
-        pagina=f"/pedidos/{pedido_id}/pagamento",
-    )
+    caminho = url_pedido(pedido_id, "/pagamento")
+    return postar(cliente, caminho, dados, pagina=caminho)
 
 
 def criar_pedido_pago(cliente: TestClient, produto_id: int, quantidade: int = 1) -> int:

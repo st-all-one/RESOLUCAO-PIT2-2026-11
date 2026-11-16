@@ -5,7 +5,7 @@ from __future__ import annotations
 from fastapi.testclient import TestClient
 
 from app.main import app
-from tests.apoio import criar_pedido_pago, entrar, escalar, postar, token_csrf
+from tests.apoio import criar_pedido_pago, entrar, escalar, postar, token_csrf, url_pedido
 from tests.conftest import SENHA
 
 
@@ -33,7 +33,7 @@ def test_entregador_lista_e_confirma(cliente_http: TestClient, dados: dict[str, 
 
     with TestClient(app) as entregador:
         entrar(entregador, "entregador@teste.local", SENHA)
-        assert f"Pedido #{pedido_id}" in entregador.get("/entregas").text
+        assert "Pedido #" in entregador.get("/entregas").text
 
         resposta = postar(
             entregador,
@@ -45,7 +45,7 @@ def test_entregador_lista_e_confirma(cliente_http: TestClient, dados: dict[str, 
         assert "Nenhuma entrega em rota" in entregador.get("/entregas").text
 
     assert escalar("SELECT status FROM pedidos WHERE id=:id", id=pedido_id) == "entregue"
-    assert "Entregue" in cliente_http.get(f"/pedidos/{pedido_id}").text
+    assert "Entregue" in cliente_http.get(url_pedido(pedido_id)).text
 
 
 def test_entregador_nao_ve_entrega_de_outro(

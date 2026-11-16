@@ -20,9 +20,9 @@ o TypeScript apenas melhora confirmações e o formulário de cartão.
 3. **Carrinho** (`/carrinho`): altere quantidades ou remova itens. Subtotal,
    frete (R$ 8,00; grátis a partir de R$ 120,00) e total são recalculados no
    servidor.
-4. **Checkout** (`/checkout`): endereço completo; o pedido é criado com pagamento
-   pendente.
-5. **Pagamento** (`/pedidos/{id}/pagamento`): PIX aprova na hora. Cartão exige
+4. **Checkout** (`/checkout`): informe o CEP para preencher o endereço e ajuste
+   quantidades no próprio resumo; o pedido é criado com pagamento pendente.
+5. **Pagamento** (`/pedidos/{codigo}/pagamento`): PIX aprova na hora. Cartão exige
    número com Luhn válido; cartão terminado em `0000` é recusado (simulação).
    Nenhum dado completo de cartão é armazenado.
 6. **Pedidos** (`/pedidos`): lista, detalhe com linha do tempo e cancelamento

@@ -36,7 +36,7 @@
     <tbody>
       {% for pedido in pedidos %}
       <tr>
-        <td>#{{ pedido.id }}</td>
+        <td>#{{ pedido.referencia }}</td>
         <td>{{ pedido.cliente.nome }}</td>
         <td>{{ pedido.criado_em|data_br }}</td>
         <td><span class="selo selo--{{ pedido.status|replace('_', '-') }}">{{ rotulos_status[pedido.status] }}</span></td>

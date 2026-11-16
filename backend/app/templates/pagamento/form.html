@@ -3,27 +3,60 @@
 {% block titulo %}Pagamento · Cupcake Gourmet{% endblock %}
 
 {% block conteudo %}
-<h1>Pagamento do pedido #{{ pedido.id }}</h1>
+<h1>Pagamento do pedido #{{ pedido.referencia }}</h1>
 {% include "componentes/erro_form.html" %}
 
-<section class="cartao">
-  <h2>Total a pagar</h2>
-  <p class="resumo-linha linha-total"><span>Total</span><strong>{{ pedido.total|brl }}</strong></p>
+<section class="cartao pagamento">
+  <div class="pagamento__topo">
+    <div>
+      <h2>Total a pagar</h2>
+      <p class="texto-suave">Confira o valor e escolha como pagar.</p>
+    </div>
+    <strong class="pagamento__total">{{ pedido.total|brl }}</strong>
+  </div>
 
-  <form method="post" action="/pedidos/{{ pedido.id }}/pagamento" class="campos" data-pagamento>
+  <form method="post" action="/pedidos/{{ pedido.codigo }}/pagamento" class="campos" data-pagamento>
     <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
 
     {% set metodo_atual = metodo|default('pix') %}
-    <fieldset class="campo">
+    <fieldset class="metodos">
       <legend>Forma de pagamento</legend>
-      <label>
-        <input type="radio" name="metodo" value="pix" {% if metodo_atual == 'pix' %}checked{% endif %}>
-        PIX — aprovação imediata simulada
-      </label>
-      <label>
-        <input type="radio" name="metodo" value="cartao" {% if metodo_atual == 'cartao' %}checked{% endif %}>
-        Cartão de crédito simulado
-      </label>
+      <div class="metodos__opcoes">
+        <label class="metodo">
+          <input type="radio" name="metodo" value="pix" {% if metodo_atual == 'pix' %}checked{% endif %}>
+          <span class="metodo__conteudo">
+            <svg class="metodo__icone" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M12 2.8 15.9 6.7 12 10.6 8.1 6.7Z" fill="currentColor"/>
+              <path d="M17.3 8.1 21.2 12l-3.9 3.9-3.9-3.9Z" fill="currentColor"/>
+              <path d="M6.7 8.1 10.6 12l-3.9 3.9L2.8 12Z" fill="currentColor"/>
+              <path d="M12 13.4 15.9 17.3 12 21.2 8.1 17.3Z" fill="currentColor"/>
+            </svg>
+            <span class="metodo__texto">
+              <strong>PIX</strong>
+              <span>Aprovação imediata</span>
+            </span>
+            <span class="metodo__marca" aria-hidden="true"></span>
+          </span>
+        </label>
+
+        <label class="metodo">
+          <input type="radio" name="metodo" value="cartao" {% if metodo_atual == 'cartao' %}checked{% endif %}>
+          <span class="metodo__conteudo">
+            <svg class="metodo__icone" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <rect x="2.5" y="5" width="19" height="14" rx="2.5"
+                    fill="none" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M2.5 9.5h19" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M6 15.5h4" stroke="currentColor" stroke-width="1.8"
+                    stroke-linecap="round"/>
+            </svg>
+            <span class="metodo__texto">
+              <strong>Cartão de crédito</strong>
+              <span>Pagamento simulado</span>
+            </span>
+            <span class="metodo__marca" aria-hidden="true"></span>
+          </span>
+        </label>
+      </div>
     </fieldset>
 
     <div class="campo" data-campo-cartao>
@@ -43,10 +76,10 @@
       </span>
     </div>
 
-    <button class="botao" type="submit">Pagar {{ pedido.total|brl }}</button>
+    <button class="botao pagamento__botao" type="submit">Pagar {{ pedido.total|brl }}</button>
   </form>
 
-  <p class="texto-suave">
+  <p class="texto-suave pagamento__nota">
     Nenhum dado de cartão é armazenado: guardamos apenas os quatro últimos dígitos.
   </p>
 </section>

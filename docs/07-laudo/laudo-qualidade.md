@@ -1,6 +1,6 @@
 # Laudo de qualidade — Cupcake Gourmet 2.0
 
-Data da execução: 2026-11-15. Ambiente: Linux, Python 3.15, Node 22,
+Data da execução: 2026-11-16. Ambiente: Linux, Python 3.15, Node 22,
 MariaDB 11.4 em Docker, Chromium via sniff 0.5.1.
 
 ## Ferramentas e resultado
@@ -8,12 +8,12 @@ MariaDB 11.4 em Docker, Chromium via sniff 0.5.1.
 | Ferramenta | Comando | Resultado |
 |---|---|---|
 | ruff (lint) | `ruff check .` | 0 erros |
-| ruff (formato) | `ruff format --check .` | 45 arquivos formatados |
-| mypy strict | `mypy src tests scripts` | 0 erros em 45 arquivos |
+| ruff (formato) | `ruff format --check .` | 79 arquivos formatados |
+| mypy strict | `mypy src tests scripts` | 0 erros em 50 arquivos |
 | ESLint strict-type-checked | `npm run lint` | 0 erros |
 | Stylelint | incluído em `npm run lint` | 0 erros |
-| pytest | `pytest` | **43 aprovados** |
-| Cobertura | `pytest --cov=app` | **83%** (1352 linhas) |
+| pytest | `pytest` | **76 aprovados** |
+| Cobertura | `pytest --cov=app` | **86%** (1557 linhas) |
 | sniff | `sniff capture` + `sniff check` | 0 falhas; contraste AAA |
 
 ## Acessibilidade (sniff)

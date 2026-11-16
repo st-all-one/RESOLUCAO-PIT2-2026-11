@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import json
 from decimal import Decimal
 from typing import Annotated
+from urllib.request import urlopen
 
 from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import Response
@@ -33,12 +35,49 @@ from app.models import (
     StatusPedido,
     Usuario,
 )
-from app.services.carrinho import gravar_carrinho, ler_carrinho
+from app.services.carrinho import Carrinho, definir, gravar_carrinho, ler_carrinho, remover
 from app.services.carrinho_db import carregar_itens
+from app.services.identificador import codigo_pedido
 from app.services.preco import calcular_frete, somar_itens
 from app.services.validacao import normalizar_cep, normalizar_telefone, normalizar_uf, texto
 
 router = APIRouter(dependencies=[Depends(validar_csrf)])
+VIACEP_URL = "https://viacep.com.br/ws/{cep}/json/"
+
+
+def _consultar_cep(cep: str) -> dict[str, str]:
+    """Consulta o ViaCEP e devolve só os campos usados pelo checkout."""
+    try:
+        with urlopen(VIACEP_URL.format(cep=cep), timeout=4) as resposta:  # noqa: S310
+            dados = json.load(resposta)
+    except (OSError, ValueError) as exc:
+        raise ErroAplicacao("ERR-CHK-004") from exc
+    if not isinstance(dados, dict) or dados.get("erro"):
+        raise ErroAplicacao("ERR-CHK-005")
+    return {
+        "logradouro": str(dados.get("logradouro") or ""),
+        "bairro": str(dados.get("bairro") or ""),
+        "cidade": str(dados.get("localidade") or ""),
+        "uf": str(dados.get("uf") or ""),
+    }
+
+
+def _alterar_item(banco: Session, carrinho: Carrinho, item: str) -> Carrinho:
+    """Aplica mais/menos/remover sem sair do checkout."""
+    acao, _, alvo = item.partition(":")
+    if acao not in {"mais", "menos", "remover"} or not alvo.isdigit():
+        raise ErroAplicacao("ERR-CAT-001")
+    produto_id = int(alvo)
+    if acao == "remover":
+        return remover(carrinho, produto_id)
+    if produto_id not in carrinho:
+        raise ErroAplicacao("ERR-CAT-001")
+    produto = banco.get(Produto, produto_id)
+    if produto is None:
+        raise ErroAplicacao("ERR-CAT-001")
+    atual = carrinho.get(produto_id, 0)
+    nova = atual + (1 if acao == "mais" else -1)
+    return definir(carrinho, produto_id, nova, produto.estoque)
 
 
 def _contexto(
@@ -53,6 +92,14 @@ def _contexto(
         gratis_acima=settings.frete_gratis_acima,
     )
     return itens, subtotal, frete, subtotal + frete, ajustado
+
+
+@router.get("/cep/{cep}")
+def consultar_cep(cep: str) -> dict[str, str]:
+    cep_limpo = normalizar_cep(cep)
+    if cep_limpo is None:
+        raise ErroAplicacao("ERR-CHK-002")
+    return _consultar_cep(cep_limpo)
 
 
 @router.get("/checkout")
@@ -117,6 +164,7 @@ def checkout_post(
     cidade: Annotated[str, Form()] = "",
     uf: Annotated[str, Form()] = "",
     telefone: Annotated[str, Form()] = "",
+    item: Annotated[str, Form()] = "",
 ) -> Response:
     valores = {
         "cep": cep,
@@ -129,6 +177,49 @@ def checkout_post(
         "telefone": telefone,
     }
     carrinho = ler_carrinho(request.session)
+    if item:
+        try:
+            carrinho = _alterar_item(banco, carrinho, item)
+        except ErroAplicacao as erro:
+            itens, subtotal, frete, total, _ = _contexto(banco, carrinho)
+            return renderizar_form(
+                request,
+                "checkout/form.html",
+                erro=erro,
+                valores=valores,
+                itens=itens,
+                subtotal=subtotal,
+                frete=frete,
+                total=total,
+            )
+        gravar_carrinho(request.session, carrinho)
+        itens, subtotal, frete, total, ajustado = _contexto(banco, carrinho)
+        if ajustado:
+            gravar_carrinho(request.session, carrinho)
+        if not itens:
+            avisar_codigo(request, "ERR-CAR-001")
+            return redirecionar("/carrinho")
+        if ajustado:
+            return renderizar_form(
+                request,
+                "checkout/form.html",
+                erro=ErroAplicacao("ERR-CAR-002"),
+                valores=valores,
+                itens=itens,
+                subtotal=subtotal,
+                frete=frete,
+                total=total,
+            )
+        return renderizar(
+            request,
+            "checkout/form.html",
+            valores=valores,
+            itens=itens,
+            subtotal=subtotal,
+            frete=frete,
+            total=total,
+        )
+
     itens, subtotal, frete, total, ajustado = _contexto(banco, carrinho)
     if ajustado:
         gravar_carrinho(request.session, carrinho)
@@ -201,6 +292,7 @@ def checkout_post(
         )
 
     pedido = Pedido(
+        codigo=codigo_pedido(),
         cliente_id=usuario.id,
         status=StatusPedido.RECEBIDO,
         frete=frete,
@@ -278,5 +370,5 @@ def checkout_post(
 
     banco.commit()
     gravar_carrinho(request.session, {})
-    avisar(request, f"Pedido #{pedido.id} criado. Escolha o pagamento.")
-    return redirecionar(f"/pedidos/{pedido.id}/pagamento")
+    avisar(request, f"Pedido #{pedido.referencia} criado. Escolha o pagamento.")
+    return redirecionar(f"/pedidos/{pedido.codigo}/pagamento")

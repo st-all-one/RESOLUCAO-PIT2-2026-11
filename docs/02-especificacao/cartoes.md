@@ -181,6 +181,13 @@ resumo, para transformar o carrinho em pedido.
   frete é R$ 0,00; abaixo disso, R$ 8,00.
 - CA6 — DADO que o estoque mudou desde a adição, QUANDO confirmo, ENTÃO vejo
   `ERR-CAR-002` e o carrinho é ajustado.
+- CA7 — DADO um CEP com 8 dígitos, QUANDO saio do campo, ENTÃO logradouro, bairro,
+  cidade e UF são preenchidos automaticamente; se a consulta falhar, os campos
+  continuam editáveis.
+- CA8 — DADO um item no resumo do checkout, QUANDO uso os controles de quantidade ou
+  removo, ENTÃO o carrinho é recalculado sem perder o endereço já digitado.
+- CA9 — DADO um pedido criado, QUANDO abro o detalhe, ENTÃO vejo o número humano
+  `AAMMDD+id` e a URL usa um código público de 8 caracteres, não o id sequencial.
 
 **Regras de negócio**
 - RN1 — Telefone de contato com 10 ou 11 dígitos.
@@ -215,6 +222,8 @@ a compra.
   transação é desfeita e vejo `ERR-PAG-004`, sem pedido pago e sem estoque negativo.
 - CA7 — DADO um pedido de outro cliente, QUANDO acesso a URL de pagamento, ENTÃO recebo
   404 com `ERR-PED-001`.
+- CA8 — DADO que abro o pagamento, ENTÃO vejo os métodos como opções visuais com ícone,
+  descrição e estado selecionado, não apenas radios de texto.
 
 **Regras de negócio**
 - RN1 — Nenhum dado completo de cartão é persistido; apenas últimos 4 dígitos e código

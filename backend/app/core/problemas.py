@@ -76,6 +76,16 @@ CATALOGO: dict[str, Definicao] = {
     ),
     "ERR-CHK-002": Definicao(422, "CEP inválido", "CEP inválido. Informe 8 dígitos."),
     "ERR-CHK-003": Definicao(422, "UF inválida", "UF inválida."),
+    "ERR-CHK-004": Definicao(
+        503,
+        "Consulta de CEP indisponível",
+        "Não foi possível consultar o CEP agora. Preencha o endereço manualmente.",
+    ),
+    "ERR-CHK-005": Definicao(
+        404,
+        "CEP não encontrado",
+        "CEP não encontrado. Confira os 8 dígitos.",
+    ),
     "ERR-PAG-001": Definicao(
         402,
         "Pagamento recusado",

@@ -29,10 +29,10 @@ CREATE DATABASE IF NOT EXISTS cupcake_test
 GRANT ALL PRIVILEGES ON cupcake_test.* TO 'cupcake'@'%';
 ```
 
-## Resultado (2026-11-15)
+## Resultado (2026-11-16)
 
-- **43 testes, 43 aprovados** em ~16 s.
-- **Cobertura de linhas: 83%** (`backend/app`, 1352 linhas, 230 sem cobertura).
+- **76 testes, 76 aprovados** em ~30 s.
+- **Cobertura de linhas: 86%** (`backend/app`, 1557 linhas, 212 sem cobertura).
 - Falha rápida em regressões de preço, frete, CSRF, estoque e autorização.
 
 Cobertura por módulo (principais):
@@ -43,12 +43,13 @@ Cobertura por módulo (principais):
 | `services/pedido.py` | 100% |
 | `services/validacao.py` | 100% |
 | `services/slug.py` | 100% |
+| `services/identificador.py` | 100% |
 | `core/db.py`, `core/templating.py` | 100% |
-| `controllers/auth.py` | 88% |
-| `controllers/checkout.py` | 85% |
-| `controllers/pagamento.py` | 89% |
-| `controllers/admin.py` | 54% |
-| `main.py` | 73% |
+| `controllers/auth.py` | 91% |
+| `controllers/checkout.py` | 82% |
+| `controllers/pagamento.py` | 90% |
+| `controllers/admin.py` | 61% |
+| `main.py` | 79% |
 
 `controllers/admin.py` concentra muitos ramos de erro (exclusões protegidas,
 validações de formulário); os fluxos principais estão cobertos e os ramos
@@ -62,7 +63,7 @@ restantes são exercitados manualmente no roteiro do laudo.
 | `test_catalogo.py` | vitrine, busca, categoria, detalhe, 404 JSON |
 | `test_auth.py` | cadastro, hash, login/logout, conta inativa, CSRF |
 | `test_carrinho.py` | totais, frete grátis, limite de estoque, atualização e remoção |
-| `test_compra.py` | PIX, cartão inválido, recusa final 0000, estoque esgotado, cancelamento, isolamento |
+| `test_compra.py` | PIX, cartão inválido, recusa final 0000, estoque esgotado, cancelamento, isolamento, CEP, itens no checkout, código público |
 | `test_admin.py` | autorização, CRUD, transições, relatório, autoproteção do admin |
 | `test_entregas.py` | lista, confirmação e isolamento entre entregadores |
 | `test_servicos.py` | dinheiro, frete, Luhn, slug, validação, senha, máquina de estados |

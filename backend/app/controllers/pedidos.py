@@ -32,27 +32,27 @@ def lista_pedidos(
     return renderizar(request, "pedidos/lista.html", pedidos=pedidos)
 
 
-@router.get("/pedidos/{pedido_id}")
+@router.get("/pedidos/{codigo}")
 def detalhe_pedido(
     request: Request,
     banco: Sessao,
-    pedido_id: int,
+    codigo: str,
     usuario: Annotated[Usuario, Depends(exigir_usuario)],
 ) -> Response:
-    pedido = banco.scalar(select(Pedido).where(Pedido.id == pedido_id))
+    pedido = banco.scalar(select(Pedido).where(Pedido.codigo == codigo))
     if pedido is None or pedido.cliente_id != usuario.id:
         raise ErroAplicacao("ERR-PED-001")
     return renderizar(request, "pedidos/detalhe.html", pedido=pedido)
 
 
-@router.post("/pedidos/{pedido_id}/cancelar")
+@router.post("/pedidos/{codigo}/cancelar")
 def cancelar(
     request: Request,
     banco: Sessao,
-    pedido_id: int,
+    codigo: str,
     usuario: Annotated[Usuario, Depends(exigir_usuario)],
 ) -> Response:
-    pedido = banco.scalar(select(Pedido).where(Pedido.id == pedido_id).with_for_update())
+    pedido = banco.scalar(select(Pedido).where(Pedido.codigo == codigo).with_for_update())
     if pedido is None or pedido.cliente_id != usuario.id:
         raise ErroAplicacao("ERR-PED-001")
     if pedido.status != StatusPedido.RECEBIDO:
@@ -60,4 +60,4 @@ def cancelar(
     cancelar_pedido(banco, pedido, usuario.id, "Cancelado pelo cliente.")
     banco.commit()
     avisar(request, "Pedido cancelado.", tipo="info")
-    return redirecionar(f"/pedidos/{pedido.id}")
+    return redirecionar(f"/pedidos/{pedido.codigo}")

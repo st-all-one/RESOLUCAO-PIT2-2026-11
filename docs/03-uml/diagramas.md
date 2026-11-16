@@ -151,17 +151,17 @@ sequenceDiagram
   CC->>CC: valida CEP, UF, telefone e estoque
   CC->>DB: INSERT pedido, itens, pagamento pendente, histórico
   DB-->>CC: pedido criado
-  CC-->>C: 303 /pedidos/{id}/pagamento
+  CC-->>C: 303 /pedidos/{codigo}/pagamento
 
-  C->>PC: POST /pedidos/{id}/pagamento (pix/cartão)
+  C->>PC: POST /pedidos/{codigo}/pagamento (pix/cartão)
   PC->>PS: simular(metodo, numero)
   PS-->>PC: aprovado/recusado + código
   alt aprovado
     PC->>DB: UPDATE produtos SET estoque = estoque - qtd (condicional)
     PC->>DB: UPDATE pagamento aprovado + histórico
-    PC-->>C: 303 /pedidos/{id}
+    PC-->>C: 303 /pedidos/{codigo}
   else recusado
     PC->>DB: UPDATE pagamento recusado
-    PC-->>C: 303 /pedidos/{id}/pagamento com flash ERR-PAG-001
+    PC-->>C: 303 /pedidos/{codigo}/pagamento com flash ERR-PAG-001
   end
 ```

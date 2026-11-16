@@ -11,7 +11,7 @@
 | `historico_pedido` | 6 | 1 |
 | `itens_pedido` | 6 | 2 |
 | `pagamentos` | 9 | 3 |
-| `pedidos` | 15 | 3 |
+| `pedidos` | 16 | 3 |
 | `produtos` | 11 | 4 |
 | `usuarios` | 10 | 2 |
 
@@ -102,6 +102,7 @@
 | Coluna | Tipo | Nulo? | Default | Chave / Domínio | Descrição |
 |---|---|---|---|---|---|
 | `id` | `bigint(20) unsigned` | não | — (auto_increment) | PK | Identificador interno do pedido. |
+| `codigo` | `char(8)` | não | — | UQ | Código público não sequencial (UUIDv7 truncado) usado na URL. |
 | `cliente_id` | `bigint(20) unsigned` | não | — | FK → usuarios.id | Cliente que realizou o pedido. |
 | `entregador_id` | `bigint(20) unsigned` | sim | `NULL` | FK → usuarios.id | Entregador atribuído ao despacho. |
 | `status` | `varchar(20)` | não | `'recebido'` | recebido | em_preparo | saiu_entrega | entregue | cancelado | Estado atual do pedido na máquina de estados. |
