@@ -230,7 +230,7 @@ def main() -> int:
         restricoes = _restricoes(conexao)
 
     faltantes = [
-        f"{str(linha[0])}.{str(linha[1])}"
+        f"{linha[0]!s}.{linha[1]!s}"
         for linha in colunas
         if str(linha[1]) not in DESCRICOES.get(str(linha[0]), {})
     ]
@@ -241,8 +241,10 @@ def main() -> int:
     linhas: list[str] = [
         "# Dicionário de dados",
         "",
-        f"> Gerado automaticamente de `information_schema` em {agora}. "
-        "Não editar à mão: rode `make dicionario`.",
+        (
+            f"> Gerado automaticamente de `information_schema` em {agora}. "
+            "Não editar à mão: rode `make dicionario`."
+        ),
         "",
         "## Resumo",
         "",
