@@ -21,7 +21,7 @@ from app.controllers.comum import (
 from app.core.acesso import exigir_usuario
 from app.core.config import settings
 from app.core.csrf import validar_csrf
-from app.core.problemas import ErroAplicacao
+from app.core.problemas import CATALOGO, ErroAplicacao
 from app.models import (
     Endereco,
     HistoricoPedido,
@@ -44,15 +44,15 @@ router = APIRouter(dependencies=[Depends(validar_csrf)])
 def _contexto(
     banco: Session,
     carrinho: dict[int, int],
-) -> tuple[list[tuple[Produto, int]], Decimal, Decimal, Decimal]:
-    itens, _ajustado = carregar_itens(banco, carrinho)
+) -> tuple[list[tuple[Produto, int]], Decimal, Decimal, Decimal, bool]:
+    itens, ajustado = carregar_itens(banco, carrinho)
     subtotal = somar_itens((produto.preco, quantidade) for produto, quantidade in itens)
     frete = calcular_frete(
         subtotal,
         valor=settings.frete_valor,
         gratis_acima=settings.frete_gratis_acima,
     )
-    return itens, subtotal, frete, subtotal + frete
+    return itens, subtotal, frete, subtotal + frete, ajustado
 
 
 @router.get("/checkout")
@@ -62,7 +62,17 @@ def checkout_get(
     usuario: Annotated[Usuario, Depends(exigir_usuario)],
 ) -> Response:
     carrinho = ler_carrinho(request.session)
-    itens, subtotal, frete, total = _contexto(banco, carrinho)
+    itens, subtotal, frete, total, ajustado = _contexto(banco, carrinho)
+    mensagens = list(request.state.flash)
+    if ajustado:
+        gravar_carrinho(request.session, carrinho)
+        mensagens.append(
+            {
+                "codigo": "ERR-CAR-002",
+                "texto": CATALOGO["ERR-CAR-002"].detalhe,
+                "tipo": "info",
+            }
+        )
     if not itens:
         avisar_codigo(request, "ERR-CAR-001")
         return redirecionar("/carrinho")
@@ -90,6 +100,7 @@ def checkout_get(
         frete=frete,
         total=total,
         valores=valores,
+        flash=mensagens,
     )
 
 
@@ -118,7 +129,22 @@ def checkout_post(
         "telefone": telefone,
     }
     carrinho = ler_carrinho(request.session)
-    itens, subtotal, frete, total = _contexto(banco, carrinho)
+    itens, subtotal, frete, total, ajustado = _contexto(banco, carrinho)
+    if ajustado:
+        gravar_carrinho(request.session, carrinho)
+        if not itens:
+            avisar_codigo(request, "ERR-CAR-001")
+            return redirecionar("/carrinho")
+        return renderizar_form(
+            request,
+            "checkout/form.html",
+            erro=ErroAplicacao("ERR-CAR-002"),
+            valores=valores,
+            itens=itens,
+            subtotal=subtotal,
+            frete=frete,
+            total=total,
+        )
 
     try:
         cep_limpo = normalizar_cep(cep)
@@ -162,12 +188,6 @@ def checkout_post(
             )
         if not itens:
             raise ErroAplicacao("ERR-CAR-001")
-        for produto, quantidade in itens:
-            if quantidade > produto.estoque:
-                raise ErroAplicacao(
-                    "ERR-CAR-002",
-                    campos={"quantidade": f"Estoque insuficiente para {produto.nome}."},
-                )
     except ErroAplicacao as erro:
         return renderizar_form(
             request,
@@ -252,7 +272,9 @@ def checkout_post(
             )
         )
     if not usuario.telefone:
-        usuario.telefone = telefone_limpo
+        persistido = banco.get(Usuario, usuario.id)
+        if persistido is not None:
+            persistido.telefone = telefone_limpo
 
     banco.commit()
     gravar_carrinho(request.session, {})

@@ -24,6 +24,7 @@ from app.models import (
     Pedido,
     Produto,
     StatusPagamento,
+    StatusPedido,
     Usuario,
 )
 from app.services.operacoes import registrar_historico
@@ -39,6 +40,13 @@ def _pedido_do_cliente(banco: Sessao, pedido_id: int, usuario_id: int) -> Pedido
     return pedido
 
 
+def _esta_cancelado(pedido: Pedido) -> bool:
+    return pedido.status == StatusPedido.CANCELADO or (
+        pedido.pagamento is not None
+        and pedido.pagamento.status in (StatusPagamento.CANCELADO, StatusPagamento.ESTORNADO)
+    )
+
+
 @router.get("/pedidos/{pedido_id}/pagamento")
 def pagamento_get(
     request: Request,
@@ -52,7 +60,15 @@ def pagamento_get(
     if pedido.pagamento.status == StatusPagamento.APROVADO:
         avisar_codigo(request, "ERR-PAG-003", tipo="info")
         return redirecionar(f"/pedidos/{pedido.id}")
-    return renderizar(request, "pagamento/form.html", pedido=pedido)
+    if _esta_cancelado(pedido):
+        avisar_codigo(request, "ERR-PED-003")
+        return redirecionar(f"/pedidos/{pedido.id}")
+    return renderizar(
+        request,
+        "pagamento/form.html",
+        pedido=pedido,
+        metodo=pedido.pagamento.metodo or "pix",
+    )
 
 
 @router.post("/pedidos/{pedido_id}/pagamento")
@@ -72,11 +88,19 @@ def pagamento_post(
         raise ErroAplicacao("ERR-PED-004")
     if pagamento.status == StatusPagamento.APROVADO:
         raise ErroAplicacao("ERR-PAG-003")
+    if _esta_cancelado(pedido):
+        raise ErroAplicacao("ERR-PED-003")
 
     try:
         resultado = simular(metodo, numero_cartao)
     except ErroAplicacao as erro:
-        return renderizar_form(request, "pagamento/form.html", erro=erro, pedido=pedido)
+        return renderizar_form(
+            request,
+            "pagamento/form.html",
+            erro=erro,
+            pedido=pedido,
+            metodo=metodo,
+        )
 
     pagamento.metodo = metodo
     if not resultado.aprovado:

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from fastapi.testclient import TestClient
 
-from tests.apoio import adicionar_item, postar
+from tests.apoio import adicionar_item, executar, postar
 
 
 def test_totais_com_frete(cliente_http: TestClient, dados: dict[str, int]) -> None:
@@ -54,4 +54,23 @@ def test_atualizar_e_remover_item(cliente_http: TestClient, dados: dict[str, int
         {"produto_id": str(dados["baunilha"])},
     )
     assert resposta.status_code == 303
+    assert "carrinho está vazio" in cliente_http.get("/carrinho").text
+
+
+def test_ajuste_do_carrinho_aparece_na_propria_pagina(
+    cliente_http: TestClient, dados: dict[str, int]
+) -> None:
+    adicionar_item(cliente_http, dados["baunilha"], 2)
+    executar("UPDATE produtos SET estoque = 0 WHERE id = :id", id=dados["baunilha"])
+
+    pagina = cliente_http.get("/carrinho").text
+    assert "ERR-CAR-003" in pagina
+    assert "carrinho está vazio" in pagina
+    assert "ERR-CAR-003" not in cliente_http.get("/carrinho").text
+
+
+def test_nao_adiciona_produto_inativo(cliente_http: TestClient, dados: dict[str, int]) -> None:
+    resposta = adicionar_item(cliente_http, dados["inativo"])
+    assert resposta.status_code == 404
+    assert "ERR-CAT-001" in resposta.text
     assert "carrinho está vazio" in cliente_http.get("/carrinho").text

@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
-from datetime import datetime
+from datetime import UTC, datetime
 from decimal import Decimal
+from zoneinfo import ZoneInfo
 
 ZERO = Decimal("0.00")
+FUSO_BRASIL = ZoneInfo("America/Sao_Paulo")
 
 
 def formatar_brl(valor: Decimal) -> str:
@@ -15,7 +17,9 @@ def formatar_brl(valor: Decimal) -> str:
 
 
 def formatar_data(data: datetime) -> str:
-    return data.strftime("%d/%m/%Y %H:%M")
+    if data.tzinfo is None:
+        data = data.replace(tzinfo=UTC)
+    return data.astimezone(FUSO_BRASIL).strftime("%d/%m/%Y %H:%M")
 
 
 def somar_itens(itens: Iterable[tuple[Decimal, int]]) -> Decimal:
@@ -33,7 +37,3 @@ def calcular_frete(
     if subtotal >= gratis_acima:
         return ZERO
     return valor
-
-
-def quantidades_validas(quantidade: int) -> bool:
-    return quantidade > 0

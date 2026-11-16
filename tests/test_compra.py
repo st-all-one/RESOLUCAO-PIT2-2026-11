@@ -4,10 +4,12 @@ from __future__ import annotations
 
 from decimal import Decimal
 
+import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
 from tests.apoio import (
+    ENDERECO,
     adicionar_item,
     criar_pedido_pago,
     entrar,
@@ -16,6 +18,7 @@ from tests.apoio import (
     finalizar_pedido,
     pagar,
     postar,
+    token_csrf,
 )
 from tests.conftest import SENHA
 
@@ -57,6 +60,7 @@ def test_cartao_invalido_nao_baixa_estoque(cliente_http: TestClient, dados: dict
     resposta = pagar(cliente_http, pedido_id, metodo="cartao", numero_cartao=CARTAO_INVALIDO)
     assert resposta.status_code == 422
     assert "ERR-PAG-002" in resposta.text
+    assert 'value="cartao" checked' in resposta.text
     assert escalar("SELECT status FROM pagamentos WHERE pedido_id=:id", id=pedido_id) == "pendente"
     assert escalar("SELECT estoque FROM produtos WHERE id=:id", id=dados["baunilha"]) == 5
 
@@ -122,3 +126,166 @@ def test_pedido_de_outro_cliente_nao_e_acessivel(
         )
     assert resposta.status_code == 404
     assert resposta.json()["codigo"] == "ERR-PED-001"
+
+
+def test_nao_paga_pedido_cancelado(cliente_http: TestClient, dados: dict[str, int]) -> None:
+    entrar(cliente_http, "cliente@teste.local", SENHA)
+    adicionar_item(cliente_http, dados["baunilha"], 2)
+    pedido_id = finalizar_pedido(cliente_http)
+    token = token_csrf(cliente_http, f"/pedidos/{pedido_id}/pagamento")
+    postar(cliente_http, f"/pedidos/{pedido_id}/cancelar", {}, pagina=f"/pedidos/{pedido_id}")
+
+    resposta = cliente_http.post(
+        f"/pedidos/{pedido_id}/pagamento",
+        data={"csrf_token": token, "metodo": "pix"},
+        follow_redirects=False,
+    )
+    assert resposta.status_code == 409
+    assert "ERR-PED-003" in resposta.text
+    assert escalar("SELECT status FROM pagamentos WHERE pedido_id=:id", id=pedido_id) == "cancelado"
+    assert escalar("SELECT estoque FROM produtos WHERE id=:id", id=dados["baunilha"]) == 5
+
+
+def test_nao_repaga_pedido_estornado(cliente_http: TestClient, dados: dict[str, int]) -> None:
+    entrar(cliente_http, "cliente@teste.local", SENHA)
+    pedido_id = criar_pedido_pago(cliente_http, dados["baunilha"])
+    token = token_csrf(cliente_http, f"/pedidos/{pedido_id}")
+    postar(cliente_http, f"/pedidos/{pedido_id}/cancelar", {}, pagina=f"/pedidos/{pedido_id}")
+
+    resposta = cliente_http.post(
+        f"/pedidos/{pedido_id}/pagamento",
+        data={"csrf_token": token, "metodo": "pix"},
+        follow_redirects=False,
+    )
+    assert resposta.status_code == 409
+    assert "ERR-PED-003" in resposta.text
+    assert escalar("SELECT status FROM pagamentos WHERE pedido_id=:id", id=pedido_id) == "estornado"
+    assert escalar("SELECT estoque FROM produtos WHERE id=:id", id=dados["baunilha"]) == 5
+
+
+def test_pagamento_duplicado_nao_baixa_estoque(
+    cliente_http: TestClient, dados: dict[str, int]
+) -> None:
+    entrar(cliente_http, "cliente@teste.local", SENHA)
+    pedido_id = criar_pedido_pago(cliente_http, dados["baunilha"])
+    token = token_csrf(cliente_http, f"/pedidos/{pedido_id}")
+
+    resposta = cliente_http.post(
+        f"/pedidos/{pedido_id}/pagamento",
+        data={"csrf_token": token, "metodo": "pix"},
+        follow_redirects=False,
+    )
+    assert resposta.status_code == 409
+    assert "ERR-PAG-003" in resposta.text
+    assert escalar("SELECT estoque FROM produtos WHERE id=:id", id=dados["baunilha"]) == 4
+
+
+def test_falha_parcial_de_estoque_nao_baixa_nenhum_item(
+    cliente_http: TestClient, dados: dict[str, int]
+) -> None:
+    entrar(cliente_http, "cliente@teste.local", SENHA)
+    adicionar_item(cliente_http, dados["chocolate"], 2)
+    adicionar_item(cliente_http, dados["baunilha"], 1)
+    pedido_id = finalizar_pedido(cliente_http)
+    executar("UPDATE produtos SET estoque = 0 WHERE id = :id", id=dados["chocolate"])
+
+    resposta = pagar(cliente_http, pedido_id)
+    assert resposta.status_code == 409
+    assert "ERR-PAG-004" in resposta.text
+    assert escalar("SELECT estoque FROM produtos WHERE id=:id", id=dados["chocolate"]) == 0
+    assert escalar("SELECT estoque FROM produtos WHERE id=:id", id=dados["baunilha"]) == 5
+    assert escalar("SELECT status FROM pagamentos WHERE pedido_id=:id", id=pedido_id) == "pendente"
+
+
+def test_outro_cliente_nao_paga_nem_cancela(
+    cliente_http: TestClient, dados: dict[str, int]
+) -> None:
+    entrar(cliente_http, "cliente@teste.local", SENHA)
+    adicionar_item(cliente_http, dados["baunilha"], 2)
+    pedido_id = finalizar_pedido(cliente_http)
+
+    with TestClient(app) as outro:
+        entrar(outro, "outro@teste.local", SENHA)
+        token = token_csrf(outro, "/")
+        pagamento = outro.post(
+            f"/pedidos/{pedido_id}/pagamento",
+            data={"csrf_token": token, "metodo": "pix"},
+            follow_redirects=False,
+            headers={"accept": "application/problem+json"},
+        )
+        cancelamento = outro.post(
+            f"/pedidos/{pedido_id}/cancelar",
+            data={"csrf_token": token},
+            follow_redirects=False,
+            headers={"accept": "application/problem+json"},
+        )
+
+    assert pagamento.status_code == 404
+    assert pagamento.json()["codigo"] == "ERR-PED-001"
+    assert cancelamento.status_code == 404
+    assert cancelamento.json()["codigo"] == "ERR-PED-001"
+    assert escalar("SELECT status FROM pedidos WHERE id=:id", id=pedido_id) == "recebido"
+    assert escalar("SELECT status FROM pagamentos WHERE pedido_id=:id", id=pedido_id) == "pendente"
+    assert escalar("SELECT estoque FROM produtos WHERE id=:id", id=dados["baunilha"]) == 5
+
+
+def test_checkout_persiste_telefone_do_perfil(
+    cliente_http: TestClient, dados: dict[str, int]
+) -> None:
+    entrar(cliente_http, "cliente@teste.local", SENHA)
+    adicionar_item(cliente_http, dados["baunilha"])
+    finalizar_pedido(cliente_http, telefone="11912345678")
+
+    assert (
+        escalar("SELECT telefone FROM usuarios WHERE id=:id", id=dados["cliente"]) == "11912345678"
+    )
+
+
+def test_checkout_ajusta_carrinho_antes_de_criar_pedido(
+    cliente_http: TestClient, dados: dict[str, int]
+) -> None:
+    entrar(cliente_http, "cliente@teste.local", SENHA)
+    adicionar_item(cliente_http, dados["baunilha"], 2)
+    token = token_csrf(cliente_http, "/")
+    executar("UPDATE produtos SET estoque = 1 WHERE id = :id", id=dados["baunilha"])
+
+    resposta = cliente_http.post(
+        "/checkout",
+        data={"csrf_token": token, **ENDERECO},
+        follow_redirects=False,
+    )
+    assert resposta.status_code == 409
+    assert "ERR-CAR-002" in resposta.text
+    assert escalar("SELECT COUNT(*) FROM pedidos") == 0
+    assert escalar("SELECT COUNT(*) FROM pagamentos") == 0
+    pagina = cliente_http.get("/carrinho").text
+    assert 'value="1"' in pagina
+
+
+@pytest.mark.parametrize(
+    ("alteracao", "codigo"),
+    [
+        ({"cep": "123"}, "ERR-CHK-002"),
+        ({"uf": "S1"}, "ERR-CHK-003"),
+        ({"telefone": "123"}, "ERR-CHK-001"),
+    ],
+)
+def test_checkout_rejeita_endereco_invalido(
+    cliente_http: TestClient,
+    dados: dict[str, int],
+    alteracao: dict[str, str],
+    codigo: str,
+) -> None:
+    entrar(cliente_http, "cliente@teste.local", SENHA)
+    adicionar_item(cliente_http, dados["baunilha"])
+    token = token_csrf(cliente_http, "/")
+
+    resposta = cliente_http.post(
+        "/checkout",
+        data={"csrf_token": token, **ENDERECO, **alteracao},
+        follow_redirects=False,
+    )
+    assert resposta.status_code == 422
+    assert codigo in resposta.text
+    assert escalar("SELECT COUNT(*) FROM pedidos") == 0
+    assert escalar("SELECT COUNT(*) FROM pagamentos") == 0

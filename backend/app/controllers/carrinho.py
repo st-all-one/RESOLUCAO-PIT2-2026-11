@@ -18,7 +18,7 @@ from app.controllers.comum import (
 )
 from app.core.config import settings
 from app.core.csrf import validar_csrf
-from app.core.problemas import ErroAplicacao
+from app.core.problemas import CATALOGO, ErroAplicacao
 from app.models import Categoria, Produto
 from app.services.carrinho import (
     adicionar,
@@ -37,9 +37,16 @@ router = APIRouter(dependencies=[Depends(validar_csrf)])
 def ver_carrinho(request: Request, banco: Sessao) -> Response:
     carrinho = ler_carrinho(request.session)
     itens, ajustado = carregar_itens(banco, carrinho)
+    mensagens = list(request.state.flash)
     if ajustado:
         gravar_carrinho(request.session, carrinho)
-        avisar_codigo(request, "ERR-CAR-003", tipo="info")
+        mensagens.append(
+            {
+                "codigo": "ERR-CAR-003",
+                "texto": CATALOGO["ERR-CAR-003"].detalhe,
+                "tipo": "info",
+            }
+        )
     subtotal = somar_itens((produto.preco, quantidade) for produto, quantidade in itens)
     frete = calcular_frete(
         subtotal,
@@ -53,6 +60,7 @@ def ver_carrinho(request: Request, banco: Sessao) -> Response:
         subtotal=subtotal,
         frete=frete,
         total=subtotal + frete,
+        flash=mensagens,
     )
 
 
