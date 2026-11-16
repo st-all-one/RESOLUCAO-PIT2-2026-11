@@ -2,7 +2,7 @@
 
 :root {
   --cor-fundo: #fff8f3;
-  --cor-superficie: #ffffff;
+  --cor-superficie: #fff;
   --cor-texto: #34262b;
   --cor-suave: #6d5a61;
   --cor-borda: #e7d6d0;
@@ -56,7 +56,7 @@ a:hover {
   left: -999px;
   top: 0;
   background: var(--cor-texto);
-  color: #ffffff;
+  color: #fff;
   padding: 0.5rem 1rem;
   z-index: 10;
 }
@@ -108,7 +108,7 @@ a:hover {
   padding: 0 0.35rem;
   border-radius: 999px;
   background: var(--cor-primaria);
-  color: #ffffff;
+  color: #fff;
   font-size: 0.75rem;
   font-weight: 700;
 }
@@ -184,7 +184,7 @@ h2 {
   border: 1px solid var(--cor-primaria);
   border-radius: 999px;
   background: var(--cor-primaria);
-  color: #ffffff;
+  color: #fff;
   padding: 0.6rem 1.1rem;
   font: inherit;
   font-weight: 600;
@@ -194,7 +194,7 @@ h2 {
 
 .botao:hover {
   background: var(--cor-primaria-escura);
-  color: #ffffff;
+  color: #fff;
 }
 
 .botao--pequeno {
@@ -487,7 +487,7 @@ th {
   background: var(--cor-primaria);
 }
 
-@media (min-width: 48rem) {
+@media (width >= 48rem) {
   .topo {
     padding: 1rem 2rem;
   }
