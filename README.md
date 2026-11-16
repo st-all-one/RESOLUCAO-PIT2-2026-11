@@ -41,6 +41,7 @@ primeira inicialização do volume.
 cp .env.example .env    # defina APP_SECRET e as senhas do MariaDB
 make up                 # docker compose up -d --build
 make logs
+make deploy-check URL=http://SEU_IP_OU_DOMINIO:8000
 ```
 
 Guia completo (HTTPS, backup, atualização e verificação) em

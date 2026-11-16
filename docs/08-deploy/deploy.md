@@ -72,6 +72,15 @@ não envia o cookie de sessão e o login não persiste.
 
 ## Verificação pós-deploy
 
+Um comando valida health, vitrine, detalhe, login e administração:
+
+```bash
+make deploy-check URL=http://SEU_IP_OU_DOMINIO:8000
+```
+
+Use `--email`/`--senha` no script (`scripts/verificar_deploy.py`) se a conta
+administrativa não for a do seed. Roteiro manual complementar:
+
 1. `GET /health` retorna `{"status":"ok","db":"ok"}`.
 2. Vitrine lista os 12 produtos do seed.
 3. Login com `admin@cupcake.local` / `Admin@123`.

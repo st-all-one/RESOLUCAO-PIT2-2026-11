@@ -3,7 +3,7 @@ PIP := .venv/bin/pip
 DB := docker compose exec -T mariadb mariadb -uroot -pcupcake_root cupcake
 
 .DEFAULT_GOAL := help
-.PHONY: help install db-up db-down db-reset schema seed run up down logs ps test cov lint fmt typecheck front-build audit check
+.PHONY: help install db-up db-down db-reset schema seed run up down logs ps deploy-check test cov lint fmt typecheck front-build audit check
 
 help: ## Lista os alvos disponíveis
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
@@ -46,6 +46,9 @@ logs: ## Acompanha os logs da aplicação
 
 ps: ## Mostra o estado dos containers
 	docker compose ps
+
+deploy-check: ## Valida um deploy (URL=https://...)
+	$(PY) scripts/verificar_deploy.py "$(URL)"
 
 test: ## Roda a suíte de testes
 	$(PY) -m pytest
