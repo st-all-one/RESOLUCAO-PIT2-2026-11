@@ -829,6 +829,14 @@ th {
     padding-bottom: 3rem;
   }
 
+  .dialogo__acoes {
+    flex-direction: column;
+  }
+
+  .dialogo__acoes .botao {
+    width: 100%;
+  }
+
   .topo {
     position: relative;
     z-index: 20;
