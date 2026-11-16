@@ -43,6 +43,16 @@ CATALOGO: dict[str, Definicao] = {
         "Sessão inválida",
         "Sua sessão expirou. Entre novamente.",
     ),
+    "ERR-AUTH-009": Definicao(
+        401,
+        "Autenticação necessária",
+        "Autenticação necessária.",
+    ),
+    "ERR-AUTH-010": Definicao(
+        429,
+        "Muitas tentativas",
+        "Muitas tentativas de acesso. Aguarde alguns minutos.",
+    ),
     # Catálogo e carrinho
     "ERR-CAT-001": Definicao(404, "Produto não encontrado", "Produto não encontrado."),
     "ERR-CAT-002": Definicao(409, "Produto esgotado", "Este produto está esgotado."),
@@ -120,6 +130,7 @@ CATALOGO: dict[str, Definicao] = {
         "Produto duplicado",
         "Já existe um produto com esse nome.",
     ),
+    "ERR-ADM-009": Definicao(404, "Categoria não encontrada", "Categoria não encontrada."),
     "ERR-ENT-001": Definicao(
         403,
         "Entrega não atribuída",
@@ -137,6 +148,11 @@ CATALOGO: dict[str, Definicao] = {
         "Serviço temporariamente indisponível.",
     ),
     "ERR-SYS-003": Definicao(404, "Página não encontrada", "Página não encontrada."),
+    "ERR-SYS-004": Definicao(
+        405,
+        "Método não permitido",
+        "Este endereço não aceita o método usado.",
+    ),
     "ERR-VAL-001": Definicao(
         422,
         "Dados inválidos",
@@ -237,9 +253,14 @@ def prefere_json(request: Request) -> bool:
     return "application/problem+json" in aceite or "application/json" in aceite
 
 
-def resposta_json(problema: Problema) -> JSONResponse:
+def resposta_json(
+    problema: Problema,
+    *,
+    headers: dict[str, str] | None = None,
+) -> JSONResponse:
     return JSONResponse(
         content=problema.para_dict(),
         status_code=problema.status,
         media_type="application/problem+json",
+        headers=headers,
     )

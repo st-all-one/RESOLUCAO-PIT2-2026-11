@@ -102,3 +102,30 @@ def test_carrinho_puro_respeita_estoque() -> None:
     assert definir({1: 2}, 1, 0, estoque=5) == {}
     assert remover({1: 2}, 1) == {}
     assert quantidade_total({1: 2, 2: 3}) == 5
+
+
+def test_data_utc_aparece_no_horario_de_sao_paulo() -> None:
+    from datetime import UTC, datetime
+
+    from app.services.preco import formatar_data
+
+    assert formatar_data(datetime(2026, 1, 15, 2, 0, tzinfo=UTC)) == "14/01/2026 23:00"
+
+
+def test_producao_recusa_configuracao_insegura() -> None:
+    from pydantic import ValidationError
+
+    from app.core.config import Settings
+
+    with pytest.raises(ValidationError):
+        Settings(
+            app_env="production",
+            app_secret="x" * 32,
+            session_cookie_secure=False,
+        )
+    with pytest.raises(ValidationError):
+        Settings(
+            app_env="production",
+            app_secret="dev-insecure-change-me",
+            session_cookie_secure=True,
+        )

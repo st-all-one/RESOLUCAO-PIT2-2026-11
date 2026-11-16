@@ -5,6 +5,7 @@ from __future__ import annotations
 from collections.abc import Awaitable, Callable, MutableMapping
 from uuid import uuid4
 
+from sqlalchemy.exc import OperationalError
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
@@ -51,11 +52,19 @@ class ContextoMiddleware(BaseHTTPMiddleware):
 
         identificador = sessao.get("usuario_id")
         if isinstance(identificador, int):
-            with SessionLocal() as banco:
-                usuario = banco.get(Usuario, identificador)
-                if usuario is not None and usuario.ativo:
-                    request.state.usuario = usuario
-                else:
-                    sessao.pop("usuario_id", None)
+            try:
+                with SessionLocal() as banco:
+                    usuario = banco.get(Usuario, identificador)
+            except OperationalError:
+                return await call_next(request)
+            if (
+                usuario is not None
+                and usuario.ativo
+                and sessao.get("sessao_versao") == usuario.sessao_versao
+            ):
+                request.state.usuario = usuario
+            else:
+                sessao.pop("usuario_id", None)
+                sessao.pop("sessao_versao", None)
 
         return await call_next(request)

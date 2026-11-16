@@ -6,10 +6,10 @@ services:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
     environment:
-      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-cupcake_root}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:?defina MARIADB_ROOT_PASSWORD no .env}
       MARIADB_DATABASE: cupcake
       MARIADB_USER: cupcake
-      MARIADB_PASSWORD: ${MARIADB_PASSWORD:-cupcake}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD:?defina MARIADB_PASSWORD no .env}
     ports:
       - "127.0.0.1:3307:3306"
     volumes:
@@ -32,14 +32,14 @@ services:
         condition: service_healthy
     environment:
       APP_ENV: ${APP_ENV:-production}
-      APP_SECRET: ${APP_SECRET:-dev-insecure-change-me}
+      APP_SECRET: ${APP_SECRET:?defina APP_SECRET no .env}
       APP_BASE_URL: ${APP_BASE_URL:-http://127.0.0.1:8000}
-      DATABASE_URL: mariadb+pymysql://cupcake:${MARIADB_PASSWORD:-cupcake}@mariadb:3306/cupcake?charset=utf8mb4
-      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-false}
+      DATABASE_URL: mariadb+pymysql://cupcake:${MARIADB_PASSWORD}@mariadb:3306/cupcake?charset=utf8mb4
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-true}
       FRETE_VALOR: ${FRETE_VALOR:-8.00}
       FRETE_GRATIS_ACIMA: ${FRETE_GRATIS_ACIMA:-120.00}
     ports:
-      - "${APP_PORT:-8000}:8000"
+      - "${APP_BIND:-127.0.0.1}:${APP_PORT:-8000}:8000"
     healthcheck:
       test:
         [

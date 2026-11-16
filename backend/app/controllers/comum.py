@@ -55,6 +55,11 @@ def redirecionar(url: str, *, status_code: int = 303) -> RedirectResponse:
 def caminho_interno(valor: str | None, padrao: str = "/") -> str:
     if not valor or not valor.startswith("/") or valor.startswith("//"):
         return padrao
+    minusculo = valor.lower()
+    if "\\" in valor or "%5c" in minusculo or "%2f" in minusculo:
+        return padrao
+    if any(ord(caractere) < 0x20 for caractere in valor):
+        return padrao
     return valor
 
 

@@ -31,18 +31,18 @@ make run          # http://127.0.0.1:8000
 
 Contas de demonstração (seed): `admin@cupcake.local` / `Admin@123`,
 `cliente@cupcake.local` / `Cliente@123`, `entregador@cupcake.local` / `Entrega@123`.
+Essas senhas são públicas e servem apenas para desenvolvimento; em produção o
+startup recusa a senha do admin do seed até `make admin-senha` ser executado.
 
 ## Produção (VPS com Docker)
 
 O `compose.yaml` sobe aplicação + MariaDB; o schema e o seed são aplicados na
 primeira inicialização do volume.
 
-```bash
-cp .env.example .env    # defina APP_SECRET e as senhas do MariaDB
-make up                 # docker compose up -d --build
-make logs
-make deploy-check URL=http://SEU_IP_OU_DOMINIO:8000
-```
+Em produção o `compose.yaml` exige `APP_SECRET`, senhas do MariaDB, HTTPS e
+`SESSION_COOKIE_SECURE=true`; a aplicação escuta apenas em `127.0.0.1` e deve
+ficar atrás de um proxy TLS. O passo a passo, incluindo a troca da senha do
+administrador antes da primeira subida, está em `docs/08-deploy/deploy.md`.
 
 Guia completo (HTTPS, backup, atualização e verificação) em
 [docs/08-deploy/deploy.md](docs/08-deploy/deploy.md).

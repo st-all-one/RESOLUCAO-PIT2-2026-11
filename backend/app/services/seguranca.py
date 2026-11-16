@@ -16,6 +16,10 @@ TAMANHO_HASH = 64
 TAMANHO_SALT = 16
 FORMATO = "scrypt"
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+HASH_SEM_CONTA = (
+    "scrypt$16384$8$1$wHgZqJYMfqyaOIWYD/kf9w==$"
+    "XCEU7t7CxrN23u8QE25GOg6bxQ6H3DMRzTi/r84Ks0plZMwRn+7ykKDThkkz6kP6t6b/IKfDECiglcunducZCw=="
+)
 
 
 def _b64(dados: bytes) -> str:

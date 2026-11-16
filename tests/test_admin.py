@@ -9,6 +9,7 @@ from fastapi.testclient import TestClient
 from app.main import app
 from tests.apoio import (
     adicionar_item,
+    criar_pedido_pago,
     entrar,
     escalar,
     finalizar_pedido,
@@ -163,3 +164,63 @@ def test_admin_nao_altera_a_propria_conta(cliente_http: TestClient, dados: dict[
     )
     assert resposta.status_code == 409
     assert "ERR-ADM-005" in resposta.text
+
+
+def test_categoria_inexistente_responde_404(
+    cliente_http: TestClient, dados: dict[str, int]
+) -> None:
+    entrar(cliente_http, "admin@teste.local", SENHA)
+    resposta = postar(
+        cliente_http,
+        "/admin/categorias/999999/editar",
+        {"nome": "Nova"},
+        pagina="/admin/categorias",
+    )
+    assert resposta.status_code == 404
+    assert "ERR-ADM-009" in resposta.text
+
+
+def test_nao_exclui_produto_com_historico(cliente_http: TestClient, dados: dict[str, int]) -> None:
+    with TestClient(app) as cliente:
+        entrar(cliente, "cliente@teste.local", SENHA)
+        criar_pedido_pago(cliente, dados["baunilha"])
+
+    entrar(cliente_http, "admin@teste.local", SENHA)
+    resposta = postar(
+        cliente_http,
+        f"/admin/produtos/{dados['baunilha']}/excluir",
+        {},
+        pagina="/admin/produtos",
+    )
+    assert resposta.status_code == 303
+    assert escalar("SELECT COUNT(*) FROM produtos WHERE id=:id", id=dados["baunilha"]) == 1
+    assert "ERR-ADM-007" in cliente_http.get("/admin/produtos").text
+
+
+def test_nao_exclui_categoria_com_produtos(cliente_http: TestClient, dados: dict[str, int]) -> None:
+    entrar(cliente_http, "admin@teste.local", SENHA)
+    resposta = postar(
+        cliente_http,
+        f"/admin/categorias/{dados['tradicionais']}/excluir",
+        {},
+        pagina="/admin/categorias",
+    )
+    assert resposta.status_code == 303
+    assert escalar("SELECT COUNT(*) FROM categorias WHERE id=:id", id=dados["tradicionais"]) == 1
+    assert "ERR-ADM-002" in cliente_http.get("/admin/categorias").text
+
+
+def test_relatorio_ignora_pedido_nao_pago(cliente_http: TestClient, dados: dict[str, int]) -> None:
+    entrar(cliente_http, "cliente@teste.local", SENHA)
+    adicionar_item(cliente_http, dados["baunilha"], 2)
+    pedido_pago = finalizar_pedido(cliente_http)
+    assert pagar(cliente_http, pedido_pago).status_code == 303
+
+    adicionar_item(cliente_http, dados["baunilha"], 1)
+    finalizar_pedido(cliente_http)
+
+    with TestClient(app) as admin:
+        entrar(admin, "admin@teste.local", SENHA)
+        pagina = admin.get("/admin/relatorio").text
+    assert "R$ 28,00" in pagina
+    assert "R$ 18,00" not in pagina

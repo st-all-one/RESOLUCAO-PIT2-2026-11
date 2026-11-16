@@ -2,9 +2,14 @@
 
 from __future__ import annotations
 
+import pytest
 from fastapi.testclient import TestClient
 
+from app.controllers.comum import caminho_interno
+from app.core.config import settings
+from app.core.partida import validar_admin_inicial
 from app.main import app
+from app.services.seguranca import hash_senha
 from tests.apoio import entrar, escalar, executar, token_csrf
 from tests.conftest import SENHA
 
@@ -110,18 +115,103 @@ def test_mutacao_sem_csrf_e_rejeitada(cliente_http: TestClient, dados: dict[str,
     assert "ERR-AUTH-008" in resposta.text
 
 
-def test_token_de_outra_sessao_e_rejeitado(cliente_http: TestClient, dados: dict[str, int]) -> None:
-    token = token_csrf(cliente_http, "/login")
+def test_token_de_outra_sessao_nao_autentica(
+    cliente_http: TestClient, dados: dict[str, int]
+) -> None:
+    token_a = token_csrf(cliente_http, "/login")
     with TestClient(app) as outra_sessao:
-        resposta = outra_sessao.post(
+        token_b = token_csrf(outra_sessao, "/login")
+        rejeitada = outra_sessao.post(
             "/login",
             data={
-                "csrf_token": token,
+                "csrf_token": token_a,
                 "email": "cliente@teste.local",
                 "senha": SENHA,
                 "next": "/",
             },
             follow_redirects=False,
         )
-    assert resposta.status_code == 403
-    assert "ERR-AUTH-008" in resposta.text
+        aceita = outra_sessao.post(
+            "/login",
+            data={
+                "csrf_token": token_b,
+                "email": "cliente@teste.local",
+                "senha": SENHA,
+                "next": "/",
+            },
+            follow_redirects=False,
+        )
+    assert rejeitada.status_code == 403
+    assert "ERR-AUTH-008" in rejeitada.text
+    assert aceita.status_code == 303
+
+
+def test_destino_externo_de_login_e_descartado() -> None:
+    assert caminho_interno("/pedidos") == "/pedidos"
+    assert caminho_interno("//evil.example") == "/"
+    assert caminho_interno("/\\evil.example") == "/"
+    assert caminho_interno("https://evil.example") == "/"
+    assert caminho_interno("/%5Cevil.example") == "/"
+
+
+def test_login_bloqueia_apos_cinco_falhas(cliente_http: TestClient, dados: dict[str, int]) -> None:
+    token = token_csrf(cliente_http, "/login")
+    for _ in range(5):
+        resposta = cliente_http.post(
+            "/login",
+            data={
+                "csrf_token": token,
+                "email": "limite@teste.local",
+                "senha": "senha-errada",
+                "next": "/",
+            },
+            follow_redirects=False,
+        )
+        assert resposta.status_code == 401
+
+    resposta = cliente_http.post(
+        "/login",
+        data={
+            "csrf_token": token,
+            "email": "limite@teste.local",
+            "senha": "senha-errada",
+            "next": "/",
+        },
+        follow_redirects=False,
+    )
+    assert resposta.status_code == 429
+    assert "ERR-AUTH-010" in resposta.text
+
+
+def test_logout_invalida_cookie_antigo(cliente_http: TestClient, dados: dict[str, int]) -> None:
+    entrar(cliente_http, "cliente@teste.local", SENHA)
+    cookie = cliente_http.cookies.get("cupcake_sessao")
+    assert cookie is not None
+
+    token = token_csrf(cliente_http, "/")
+    assert (
+        cliente_http.post(
+            "/logout",
+            data={"csrf_token": token},
+            follow_redirects=False,
+        ).status_code
+        == 303
+    )
+
+    cliente_http.cookies.set("cupcake_sessao", cookie, domain="testserver", path="/")
+    resposta = cliente_http.get("/pedidos", follow_redirects=False)
+    assert resposta.status_code == 303
+    assert "/login" in resposta.headers["location"]
+
+
+def test_startup_recusa_senha_de_demonstracao(
+    dados: dict[str, int], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    executar(
+        "UPDATE usuarios SET senha_hash=:hash WHERE id=:id",
+        hash=hash_senha("Admin@123"),
+        id=dados["admin"],
+    )
+    monkeypatch.setattr(settings, "app_env", "production")
+    with pytest.raises(RuntimeError, match="demonstração"):
+        validar_admin_inicial()

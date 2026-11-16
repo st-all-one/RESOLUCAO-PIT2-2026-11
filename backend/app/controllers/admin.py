@@ -346,7 +346,7 @@ def editar_categoria(
 ) -> Response:
     categoria = banco.get(Categoria, categoria_id)
     if categoria is None:
-        raise ErroAplicacao("ERR-ADM-001")
+        raise ErroAplicacao("ERR-ADM-009")
     nome_limpo = texto(nome, minimo=2, maximo=80)
     if nome_limpo is None or _categoria_por_nome(banco, nome_limpo, categoria.id) is not None:
         avisar_codigo(request, "ERR-ADM-001")
@@ -367,7 +367,7 @@ def editar_categoria(
 def alternar_categoria(banco: Sessao, categoria_id: int) -> Response:
     categoria = banco.get(Categoria, categoria_id)
     if categoria is None:
-        raise ErroAplicacao("ERR-ADM-001")
+        raise ErroAplicacao("ERR-ADM-009")
     categoria.ativo = not categoria.ativo
     banco.commit()
     return redirecionar("/admin/categorias")
@@ -377,7 +377,7 @@ def alternar_categoria(banco: Sessao, categoria_id: int) -> Response:
 def excluir_categoria(request: Request, banco: Sessao, categoria_id: int) -> Response:
     categoria = banco.get(Categoria, categoria_id)
     if categoria is None:
-        raise ErroAplicacao("ERR-ADM-001")
+        raise ErroAplicacao("ERR-ADM-009")
     total = (
         banco.scalar(
             select(func.count()).select_from(Produto).where(Produto.categoria_id == categoria.id)

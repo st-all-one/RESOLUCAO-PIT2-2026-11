@@ -8,8 +8,6 @@ from dataclasses import dataclass
 
 from app.core.problemas import ErroAplicacao
 
-METODOS = frozenset({"pix", "cartao"})
-
 
 @dataclass(frozen=True, slots=True)
 class ResultadoPagamento:

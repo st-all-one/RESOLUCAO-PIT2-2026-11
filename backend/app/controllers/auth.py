@@ -18,9 +18,11 @@ from app.controllers.comum import (
     renderizar_form,
 )
 from app.core.csrf import validar_csrf
+from app.core.limites import LimiteTentativas
 from app.core.problemas import ErroAplicacao
 from app.models import Papel, Usuario
 from app.services.seguranca import (
+    HASH_SEM_CONTA,
     email_valido,
     hash_senha,
     normalizar_email,
@@ -29,6 +31,12 @@ from app.services.seguranca import (
 )
 
 router = APIRouter(dependencies=[Depends(validar_csrf)])
+LIMITE_CONTA = LimiteTentativas(maximo=5, janela=15 * 60)
+LIMITE_IP = LimiteTentativas(maximo=30, janela=15 * 60)
+
+
+def _ip(request: Request) -> str:
+    return request.client.host if request.client else "desconhecido"
 
 
 @router.get("/cadastro")
@@ -88,6 +96,7 @@ def cadastro_post(
 
     request.session.clear()
     request.session["usuario_id"] = usuario.id
+    request.session["sessao_versao"] = usuario.sessao_versao
     avisar(request, "Conta criada com sucesso. Bem-vindo(a)!")
     return redirecionar("/")
 
@@ -117,10 +126,29 @@ def login_post(
 ) -> Response:
     destino = caminho_interno(proximo)
     valores = {"email": email}
+    ip = _ip(request)
+    email_limpo = normalizar_email(email)
+    chave_conta = f"{ip}:{email_limpo}"
+    if LIMITE_CONTA.excedido(chave_conta) or LIMITE_IP.excedido(ip):
+        return renderizar_form(
+            request,
+            "auth/login.html",
+            erro=ErroAplicacao("ERR-AUTH-010"),
+            valores=valores,
+            proximo=destino,
+        )
     try:
-        email_limpo = normalizar_email(email)
         usuario = banco.scalar(select(Usuario).where(Usuario.email == email_limpo))
-        if usuario is None or not verificar_senha(senha, usuario.senha_hash):
+        if usuario is None:
+            verificar_senha(senha, HASH_SEM_CONTA)
+            raise ErroAplicacao(
+                "ERR-AUTH-001",
+                campos={
+                    "email": "E-mail ou senha inválidos.",
+                    "senha": "E-mail ou senha inválidos.",
+                },
+            )
+        if not verificar_senha(senha, usuario.senha_hash):
             raise ErroAplicacao(
                 "ERR-AUTH-001",
                 campos={
@@ -131,6 +159,9 @@ def login_post(
         if not usuario.ativo:
             raise ErroAplicacao("ERR-AUTH-006")
     except ErroAplicacao as erro:
+        if erro.codigo == "ERR-AUTH-001":
+            LIMITE_CONTA.registrar(chave_conta)
+            LIMITE_IP.registrar(ip)
         return renderizar_form(
             request,
             "auth/login.html",
@@ -139,14 +170,22 @@ def login_post(
             proximo=destino,
         )
 
+    LIMITE_CONTA.limpar(chave_conta)
     request.session.clear()
     request.session["usuario_id"] = usuario.id
+    request.session["sessao_versao"] = usuario.sessao_versao
     avisar(request, f"Bem-vindo(a), {usuario.nome}!")
     return redirecionar(destino)
 
 
 @router.post("/logout")
-def logout(request: Request) -> Response:
+def logout(request: Request, banco: Sessao) -> Response:
+    usuario = getattr(request.state, "usuario", None)
+    if isinstance(usuario, Usuario):
+        persistido = banco.get(Usuario, usuario.id)
+        if persistido is not None:
+            persistido.sessao_versao += 1
+            banco.commit()
     request.session.clear()
     avisar(request, "Sessão encerrada.", tipo="info")
     return redirecionar("/")

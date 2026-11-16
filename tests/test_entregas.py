@@ -5,7 +5,7 @@ from __future__ import annotations
 from fastapi.testclient import TestClient
 
 from app.main import app
-from tests.apoio import criar_pedido_pago, entrar, escalar, postar
+from tests.apoio import criar_pedido_pago, entrar, escalar, postar, token_csrf
 from tests.conftest import SENHA
 
 
@@ -74,3 +74,22 @@ def test_entregador_nao_acessa_administracao(
         )
     assert resposta.status_code == 403
     assert resposta.json()["codigo"] == "ERR-AUTH-007"
+
+
+def test_entregador_nao_confirma_entrega_alheia(
+    cliente_http: TestClient, dados: dict[str, int]
+) -> None:
+    pedido_id = _pedido_em_rota(cliente_http, dados)
+
+    with TestClient(app) as outro_entregador:
+        entrar(outro_entregador, "entregador2@teste.local", SENHA)
+        token = token_csrf(outro_entregador, "/")
+        resposta = outro_entregador.post(
+            f"/entregas/{pedido_id}/confirmar",
+            data={"csrf_token": token},
+            headers={"accept": "application/problem+json"},
+            follow_redirects=False,
+        )
+    assert resposta.status_code == 403
+    assert resposta.json()["codigo"] == "ERR-ENT-001"
+    assert escalar("SELECT status FROM pedidos WHERE id=:id", id=pedido_id) == "saiu_entrega"

@@ -25,6 +25,7 @@ CREATE TABLE usuarios (
     telefone      VARCHAR(11)     NULL,
     papel         VARCHAR(20)     NOT NULL DEFAULT 'cliente',
     ativo         BOOLEAN         NOT NULL DEFAULT TRUE,
+    sessao_versao INT             NOT NULL DEFAULT 0,
     criado_em     TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
     atualizado_em TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP
                                   ON UPDATE CURRENT_TIMESTAMP,

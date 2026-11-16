@@ -1,6 +1,7 @@
 PY := .venv/bin/python
 PIP := .venv/bin/pip
-DB := docker compose exec -T mariadb mariadb -uroot -pcupcake_root cupcake
+-include .env
+DB := docker compose exec -T mariadb mariadb -uroot -p"$(MARIADB_ROOT_PASSWORD)" cupcake
 
 .DEFAULT_GOAL := help
 .PHONY: help install db-up db-down db-reset schema seed run up down logs ps deploy-check test cov lint fmt typecheck front-build audit check
@@ -28,6 +29,9 @@ schema: ## Aplica database/schema.sql
 
 seed: ## Aplica database/seed.sql
 	$(DB) < database/seed.sql
+
+admin-senha: ## Troca a senha do admin (ADMIN_SENHA=...)
+	$(PY) backend/scripts/definir_senha_admin.py
 
 dicionario: ## Regenera docs/05-dados/dicionario.md a partir do banco
 	$(PY) backend/scripts/gerar_dicionario.py

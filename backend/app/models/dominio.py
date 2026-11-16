@@ -25,6 +25,7 @@ class Usuario(Base):
     telefone: Mapped[str | None] = mapped_column(String(11), nullable=True)
     papel: Mapped[str] = mapped_column(String(20), nullable=False, default=Papel.CLIENTE)
     ativo: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    sessao_versao: Mapped[int] = mapped_column(nullable=False, default=0, server_default="0")
     criado_em: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now())
     atualizado_em: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, server_default=func.now(), onupdate=func.now()
