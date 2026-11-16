@@ -15,7 +15,11 @@
     <strong class="pagamento__total">{{ pedido.total|brl }}</strong>
   </div>
 
-  <form method="post" action="/pedidos/{{ pedido.codigo }}/pagamento" class="campos" data-pagamento>
+  <form method="post" action="/pedidos/{{ pedido.codigo }}/pagamento" class="campos"
+        data-pagamento data-total="{{ pedido.total|brl }}"
+        data-confirmar-titulo="Confirmar pagamento"
+        data-confirmar="Confirme o valor e a forma de pagamento antes de continuar."
+        data-confirmar-acao="Confirmar pagamento">
     <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
 
     {% set metodo_atual = metodo|default('pix') %}

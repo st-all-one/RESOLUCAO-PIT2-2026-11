@@ -78,7 +78,11 @@
   <a class="botao" href="/pedidos/{{ pedido.codigo }}/pagamento">Pagar agora</a>
   {% endif %}
   {% if pedido.status == 'recebido' %}
-  <form method="post" action="/pedidos/{{ pedido.codigo }}/cancelar" data-confirmar="Cancelar este pedido?">
+  <form method="post" action="/pedidos/{{ pedido.codigo }}/cancelar"
+        data-confirmar-titulo="Cancelar pedido"
+        data-confirmar="O pedido #{{ pedido.referencia }} será cancelado e esta ação não pode ser desfeita."
+        data-confirmar-acao="Cancelar pedido"
+        data-confirmar-perigo="true">
     <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
     <button class="botao botao--perigo" type="submit">Cancelar pedido</button>
   </form>

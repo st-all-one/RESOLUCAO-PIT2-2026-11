@@ -617,6 +617,37 @@ th {
   margin: 0;
 }
 
+.dialogo {
+  width: min(100% - 2rem, 28rem);
+  max-height: calc(100% - 2rem);
+  padding: 0;
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio);
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+  box-shadow: var(--sombra);
+}
+
+.dialogo::backdrop {
+  background: rgb(52 38 43 / 55%);
+}
+
+.dialogo__conteudo {
+  padding: 1.25rem;
+}
+
+.dialogo__conteudo h2 {
+  margin: 0 0 0.5rem;
+}
+
+.dialogo__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
 .paginacao {
   display: flex;
   gap: 0.5rem;
@@ -911,6 +942,7 @@ th {
   .pagamento__botao {
     width: 100%;
   }
+
 }
 
 @media (width >= 48rem) {

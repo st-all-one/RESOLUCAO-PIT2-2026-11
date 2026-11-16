@@ -3,13 +3,45 @@
 type RadioMetodo = HTMLInputElement;
 
 function configurarConfirmacoes(): void {
+  const dialogo = document.querySelector<HTMLDialogElement>("#dialogo-confirmacao");
+  const titulo = document.querySelector<HTMLElement>("#dialogo-titulo");
+  const mensagem = document.querySelector<HTMLElement>("#dialogo-mensagem");
+  const confirmar = document.querySelector<HTMLButtonElement>("#dialogo-confirmar");
+  if (dialogo === null || titulo === null || mensagem === null || confirmar === null) {
+    return;
+  }
+
+  let pendente: { formulario: HTMLFormElement; submitter: HTMLElement | null } | null = null;
+
+  const abrir = (formulario: HTMLFormElement, submitter: HTMLElement | null): void => {
+    pendente = { formulario, submitter };
+    dialogo.returnValue = "";
+    titulo.textContent = formulario.dataset.confirmarTitulo ?? "Confirmar ação";
+    mensagem.textContent = formulario.dataset.confirmar ?? "Deseja continuar?";
+    confirmar.textContent = formulario.dataset.confirmarAcao ?? "Confirmar";
+    confirmar.classList.toggle("botao--perigo", formulario.dataset.confirmarPerigo === "true");
+    dialogo.showModal();
+  };
+
+  dialogo.addEventListener("close", () => {
+    const alvo = pendente;
+    pendente = null;
+    if (dialogo.returnValue !== "confirmar" || alvo === null) {
+      return;
+    }
+    alvo.formulario.dataset.confirmado = "true";
+    alvo.formulario.requestSubmit(alvo.submitter ?? undefined);
+  });
+
   const formularios = document.querySelectorAll<HTMLFormElement>("form[data-confirmar]");
   for (const formulario of formularios) {
     formulario.addEventListener("submit", (evento: SubmitEvent) => {
-      const mensagem = formulario.dataset.confirmar ?? "";
-      if (mensagem !== "" && !window.confirm(mensagem)) {
-        evento.preventDefault();
+      if (formulario.dataset.confirmado === "true") {
+        delete formulario.dataset.confirmado;
+        return;
       }
+      evento.preventDefault();
+      abrir(formulario, evento.submitter);
     });
   }
 }
@@ -35,6 +67,10 @@ function configurarPagamento(): void {
       if (!cartao) {
         entrada.value = "";
       }
+      const total = formulario.dataset.total ?? "este pedido";
+      formulario.dataset.confirmar = cartao
+        ? `Você vai pagar ${total} no cartão de crédito.`
+        : `Você vai pagar ${total} via PIX.`;
     };
 
     const opcoes = formulario.querySelectorAll<RadioMetodo>("input[name='metodo']");

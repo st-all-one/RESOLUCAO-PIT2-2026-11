@@ -59,5 +59,17 @@
     </p>
     <p class="texto-suave rodape__protocolo">Protocolo {{ request_id }}</p>
   </footer>
+
+  <dialog id="dialogo-confirmacao" class="dialogo"
+          aria-labelledby="dialogo-titulo" aria-describedby="dialogo-mensagem">
+    <form method="dialog" class="dialogo__conteudo">
+      <h2 id="dialogo-titulo">Confirmar ação</h2>
+      <p id="dialogo-mensagem" class="texto-suave"></p>
+      <div class="dialogo__acoes">
+        <button class="botao botao--secundario" value="cancelar" type="submit">Voltar</button>
+        <button id="dialogo-confirmar" class="botao" value="confirmar" type="submit">Confirmar</button>
+      </div>
+    </form>
+  </dialog>
 </body>
 </html>
