@@ -111,11 +111,13 @@ def criar_app() -> FastAPI:
             "Content-Security-Policy",
             "default-src 'self'; base-uri 'self'; form-action 'self'; "
             "frame-ancestors 'none'; img-src 'self' data:; "
-            "object-src 'none'; "
-            "script-src 'self' https://static.cloudflareinsights.com; "
-            "connect-src 'self' https://cloudflareinsights.com; "
-            "style-src 'self'",
+            "object-src 'none'; script-src 'self'; style-src 'self'",
         )
+        if resposta.headers.get("content-type", "").startswith("text/html"):
+            # Impede a Cloudflare de injetar o beacon de Web Analytics no HTML.
+            # O beacon e bloqueado por protecao contra rastreamento e gera erros
+            # de CORS/SRI no console; a aplicacao nao usa esse script.
+            resposta.headers.setdefault("Cache-Control", "no-transform")
         if settings.session_cookie_secure or settings.app_base_url.startswith("https://"):
             resposta.headers.setdefault(
                 "Strict-Transport-Security",
