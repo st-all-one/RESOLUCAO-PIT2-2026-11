@@ -1,0 +1,21 @@
+{
+  "name": "cupcake-gourmet-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Front-end tipado (TypeScript estrito) do Cupcake Gourmet",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "watch": "tsc -p tsconfig.json --watch",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint frontend/src && stylelint \"src/app/static/css/**/*.css\""
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.20.0",
+    "eslint": "^9.20.0",
+    "stylelint": "^16.14.0",
+    "stylelint-config-standard": "^36.0.1",
+    "typescript": "~5.9.0",
+    "typescript-eslint": "^8.20.0"
+  }
+}

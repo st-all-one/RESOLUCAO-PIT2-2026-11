@@ -1,11 +1,39 @@
-# Deno
-# https://deno.com/
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
 
-# Cache directory (when using project-local DENO_DIR)
-# https://docs.deno.com/runtime/fundamentals/setup/#deno_dir
-.deno/
+# Node
+node_modules/
+npm-debug.log*
 
-# Coverage reports
-# https://docs.deno.com/runtime/reference/cli/coverage/
-coverage/
-*.lcov
+# Build (TypeScript -> src/app/static/js)
+src/app/static/js/*.js
+src/app/static/js/*.js.map
+
+# Ambiente e segredos
+.env
+.env.local
+*.local
+
+# Banco local
+*.sqlite3
+mysql-data/
+
+# Editor / SO
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Relatórios gerados
+sniff-report.jsonl
+artifacts/
