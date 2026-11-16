@@ -72,6 +72,9 @@ select = [
     "ISC",  # implicit string concat
     "PTH",  # pathlib
 ]
+# EM/N818/TRY003: o código do catálogo é a identidade da exceção; renomear
+# exceções de domínio para o inglês ou extrair literais não agrega.
+ignore = ["EM101", "EM102", "N818", "TRY003", "TRY301"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S101", "ANN", "ARG001", "PLR2004"]

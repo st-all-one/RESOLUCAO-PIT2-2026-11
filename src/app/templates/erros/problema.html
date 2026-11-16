@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block titulo %}{{ problema.titulo }} · Cupcake Gourmet{% endblock %}
+
+{% block conteudo %}
+<section
+  class="cartao problema"
+  data-codigo="{{ problema.codigo }}"
+  data-problema='{{ problema_dict|tojson }}'
+>
+  <p class="problema__codigo">{{ problema.codigo }}</p>
+  <h1>{{ problema.titulo }}</h1>
+  <p>{{ problema.detalhe }}</p>
+
+  {% if problema.campos %}
+  <ul class="problema__campos">
+    {% for campo, mensagem in problema.campos.items() %}
+    <li><strong>{{ campo }}</strong>: {{ mensagem }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  <p class="texto-suave">
+    Instância: {{ problema.instance }} · Protocolo: {{ request_id }}
+  </p>
+  <a class="botao" href="/">Voltar à vitrine</a>
+</section>
+{% endblock %}

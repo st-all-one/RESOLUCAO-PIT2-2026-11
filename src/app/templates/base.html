@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>{% block titulo %}Cupcake Gourmet{% endblock %}</title>
+  <link rel="stylesheet" href="/static/css/estilo.css">
+  <script type="module" src="/static/js/app.js"></script>
+</head>
+<body>
+  <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+
+  <header class="topo">
+    <a class="marca" href="/">Cupcake Gourmet</a>
+    <nav class="navegacao" aria-label="Principal">
+      <a href="/">Vitrine</a>
+      <a href="/carrinho">
+        Carrinho
+        <span class="contador" data-carrinho-contador aria-label="Itens no carrinho">{{ carrinho_quantidade }}</span>
+      </a>
+      {% if usuario %}
+        {% if usuario.papel == 'admin' %}<a href="/admin/produtos">Admin</a>{% endif %}
+        {% if usuario.papel == 'entregador' %}<a href="/entregas">Entregas</a>{% endif %}
+        {% if usuario.papel != 'admin' and usuario.papel != 'entregador' %}<a href="/pedidos">Meus pedidos</a>{% endif %}
+        <span class="usuario">{{ usuario.nome }}</span>
+        <form method="post" action="/logout" class="embutido">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+          <button type="submit" class="link">Sair</button>
+        </form>
+      {% else %}
+        <a href="/login">Entrar</a>
+        <a class="botao botao--pequeno" href="/cadastro">Criar conta</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  {% include "componentes/flash.html" %}
+
+  <main id="conteudo" class="conteudo">
+    {% block conteudo %}{% endblock %}
+  </main>
+
+  <footer class="rodape">
+    <p>Cupcake Gourmet · Projeto Integrador Transdisciplinar em Engenharia de Software II</p>
+    <p class="texto-suave">Protocolo {{ request_id }}</p>
+  </footer>
+</body>
+</html>

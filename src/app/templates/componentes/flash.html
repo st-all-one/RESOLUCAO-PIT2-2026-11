@@ -1,0 +1,6 @@
+{% for mensagem in flash %}
+<div class="alerta alerta--{{ mensagem.tipo }}" role="status" data-codigo="{{ mensagem.codigo }}">
+  <span class="alerta__codigo">{{ mensagem.codigo }}</span>
+  <span>{{ mensagem.texto }}</span>
+</div>
+{% endfor %}
