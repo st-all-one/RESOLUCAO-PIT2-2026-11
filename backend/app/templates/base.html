@@ -13,7 +13,18 @@
 
   <header class="topo">
     <a class="marca" href="/">Cupcake Gourmet</a>
-    <nav class="navegacao" aria-label="Principal">
+    <button
+      class="menu-botao"
+      type="button"
+      aria-expanded="false"
+      aria-controls="menu-principal"
+      aria-label="Abrir menu"
+    >
+      <span class="menu-botao__icone" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </span>
+    </button>
+    <nav id="menu-principal" class="navegacao" aria-label="Principal">
       <a href="/">Vitrine</a>
       <a href="/carrinho">
         Carrinho
@@ -42,8 +53,11 @@
   </main>
 
   <footer class="rodape">
-    <p>Cupcake Gourmet · Projeto Integrador Transdisciplinar em Engenharia de Software II</p>
-    <p class="texto-suave">Protocolo {{ request_id }}</p>
+    <p class="rodape__projeto">
+      Cupcake Gourmet
+      <span class="rodape__descricao">· Projeto Integrador Transdisciplinar em Engenharia de Software II</span>
+    </p>
+    <p class="texto-suave rodape__protocolo">Protocolo {{ request_id }}</p>
   </footer>
 </body>
 </html>

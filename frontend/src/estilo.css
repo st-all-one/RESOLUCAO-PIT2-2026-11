@@ -88,6 +88,45 @@ a:hover {
   text-decoration: none;
 }
 
+.menu-botao {
+  display: none;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+  background: var(--cor-superficie);
+  color: var(--cor-texto);
+  cursor: pointer;
+}
+
+.menu-botao__icone {
+  display: grid;
+  gap: 4px;
+  width: 1.1rem;
+}
+
+.menu-botao__icone span {
+  display: block;
+  height: 2px;
+  border-radius: 2px;
+  background: currentcolor;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.menu-botao[aria-expanded="true"] .menu-botao__icone span:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.menu-botao[aria-expanded="true"] .menu-botao__icone span:nth-child(2) {
+  opacity: 0;
+}
+
+.menu-botao[aria-expanded="true"] .menu-botao__icone span:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
 .navegacao {
   display: flex;
   flex-wrap: wrap;
@@ -145,6 +184,14 @@ a:hover {
   text-align: center;
   color: var(--cor-suave);
   font-size: 0.85rem;
+}
+
+.rodape__projeto {
+  font-weight: 600;
+}
+
+.rodape__descricao {
+  font-weight: 400;
 }
 
 p,
@@ -706,6 +753,83 @@ th {
 }
 
 @media (width < 48rem) {
+  body {
+    padding-bottom: 3rem;
+  }
+
+  .topo {
+    position: relative;
+    z-index: 20;
+    padding: 0.6rem 1rem;
+  }
+
+  .js .topo {
+    flex-wrap: nowrap;
+  }
+
+  .js .menu-botao {
+    display: inline-grid;
+  }
+
+  .js .navegacao {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem 1rem;
+    background: var(--cor-superficie);
+    border-bottom: 1px solid var(--cor-borda);
+    box-shadow: var(--sombra);
+    z-index: 30;
+  }
+
+  .js .navegacao.aberto {
+    display: flex;
+  }
+
+  .js .navegacao a,
+  .js .navegacao .link,
+  .js .navegacao .usuario {
+    display: block;
+    padding: 0.25rem 0;
+  }
+
+  .js .navegacao .botao {
+    text-align: center;
+  }
+
+  .js .navegacao .embutido {
+    display: block;
+  }
+
+  .rodape {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 15;
+    padding: 0.5rem 1rem calc(0.5rem + env(safe-area-inset-bottom));
+    background: var(--cor-superficie);
+    box-shadow: 0 -1px 8px rgb(52 38 43 / 6%);
+  }
+
+  .rodape p {
+    margin: 0;
+  }
+
+  .rodape__projeto {
+    color: var(--cor-texto);
+  }
+
+  .rodape__descricao,
+  .rodape__protocolo {
+    display: none;
+  }
+
   .checkout,
   .pedido,
   .metodos__opcoes {

@@ -32,7 +32,8 @@ com `--depth 8` para incluir a árvore da página.
 
 ## Usabilidade e IHC
 
-- Mobile-first: layout de coluna única até 48 rem, grade fluida acima.
+- Mobile-first: layout de coluna única até 48 rem, grade fluida acima; no mobile a
+  navegação vira um menu hambúrguer acessível e o rodapé fixo mostra o nome do projeto.
 - Pular para o conteúdo, foco visível, `aria-label` no contador do carrinho,
   `aria-current` no filtro de pedidos, mensagens com `role="alert"/"status"`.
 - Confirmação antes de ações destrutivas; sem JavaScript o formulário ainda

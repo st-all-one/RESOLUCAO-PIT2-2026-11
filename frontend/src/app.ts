@@ -121,8 +121,65 @@ function configurarCep(): void {
   });
 }
 
+function configurarMenu(): void {
+  const botao = document.querySelector<HTMLButtonElement>(".menu-botao");
+  const menu = document.querySelector<HTMLElement>("#menu-principal");
+  if (botao === null || menu === null) {
+    return;
+  }
+
+  const fechar = (devolverFoco = false): void => {
+    menu.classList.remove("aberto");
+    botao.setAttribute("aria-expanded", "false");
+    botao.setAttribute("aria-label", "Abrir menu");
+    if (devolverFoco) {
+      botao.focus();
+    }
+  };
+
+  botao.addEventListener("click", () => {
+    const abrir = !menu.classList.contains("aberto");
+    menu.classList.toggle("aberto", abrir);
+    botao.setAttribute("aria-expanded", String(abrir));
+    botao.setAttribute("aria-label", abrir ? "Fechar menu" : "Abrir menu");
+  });
+
+  document.addEventListener("click", (evento: MouseEvent) => {
+    const alvo = evento.target;
+    if (
+      alvo instanceof Node &&
+      !menu.contains(alvo) &&
+      !botao.contains(alvo) &&
+      menu.classList.contains("aberto")
+    ) {
+      fechar();
+    }
+  });
+
+  document.addEventListener("keydown", (evento: KeyboardEvent) => {
+    if (evento.key === "Escape" && menu.classList.contains("aberto")) {
+      fechar(true);
+    }
+  });
+
+  menu.addEventListener("click", (evento: MouseEvent) => {
+    const alvo = evento.target;
+    if (alvo instanceof Element && alvo.closest("a") !== null) {
+      fechar();
+    }
+  });
+
+  const desktop = window.matchMedia("(width >= 48rem)");
+  desktop.addEventListener("change", (evento) => {
+    if (evento.matches) {
+      fechar();
+    }
+  });
+}
+
 function iniciar(): void {
   document.documentElement.classList.add("js");
+  configurarMenu();
   configurarConfirmacoes();
   configurarPagamento();
   configurarMascaraCartao();
