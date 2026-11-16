@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block titulo %}Admin · Pedido #{{ pedido.id }}{% endblock %}
+
+{% block conteudo %}
+<nav class="texto-suave"><a href="/admin/pedidos">Pedidos</a> / #{{ pedido.id }}</nav>
+<h1>Pedido #{{ pedido.id }}</h1>
+<p>
+  <span class="selo selo--{{ pedido.status }}">{{ rotulos_status[pedido.status] }}</span>
+  · {{ pedido.criado_em|data_br }} · {{ pedido.cliente.nome }}
+</p>
+
+<div class="grade">
+  <section class="cartao">
+    <h2>Itens</h2>
+    <div class="tabela-responsiva">
+      <table>
+        <thead><tr><th>Item</th><th>Qtd.</th><th>Preço</th><th>Subtotal</th></tr></thead>
+        <tbody>
+          {% for item in pedido.itens %}
+          <tr>
+            <td>{{ item.nome_produto }}</td>
+            <td>{{ item.quantidade }}</td>
+            <td>{{ item.preco_unitario|brl }}</td>
+            <td>{{ item.subtotal|brl }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="resumo-linha"><span>Subtotal</span><strong>{{ pedido.subtotal|brl }}</strong></p>
+    <p class="resumo-linha"><span>Frete</span><strong>{{ pedido.frete|brl }}</strong></p>
+    <p class="resumo-linha linha-total"><span>Total</span><strong>{{ pedido.total|brl }}</strong></p>
+  </section>
+
+  <section class="cartao">
+    <h2>Entrega</h2>
+    <p>
+      {{ pedido.logradouro }}, {{ pedido.numero }}{% if pedido.complemento %} — {{ pedido.complemento }}{% endif %}<br>
+      {{ pedido.bairro }} · {{ pedido.cidade }}/{{ pedido.uf }}<br>
+      CEP {{ pedido.cep }} · Tel. {{ pedido.telefone_contato }}
+    </p>
+    <p>Entregador:
+      {% if pedido.entregador %}
+      <strong>{{ pedido.entregador.nome }}</strong>
+      {% else %}
+      <span class="texto-suave">não atribuído</span>
+      {% endif %}
+    </p>
+    <h2>Pagamento</h2>
+    {% if pedido.pagamento %}
+    <p>Status: <span class="selo selo--{{ pedido.pagamento.status }}">{{ pedido.pagamento.status }}</span></p>
+    <p>Valor: {{ pedido.pagamento.valor|brl }} · {{ pedido.pagamento.metodo or '—' }}</p>
+    {% if pedido.pagamento.codigo_autorizacao %}
+    <p class="texto-suave">Autorização {{ pedido.pagamento.codigo_autorizacao }}</p>
+    {% endif %}
+    {% endif %}
+  </section>
+</div>
+
+<section class="cartao">
+  <h2>Avançar status</h2>
+  {% if transicoes %}
+  <form method="post" action="/admin/pedidos/{{ pedido.id }}/status" class="campos">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+
+    <div class="campo">
+      <label for="destino">Próximo status</label>
+      <select id="destino" name="destino" required>
+        {% for destino in transicoes %}
+        <option value="{{ destino }}">{{ rotulos_status[destino] }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="campo">
+      <label for="entregador_id">Entregador</label>
+      <select id="entregador_id" name="entregador_id">
+        <option value="">Selecione…</option>
+        {% for entregador in entregadores %}
+        <option value="{{ entregador.id }}"
+                {{ 'selected' if pedido.entregador_id == entregador.id else '' }}>
+          {{ entregador.nome }}
+        </option>
+        {% endfor %}
+      </select>
+      <span class="campo__ajuda">Obrigatório ao marcar “Saiu para entrega”.</span>
+    </div>
+
+    <div class="campo">
+      <label for="observacao">Observação (opcional)</label>
+      <input id="observacao" name="observacao" type="text" maxlength="255">
+    </div>
+
+    <button class="botao" type="submit">Atualizar status</button>
+  </form>
+  {% else %}
+  <p class="texto-suave">Este pedido não tem transições disponíveis.</p>
+  {% endif %}
+</section>
+
+<section class="cartao">
+  <h2>Linha do tempo</h2>
+  <ol class="linha-tempo">
+    {% for evento in pedido.historico %}
+    <li>
+      <strong>{{ rotulos_status[evento.status] }}</strong> · {{ evento.criado_em|data_br }}
+      {% if evento.observacao %} — {{ evento.observacao }}{% endif %}
+    </li>
+    {% endfor %}
+  </ol>
+</section>
+{% endblock %}

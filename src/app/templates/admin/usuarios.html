@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block titulo %}Admin · Usuários{% endblock %}
+
+{% block conteudo %}
+<h1>Usuários</h1>
+
+<nav class="acoes" aria-label="Seções administrativas">
+  <a class="botao botao--secundario" href="/admin/produtos">Produtos</a>
+  <a class="botao botao--secundario" href="/admin/categorias">Categorias</a>
+  <a class="botao botao--secundario" href="/admin/pedidos">Pedidos</a>
+  <a class="botao botao--secundario" href="/admin/relatorio">Relatório</a>
+</nav>
+
+<div class="tabela-responsiva">
+  <table>
+    <thead>
+      <tr><th>Nome</th><th>E-mail</th><th>Papel</th><th>Situação</th><th>Ações</th></tr>
+    </thead>
+    <tbody>
+      {% for alvo in usuarios %}
+      <tr>
+        <td>{{ alvo.nome }}</td>
+        <td>{{ alvo.email }}</td>
+        <td>{{ alvo.papel }}</td>
+        <td>
+          <span class="selo {{ 'selo--aprovado' if alvo.ativo else 'selo--cancelado' }}">
+            {{ 'Ativo' if alvo.ativo else 'Inativo' }}
+          </span>
+        </td>
+        <td>
+          {% if alvo.id == usuario.id %}
+          <span class="texto-suave">sua conta</span>
+          {% else %}
+          <div class="acoes">
+            {% if alvo.papel != 'admin' %}
+            <form method="post" action="/admin/usuarios/{{ alvo.id }}/papel" class="acoes">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+              <label for="papel-{{ alvo.id }}" class="pular">Papel</label>
+              <select id="papel-{{ alvo.id }}" name="papel">
+                <option value="cliente" {{ 'selected' if alvo.papel == 'cliente' else '' }}>Cliente</option>
+                <option value="entregador" {{ 'selected' if alvo.papel == 'entregador' else '' }}>Entregador</option>
+              </select>
+              <button class="botao botao--pequeno botao--secundario" type="submit">Alterar papel</button>
+            </form>
+            {% endif %}
+            <form method="post" action="/admin/usuarios/{{ alvo.id }}/ativo" class="embutido"
+                  data-confirmar="{{ 'Desativar' if alvo.ativo else 'Ativar' }} a conta de {{ alvo.nome }}?">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+              <button class="botao botao--pequeno {{ 'botao--perigo' if alvo.ativo else 'botao--secundario' }}" type="submit">
+                {{ 'Desativar' if alvo.ativo else 'Ativar' }}
+              </button>
+            </form>
+          </div>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

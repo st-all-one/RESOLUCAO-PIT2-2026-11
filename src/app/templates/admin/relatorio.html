@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block titulo %}Admin · Relatório{% endblock %}
+
+{% block conteudo %}
+<h1>Relatório de vendas</h1>
+
+<nav class="acoes" aria-label="Seções administrativas">
+  <a class="botao botao--secundario" href="/admin/produtos">Produtos</a>
+  <a class="botao botao--secundario" href="/admin/categorias">Categorias</a>
+  <a class="botao botao--secundario" href="/admin/pedidos">Pedidos</a>
+  <a class="botao botao--secundario" href="/admin/usuarios">Usuários</a>
+</nav>
+
+<form method="get" action="/admin/relatorio" class="cartao campos">
+  <div class="campo">
+    <label for="inicio">Início</label>
+    <input id="inicio" name="inicio" type="date" value="{{ inicio }}" required>
+  </div>
+  <div class="campo">
+    <label for="fim">Fim</label>
+    <input id="fim" name="fim" type="date" value="{{ fim }}" required>
+  </div>
+  <button class="botao" type="submit">Atualizar</button>
+</form>
+
+<div class="grade">
+  <div class="cartao resumo__item">
+    <span class="texto-suave">Pedidos pagos</span>
+    <strong class="resumo__valor">{{ pedidos }}</strong>
+  </div>
+  <div class="cartao resumo__item">
+    <span class="texto-suave">Receita</span>
+    <strong class="resumo__valor">{{ receita|brl }}</strong>
+  </div>
+  <div class="cartao resumo__item">
+    <span class="texto-suave">Ticket médio</span>
+    <strong class="resumo__valor">{{ ticket|brl }}</strong>
+  </div>
+</div>
+
+<section class="cartao">
+  <h2>Mais vendidos</h2>
+  {% if top_produtos %}
+  <div class="tabela-responsiva">
+    <table>
+      <thead><tr><th>Produto</th><th>Unidades</th></tr></thead>
+      <tbody>
+        {% for nome, quantidade in top_produtos %}
+        <tr><td>{{ nome }}</td><td>{{ quantidade }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="texto-suave">Sem vendas pagas no período.</p>
+  {% endif %}
+</section>
+{% endblock %}

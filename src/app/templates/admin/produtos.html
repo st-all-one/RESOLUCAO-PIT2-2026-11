@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block titulo %}Admin · Produtos{% endblock %}
+
+{% block conteudo %}
+<h1>Produtos</h1>
+
+<nav class="acoes" aria-label="Seções administrativas">
+  <a class="botao" href="/admin/produtos/novo">Novo produto</a>
+  <a class="botao botao--secundario" href="/admin/categorias">Categorias</a>
+  <a class="botao botao--secundario" href="/admin/pedidos">Pedidos</a>
+  <a class="botao botao--secundario" href="/admin/relatorio">Relatório</a>
+  <a class="botao botao--secundario" href="/admin/usuarios">Usuários</a>
+</nav>
+
+{% if produtos %}
+<div class="tabela-responsiva">
+  <table>
+    <thead>
+      <tr>
+        <th>Produto</th><th>Categoria</th><th>Preço</th><th>Estoque</th><th>Situação</th><th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for produto in produtos %}
+      <tr>
+        <td><a href="/produtos/{{ produto.slug }}">{{ produto.nome }}</a></td>
+        <td>{{ produto.categoria.nome }}</td>
+        <td>{{ produto.preco|brl }}</td>
+        <td>{{ produto.estoque }}</td>
+        <td>
+          {% if not produto.ativo %}
+          <span class="selo selo--cancelado">Inativo</span>
+          {% elif produto.estoque == 0 %}
+          <span class="selo selo--esgotado">Esgotado</span>
+          {% else %}
+          <span class="selo selo--aprovado">Ativo</span>
+          {% endif %}
+        </td>
+        <td>
+          <div class="acoes">
+            <a class="botao botao--pequeno botao--secundario" href="/admin/produtos/{{ produto.id }}/editar">Editar</a>
+            <form method="post" action="/admin/produtos/{{ produto.id }}/ativo" class="embutido">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+              <button class="botao botao--pequeno botao--secundario" type="submit">
+                {{ 'Desativar' if produto.ativo else 'Ativar' }}
+              </button>
+            </form>
+            <form method="post" action="/admin/produtos/{{ produto.id }}/excluir" class="embutido"
+                  data-confirmar="Excluir {{ produto.nome }}?">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+              <button class="botao botao--pequeno botao--perigo" type="submit">Excluir</button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="cartao estado-vazio">
+  <p>Nenhum produto cadastrado.</p>
+  <a class="botao" href="/admin/produtos/novo">Cadastrar o primeiro</a>
+</div>
+{% endif %}
+{% endblock %}
