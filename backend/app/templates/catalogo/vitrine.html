@@ -2,6 +2,10 @@
 
 {% block titulo %}Vitrine · Cupcake Gourmet{% endblock %}
 
+{% block head %}
+  {% if produtos %}<link rel="preload" as="image" type="image/jpeg" href="{{ produtos[0].imagem }}" fetchpriority="high">{% endif %}
+{% endblock %}
+
 {% block conteudo %}
 <section class="secao">
   <h1>Cupcakes gourmet</h1>
@@ -15,6 +19,7 @@
         type="search"
         value="{{ termo }}"
         placeholder="Busque por nome ou descrição"
+        enterkeyhint="search"
         maxlength="120"
       >
     </div>
@@ -41,7 +46,10 @@
   {% for produto in produtos %}
   <article class="cartao produto-card">
     <figure class="produto-card__midia">
-      <img src="{{ produto.imagem }}" alt="{{ produto.nome }}" width="900" height="675" loading="lazy">
+      <img src="{{ produto.imagem }}" alt="{{ produto.nome }}" width="900" height="675"
+           loading="{{ 'eager' if loop.index <= 4 else 'lazy' }}"
+           fetchpriority="{{ 'high' if loop.index == 1 else 'auto' }}"
+           decoding="async">
     </figure>
     <div class="produto-card__corpo">
       <span class="produto-card__categoria">{{ produto.categoria.nome }}</span>

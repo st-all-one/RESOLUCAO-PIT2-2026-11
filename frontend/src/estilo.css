@@ -236,6 +236,10 @@ a:hover {
   font-weight: 500;
 }
 
+.rodape__autoria {
+  font-size: 0.75rem;
+}
+
 p,
 address {
   margin: 0 0 0.75rem;
@@ -890,7 +894,7 @@ th {
 
 @media (width < 48rem) {
   body {
-    padding-bottom: 3rem;
+    padding-bottom: 4rem;
   }
 
   .busca {
@@ -995,8 +999,7 @@ th {
     color: var(--cor-texto);
   }
 
-  .rodape__descricao,
-  .rodape__protocolo {
+  .rodape__descricao {
     display: none;
   }
 

@@ -1,12 +1,21 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="pt-BR" dir="ltr">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#8f2c4a">
+  <meta name="description" content="Cupcakes gourmet artesanais, feitos com ingredientes selecionados e entrega em São Paulo.">
+  <meta name="application-name" content="Cupcake Gourmet">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Cupcake Gourmet">
+  <meta property="og:title" content="Cupcake Gourmet">
+  <meta property="og:description" content="Cupcakes gourmet artesanais, feitos com ingredientes selecionados e entrega em São Paulo.">
   <link rel="icon" type="image/png" href="/static/img/favicon.png">
   <link rel="apple-touch-icon" href="/static/img/favicon.png">
   <title>{% block titulo %}Cupcake Gourmet{% endblock %}</title>
+  {% block head %}{% endblock %}
   <link rel="stylesheet" href="/static/css/estilo.css">
   <script type="module" src="/static/js/app.js"></script>
 </head>
@@ -27,10 +36,11 @@
       </span>
     </button>
     <nav id="menu-principal" class="navegacao" aria-label="Principal">
-      <a href="/">Vitrine</a>
-      <a href="/carrinho">
+      <a href="/" {% if request.url.path == '/' %}aria-current="page"{% endif %}>Vitrine</a>
+      <a href="/carrinho" {% if request.url.path.startswith('/carrinho') %}aria-current="page"{% endif %}>
         Carrinho
-        <span class="contador" data-carrinho-contador aria-label="Itens no carrinho">{{ carrinho_quantidade }}</span>
+        <span class="contador" data-carrinho-contador
+              aria-label="Itens no carrinho: {{ carrinho_quantidade }}">{{ carrinho_quantidade }}</span>
       </a>
       {% if usuario %}
         {% if usuario.papel == 'admin' %}<a href="/admin/produtos">Admin</a>{% endif %}
@@ -60,7 +70,7 @@
       <span class="rodape__descricao">· Projeto Integrador Transdisciplinar em Engenharia de Software II</span>
       <a class="rodape__creditos" href="/creditos">Créditos das imagens</a>
     </p>
-    <p class="texto-suave rodape__protocolo">Protocolo {{ request_id }}</p>
+    <p class="texto-suave rodape__autoria">Feito por Stallone Lopes de Souza - RGM 34648658</p>
   </footer>
 
   <dialog id="dialogo-confirmacao" class="dialogo"
