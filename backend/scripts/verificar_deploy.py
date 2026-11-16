@@ -34,6 +34,8 @@ class Sessao:
     def __init__(self, base: str) -> None:
         self.base = base.rstrip("/")
         self.abridor = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(CookieJar()))
+        # Cloudflare devolve 1010 para o User-Agent padrão do urllib.
+        self.abridor.addheaders = [("User-Agent", "CupcakeGourmet-DeployCheck/1.0")]
 
     def get(self, caminho: str) -> Resposta:
         with self.abridor.open(self.base + caminho, timeout=15) as resposta:

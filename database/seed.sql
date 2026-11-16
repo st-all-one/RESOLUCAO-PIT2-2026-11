@@ -95,15 +95,15 @@ INSERT INTO enderecos
 
 -- ------------------------------------------------------------------ pedidos
 INSERT INTO pedidos
-    (id, cliente_id, entregador_id, status, frete, cep, logradouro, numero,
+    (id, codigo, cliente_id, entregador_id, status, frete, cep, logradouro, numero,
      complemento, bairro, cidade, uf, telefone_contato, criado_em) VALUES
-(1, 2, 3, 'entregue', 8.00, '01310100', 'Avenida Paulista', '1000',
+(1, 'PED00001', 2, 3, 'entregue', 8.00, '01310100', 'Avenida Paulista', '1000',
  'Apto 42', 'Bela Vista', 'São Paulo', 'SP', '11999990001',
  NOW() - INTERVAL 3 DAY),
-(2, 2, NULL, 'recebido', 8.00, '01310100', 'Avenida Paulista', '1000',
+(2, 'PED00002', 2, NULL, 'recebido', 8.00, '01310100', 'Avenida Paulista', '1000',
  'Apto 42', 'Bela Vista', 'São Paulo', 'SP', '11999990001',
  NOW() - INTERVAL 2 HOUR),
-(3, 2, 3, 'em_preparo', 0.00, '01310100', 'Avenida Paulista', '1000',
+(3, 'PED00003', 2, 3, 'em_preparo', 0.00, '01310100', 'Avenida Paulista', '1000',
  'Apto 42', 'Bela Vista', 'São Paulo', 'SP', '11999990001',
  NOW() - INTERVAL 1 DAY);
 
