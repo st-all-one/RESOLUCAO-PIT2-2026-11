@@ -14,6 +14,7 @@ services:
       - "127.0.0.1:3307:3306"
     volumes:
       - cupcake-mariadb-data:/var/lib/mysql
+      - ./db/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD", "mariadb-admin", "ping", "-h", "127.0.0.1", "-pcupcake_root"]
       interval: 3s

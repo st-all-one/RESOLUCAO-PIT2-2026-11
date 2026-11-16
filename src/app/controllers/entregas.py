@@ -60,9 +60,7 @@ def confirmar_entrega(
     pedido_id: int,
     usuario: Annotated[Usuario, Depends(exigir_usuario)],
 ) -> Response:
-    pedido = banco.scalar(
-        select(Pedido).where(Pedido.id == pedido_id).with_for_update()
-    )
+    pedido = banco.scalar(select(Pedido).where(Pedido.id == pedido_id).with_for_update())
     if pedido is None or pedido.entregador_id != usuario.id:
         raise ErroAplicacao("ERR-ENT-001")
     if pedido.status != StatusPedido.SAIU_ENTREGA:

@@ -25,9 +25,7 @@ class Usuario(Base):
     telefone: Mapped[str | None] = mapped_column(String(11), nullable=True)
     papel: Mapped[str] = mapped_column(String(20), nullable=False, default=Papel.CLIENTE)
     ativo: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
-    criado_em: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, server_default=func.now()
-    )
+    criado_em: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now())
     atualizado_em: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, server_default=func.now(), onupdate=func.now()
     )
@@ -57,9 +55,7 @@ class Categoria(Base):
     nome: Mapped[str] = mapped_column(String(80), nullable=False, unique=True)
     slug: Mapped[str] = mapped_column(String(80), nullable=False, unique=True)
     ativo: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
-    criado_em: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, server_default=func.now()
-    )
+    criado_em: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now())
 
     produtos: Mapped[list[Produto]] = relationship(back_populates="categoria")
 
@@ -80,9 +76,7 @@ class Produto(Base):
     preco: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
     estoque: Mapped[int] = mapped_column(nullable=False, default=0)
     ativo: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
-    criado_em: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, server_default=func.now()
-    )
+    criado_em: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now())
     atualizado_em: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, server_default=func.now(), onupdate=func.now()
     )
@@ -111,9 +105,7 @@ class Endereco(Base):
     cidade: Mapped[str] = mapped_column(String(80), nullable=False)
     uf: Mapped[str] = mapped_column(String(2), nullable=False)
     principal: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
-    criado_em: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, server_default=func.now()
-    )
+    criado_em: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now())
 
 
 class Pedido(Base):
@@ -140,9 +132,7 @@ class Pedido(Base):
     cidade: Mapped[str] = mapped_column(String(80), nullable=False)
     uf: Mapped[str] = mapped_column(String(2), nullable=False)
     telefone_contato: Mapped[str] = mapped_column(String(11), nullable=False)
-    criado_em: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, server_default=func.now()
-    )
+    criado_em: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now())
     atualizado_em: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, server_default=func.now(), onupdate=func.now()
     )
@@ -225,9 +215,7 @@ class Pagamento(Base):
     valor: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
     cartao_ultimos4: Mapped[str | None] = mapped_column(String(4), nullable=True)
     codigo_autorizacao: Mapped[str | None] = mapped_column(String(40), nullable=True)
-    criado_em: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, server_default=func.now()
-    )
+    criado_em: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now())
     atualizado_em: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, server_default=func.now(), onupdate=func.now()
     )
@@ -251,9 +239,7 @@ class HistoricoPedido(Base):
         nullable=True,
     )
     observacao: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    criado_em: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, server_default=func.now()
-    )
+    criado_em: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now())
 
     pedido: Mapped[Pedido] = relationship(back_populates="historico")
     usuario: Mapped[Usuario | None] = relationship()

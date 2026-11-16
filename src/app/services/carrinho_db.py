@@ -18,9 +18,7 @@ def carregar_itens(
         return [], False
     produtos = {
         produto.id: produto
-        for produto in banco.scalars(
-            select(Produto).where(Produto.id.in_(carrinho))
-        ).all()
+        for produto in banco.scalars(select(Produto).where(Produto.id.in_(carrinho))).all()
     }
     itens: list[tuple[Produto, int]] = []
     ajustado = False

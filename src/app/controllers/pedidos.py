@@ -26,9 +26,7 @@ def lista_pedidos(
 ) -> Response:
     pedidos = list(
         banco.scalars(
-            select(Pedido)
-            .where(Pedido.cliente_id == usuario.id)
-            .order_by(Pedido.criado_em.desc())
+            select(Pedido).where(Pedido.cliente_id == usuario.id).order_by(Pedido.criado_em.desc())
         ).all()
     )
     return renderizar(request, "pedidos/lista.html", pedidos=pedidos)
@@ -54,9 +52,7 @@ def cancelar(
     pedido_id: int,
     usuario: Annotated[Usuario, Depends(exigir_usuario)],
 ) -> Response:
-    pedido = banco.scalar(
-        select(Pedido).where(Pedido.id == pedido_id).with_for_update()
-    )
+    pedido = banco.scalar(select(Pedido).where(Pedido.id == pedido_id).with_for_update())
     if pedido is None or pedido.cliente_id != usuario.id:
         raise ErroAplicacao("ERR-PED-001")
     if pedido.status != StatusPedido.RECEBIDO:

@@ -116,9 +116,7 @@ def raiz() -> Response:
 def listar_produtos(request: Request, banco: Sessao) -> Response:
     produtos = list(
         banco.scalars(
-            select(Produto)
-            .options(selectinload(Produto.categoria))
-            .order_by(Produto.nome)
+            select(Produto).options(selectinload(Produto.categoria)).order_by(Produto.nome)
         ).all()
     )
     return renderizar(request, "admin/produtos.html", produtos=produtos)
@@ -382,9 +380,7 @@ def excluir_categoria(request: Request, banco: Sessao, categoria_id: int) -> Res
         raise ErroAplicacao("ERR-ADM-001")
     total = (
         banco.scalar(
-            select(func.count())
-            .select_from(Produto)
-            .where(Produto.categoria_id == categoria.id)
+            select(func.count()).select_from(Produto).where(Produto.categoria_id == categoria.id)
         )
         or 0
     )
@@ -410,9 +406,7 @@ def listar_pedidos(
     status_filtro: Annotated[str, Query(alias="status", max_length=20)] = "",
 ) -> Response:
     consulta = (
-        select(Pedido)
-        .options(selectinload(Pedido.cliente))
-        .order_by(Pedido.criado_em.desc())
+        select(Pedido).options(selectinload(Pedido.cliente)).order_by(Pedido.criado_em.desc())
     )
     if status_filtro:
         consulta = consulta.where(Pedido.status == status_filtro)
@@ -456,9 +450,7 @@ def mudar_status(
     entregador_id: Annotated[str, Form()] = "",
     observacao: Annotated[str, Form()] = "",
 ) -> Response:
-    pedido = banco.scalar(
-        select(Pedido).where(Pedido.id == pedido_id).with_for_update()
-    )
+    pedido = banco.scalar(select(Pedido).where(Pedido.id == pedido_id).with_for_update())
     if pedido is None:
         raise ErroAplicacao("ERR-PED-001")
     validar_transicao(pedido.status, destino)
@@ -526,8 +518,17 @@ def relatorio(
     data_fim = _data(fim, hoje)
     if data_inicio > data_fim:
         data_inicio, data_fim = data_fim, data_inicio
-    inicio_dt = datetime.combine(data_inicio, time.min)
-    fim_dt = datetime.combine(data_fim, time.max)
+    fuso = ZoneInfo("America/Sao_Paulo")
+    inicio_dt = (
+        datetime.combine(data_inicio, time.min, tzinfo=fuso)
+        .astimezone(ZoneInfo("UTC"))
+        .replace(tzinfo=None)
+    )
+    fim_dt = (
+        datetime.combine(data_fim, time.max, tzinfo=fuso)
+        .astimezone(ZoneInfo("UTC"))
+        .replace(tzinfo=None)
+    )
 
     filtro = (
         Pagamento.status == StatusPagamento.APROVADO,

@@ -20,9 +20,7 @@ class Settings(BaseSettings):
     app_secret: str = Field(default="dev-insecure-change-me", min_length=16)
     app_base_url: str = "http://127.0.0.1:8000"
 
-    database_url: str = (
-        "mariadb+pymysql://cupcake:cupcake@127.0.0.1:3307/cupcake?charset=utf8mb4"
-    )
+    database_url: str = "mariadb+pymysql://cupcake:cupcake@127.0.0.1:3307/cupcake?charset=utf8mb4"
     test_database_url: str | None = None
 
     session_cookie_secure: bool = False

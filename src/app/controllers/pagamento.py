@@ -64,9 +64,7 @@ def pagamento_post(
     metodo: Annotated[str, Form()] = "",
     numero_cartao: Annotated[str, Form()] = "",
 ) -> Response:
-    pedido = banco.scalar(
-        select(Pedido).where(Pedido.id == pedido_id).with_for_update()
-    )
+    pedido = banco.scalar(select(Pedido).where(Pedido.id == pedido_id).with_for_update())
     if pedido is None or pedido.cliente_id != usuario.id:
         raise ErroAplicacao("ERR-PED-001")
     pagamento = pedido.pagamento

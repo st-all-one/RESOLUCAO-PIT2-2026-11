@@ -28,9 +28,7 @@ def ler_carrinho(sessao: MutableMapping[str, Any]) -> Carrinho:
 
 def gravar_carrinho(sessao: MutableMapping[str, Any], carrinho: Carrinho) -> None:
     sessao["carrinho"] = {
-        str(produto_id): quantidade
-        for produto_id, quantidade in carrinho.items()
-        if quantidade > 0
+        str(produto_id): quantidade for produto_id, quantidade in carrinho.items() if quantidade > 0
     }
 
 
