@@ -1,5 +1,5 @@
 -- Cupcake Gourmet — dados de demonstração
--- Uso: mariadb ... cupcake < db/seed.sql
+-- Uso: mariadb ... cupcake < database/seed.sql
 -- Senhas (hash scrypt): Admin@123, Cliente@123, Entrega@123, Maria@123.
 
 SET NAMES utf8mb4;

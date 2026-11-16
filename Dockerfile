@@ -4,9 +4,9 @@
 FROM node:22-alpine AS frontend
 
 WORKDIR /app
-COPY package.json package-lock.json tsconfig.json ./
 COPY frontend ./frontend
-RUN npm ci --ignore-scripts && npm run build
+COPY backend/app/static ./backend/app/static
+RUN cd frontend && npm ci --ignore-scripts && npm run build
 
 # ------------------------------------------------------------------ runtime
 FROM python:3.13-slim AS runtime
@@ -18,11 +18,12 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 COPY pyproject.toml README.md ./
-COPY src ./src
-COPY --from=frontend /app/src/app/static/js ./src/app/static/js
+COPY backend ./backend
+COPY --from=frontend /app/backend/app/static/js ./backend/app/static/js
+COPY --from=frontend /app/backend/app/static/css ./backend/app/static/css
 RUN pip install .
 
-COPY db ./db
+COPY database ./database
 
 RUN useradd --create-home --uid 10001 app
 USER app

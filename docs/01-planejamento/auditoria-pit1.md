@@ -36,7 +36,7 @@ aqui com status explícito e histórico em `historico-revisoes.md`.
 | 15 | Mapa conceitual e navegacional | Ausente | — | `04-ihc/mapas.md` |
 | 16 | Catálogo de mensagens de erro | Ausente | — | `04-ihc/mensagens-erro.md` |
 | 17 | Projeto conceitual e lógico normalizado | Ausente | — | `05-dados/conceitual.md`, `05-dados/logico.md` |
-| 18 | Projeto físico + dicionário de dados | Ausente | — | `db/schema.sql`, `05-dados/dicionario.md` |
+| 18 | Projeto físico + dicionário de dados | Ausente | — | `database/schema.sql`, `05-dados/dicionario.md` |
 
 ## Riscos herdados
 

@@ -1,5 +1,5 @@
 -- Cupcake Gourmet — projeto físico (MariaDB 11.4)
--- Uso: mariadb ... cupcake < db/schema.sql
+-- Uso: mariadb ... cupcake < database/schema.sql
 -- O arquivo contém apenas DDL; o banco é selecionado pelo cliente.
 
 SET NAMES utf8mb4;

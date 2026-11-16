@@ -1,6 +1,6 @@
 # Dicionário de dados
 
-> Gerado automaticamente de `information_schema` em 2026-11-15 21:28. Não editar à mão: rode `make dicionario`.
+> Gerado automaticamente de `information_schema` em 2026-11-15 22:17. Não editar à mão: rode `make dicionario`.
 
 ## Resumo
 

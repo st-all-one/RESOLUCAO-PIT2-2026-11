@@ -15,9 +15,10 @@ htmlcov/
 node_modules/
 npm-debug.log*
 
-# Build (TypeScript -> src/app/static/js)
-src/app/static/js/*.js
-src/app/static/js/*.js.map
+# Build (TypeScript + CSS -> backend/app/static)
+backend/app/static/js/*.js
+backend/app/static/js/*.js.map
+backend/app/static/css/*.css
 
 # Ambiente e segredos
 .env

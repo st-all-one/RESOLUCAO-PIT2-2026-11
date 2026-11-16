@@ -6,7 +6,7 @@ A suíte é de **integração**, executada contra um MariaDB real (`cupcake_test
 porque as regras críticas dependem de transações, `CHECK`, chaves únicas e
 baixa condicional de estoque — comportamentos que mocks não reproduzem.
 
-- Sessão única: o schema é recriado a partir de `db/schema.sql`.
+- Sessão única: o schema é recriado a partir de `database/schema.sql`.
 - Isolamento por teste: todas as tabelas são truncadas antes de cada caso.
 - Dados controlados: 5 usuários, 2 categorias e 5 produtos (um inativo, um de
   frete grátis, estoques pequenos para forçar limite).
@@ -20,7 +20,7 @@ make test           # pytest
 make cov            # cobertura com relatório XML
 ```
 
-O banco `cupcake_test` é criado pelo script `db/init/01-banco-de-teste.sql`
+O banco `cupcake_test` é criado pelo script `database/init/01-banco-de-teste.sql`
 na primeira inicialização do volume. Em um banco já existente:
 
 ```sql
@@ -32,7 +32,7 @@ GRANT ALL PRIVILEGES ON cupcake_test.* TO 'cupcake'@'%';
 ## Resultado (2026-11-15)
 
 - **43 testes, 43 aprovados** em ~16 s.
-- **Cobertura de linhas: 83%** (`src/app`, 1352 linhas, 230 sem cobertura).
+- **Cobertura de linhas: 83%** (`backend/app`, 1352 linhas, 230 sem cobertura).
 - Falha rápida em regressões de preço, frete, CSRF, estoque e autorização.
 
 Cobertura por módulo (principais):

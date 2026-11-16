@@ -3,7 +3,7 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   {
-    ignores: ["node_modules/**", "src/app/static/js/**", "artifacts/**"],
+    ignores: ["node_modules/**", "../backend/app/static/js/**", "artifacts/**"],
   },
   js.configs.recommended,
   ...tseslint.configs.strictTypeChecked,

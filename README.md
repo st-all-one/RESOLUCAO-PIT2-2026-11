@@ -10,7 +10,7 @@ implementada no PIT II. Aplicação web mobile-first com back-end em Python
 |---|---|
 | Back-end | Python 3.13+, FastAPI, SQLAlchemy 2 (dialeto MariaDB), PyMySQL |
 | Arquitetura | MVC (`models/`, `controllers/`, `services/`, `templates/`) |
-| Banco | MariaDB 11.4, schema versionado em `db/schema.sql` |
+| Banco | MariaDB 11.4, schema versionado em `database/schema.sql` |
 | Front-end | Jinja2, CSS, TypeScript estrito compilado por `tsc` |
 | Testes | pytest + httpx (ASGI), MariaDB real |
 | Qualidade | ruff, mypy strict, ESLint strict-type-checked, Stylelint, sniff |
@@ -63,19 +63,19 @@ sem erros e contraste WCAG AAA aprovado no sniff. Detalhes em
 [docs/07-laudo/laudo-qualidade.md](docs/07-laudo/laudo-qualidade.md).
 
 A suíte usa um banco separado (`cupcake_test`), criado automaticamente pelo
-script `db/init/01-banco-de-teste.sql` na primeira inicialização do volume.
+script `database/init/01-banco-de-teste.sql` na primeira inicialização do volume.
 Não é necessário criar dados: cada teste trunca as tabelas e insere um cenário
 próprio.
 
 ## Estrutura
 
 ```text
-docs/            documentação por fase (planejamento, especificação, UML, IHC, dados, testes, laudo)
-db/              schema.sql, seed.sql e init do banco de teste
-frontend/src/    TypeScript (fonte)
-src/app/         aplicação FastAPI (models, controllers, services, templates, static)
+backend/         aplicação FastAPI (app/, scripts/) — controllers, services, models e templates
+database/        schema.sql, seed.sql e init do banco de teste
+frontend/        TypeScript, CSS autoral, tsconfig, ESLint e Stylelint
 tests/           suíte pytest de integração (MariaDB real)
-artifacts/       capturas do sniff usadas no laudo
+docs/            documentação funcional, técnica e de manutenção
+artifacts/       capturas do sniff usadas no laudo (gerado)
 ```
 
 ## Documentação
@@ -91,6 +91,7 @@ artifacts/       capturas do sniff usadas no laudo
 - [Deploy](docs/08-deploy/deploy.md)
 - [Template de laudo dos testadores](docs/07-laudo/template-laudo-testador.md)
 - [Manual de uso](docs/manual-de-uso.md)
+- [Manutenção: arquitetura, convenções, mapa de código e runbook](docs/manutencao/README.md)
 
 ## Entrega
 

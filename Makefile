@@ -11,7 +11,7 @@ help: ## Lista os alvos disponíveis
 install: ## Cria venv, instala dependências Python e Node
 	python3 -m venv .venv
 	$(PIP) install -e ".[dev]"
-	npm install
+	npm --prefix frontend install
 
 db-up: ## Sobe o MariaDB (localhost:3307)
 	docker compose up -d --wait mariadb
@@ -20,17 +20,17 @@ db-down: ## Para o MariaDB
 	docker compose down mariadb
 
 db-reset: ## Recria o schema e recarrega o seed
-	$(DB) < db/schema.sql
-	$(DB) < db/seed.sql
+	$(DB) < database/schema.sql
+	$(DB) < database/seed.sql
 
-schema: ## Aplica db/schema.sql
-	$(DB) < db/schema.sql
+schema: ## Aplica database/schema.sql
+	$(DB) < database/schema.sql
 
-seed: ## Aplica db/seed.sql
-	$(DB) < db/seed.sql
+seed: ## Aplica database/seed.sql
+	$(DB) < database/seed.sql
 
 dicionario: ## Regenera docs/05-dados/dicionario.md a partir do banco
-	$(PY) scripts/gerar_dicionario.py
+	$(PY) backend/scripts/gerar_dicionario.py
 
 run: ## Sobe a aplicação em modo desenvolvimento
 	$(PY) -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
@@ -48,7 +48,7 @@ ps: ## Mostra o estado dos containers
 	docker compose ps
 
 deploy-check: ## Valida um deploy (URL=https://...)
-	$(PY) scripts/verificar_deploy.py "$(URL)"
+	$(PY) backend/scripts/verificar_deploy.py "$(URL)"
 
 test: ## Roda a suíte de testes
 	$(PY) -m pytest
@@ -59,14 +59,14 @@ cov: ## Roda testes com cobertura
 lint: ## Lint de back-end e front-end
 	$(PY) -m ruff check .
 	$(PY) -m ruff format --check .
-	npm run lint
+	npm --prefix frontend run lint
 
 typecheck: ## Checagem de tipos (mypy strict + tsc strict)
-	$(PY) -m mypy src tests scripts
-	npx tsc -p tsconfig.json --noEmit
+	$(PY) -m mypy backend/app tests backend/scripts
+	npm --prefix frontend run typecheck
 
-front-build: ## Compila TypeScript para src/static/js
-	npm run build
+front-build: ## Compila TypeScript e copia o CSS para backend/app/static
+	npm --prefix frontend run build
 
 audit: ## Auditoria de UI com sniff (requer app rodando em :8000)
 	mkdir -p artifacts

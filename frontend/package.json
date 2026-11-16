@@ -5,10 +5,10 @@
   "type": "module",
   "description": "Front-end tipado (TypeScript estrito) do Cupcake Gourmet",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && node scripts/copiar-estaticos.mjs",
     "watch": "tsc -p tsconfig.json --watch",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "lint": "eslint frontend/src && stylelint \"src/app/static/css/**/*.css\""
+    "lint": "eslint src && stylelint \"src/estilo.css\""
   },
   "devDependencies": {
     "@eslint/js": "^9.20.0",

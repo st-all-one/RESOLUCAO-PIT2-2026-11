@@ -1,7 +1,7 @@
 # Deploy em VPS com Docker
 
 A aplicação e o MariaDB rodam no mesmo `compose.yaml`. Na primeira subida, o
-MariaDB executa `db/schema.sql` e `db/seed.sql` automaticamente; nas seguintes,
+MariaDB executa `database/schema.sql` e `database/seed.sql` automaticamente; nas seguintes,
 o volume `cupcake-mariadb-data` preserva os dados.
 
 ## Pré-requisitos na VPS
@@ -78,7 +78,7 @@ Um comando valida health, vitrine, detalhe, login e administração:
 make deploy-check URL=http://SEU_IP_OU_DOMINIO:8000
 ```
 
-Use `--email`/`--senha` no script (`scripts/verificar_deploy.py`) se a conta
+Use `--email`/`--senha` no script (`backend/scripts/verificar_deploy.py`) se a conta
 administrativa não for a do seed. Roteiro manual complementar:
 
 1. `GET /health` retorna `{"status":"ok","db":"ok"}`.
@@ -105,4 +105,4 @@ docker run -d --restart unless-stopped \
 ```
 
 Nesse caso o banco precisa ser criado e migrado manualmente com
-`db/schema.sql` e, opcionalmente, `db/seed.sql`.
+`database/schema.sql` e, opcionalmente, `database/seed.sql`.

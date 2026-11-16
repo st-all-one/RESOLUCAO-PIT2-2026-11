@@ -1,7 +1,7 @@
 # Projeto lógico normalizado
 
 Derivação do modelo conceitual para o relacional, com chaves e justificativa de
-normalização. O projeto físico correspondente está em [`db/schema.sql`](../../db/schema.sql).
+normalização. O projeto físico correspondente está em [`database/schema.sql`](../../database/schema.sql).
 
 ## Tabelas
 

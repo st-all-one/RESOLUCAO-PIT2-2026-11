@@ -1,4 +1,4 @@
-"""Modelo de domínio mapeado para o schema MariaDB em db/schema.sql."""
+"""Modelo de domínio mapeado para o schema MariaDB em database/schema.sql."""
 
 from __future__ import annotations
 

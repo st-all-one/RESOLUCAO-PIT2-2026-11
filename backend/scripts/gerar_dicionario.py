@@ -3,7 +3,7 @@
 Falha com exit 1 se alguma coluna do banco não tiver descrição, garantindo que o
 dicionário cubra 100% do schema. Uso:
 
-    .venv/bin/python scripts/gerar_dicionario.py
+    .venv/bin/python backend/scripts/gerar_dicionario.py
 """
 
 from __future__ import annotations
@@ -17,7 +17,7 @@ from zoneinfo import ZoneInfo
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Connection
 
-DESTINO = Path(__file__).resolve().parent.parent / "docs" / "05-dados" / "dicionario.md"
+DESTINO = Path(__file__).resolve().parents[2] / "docs" / "05-dados" / "dicionario.md"
 URL_PADRAO = "mariadb+pymysql://cupcake:cupcake@127.0.0.1:3307/cupcake?charset=utf8mb4"
 
 DESCRICOES: dict[str, dict[str, str]] = {

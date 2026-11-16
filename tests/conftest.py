@@ -51,7 +51,7 @@ def _comandos_sql(caminho: Path) -> list[str]:
 def esquema() -> None:
     """Recria o schema no banco de teste uma vez por sessão."""
     with engine.begin() as conexao:
-        for comando in _comandos_sql(RAIZ / "db" / "schema.sql"):
+        for comando in _comandos_sql(RAIZ / "database" / "schema.sql"):
             conexao.exec_driver_sql(comando)
 
 

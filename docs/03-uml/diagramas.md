@@ -1,7 +1,7 @@
 # Diagramas UML — Cupcake Gourmet 2.0
 
-Diagramas de apoio à implementação. Todos refletem o código em `src/app` e o
-schema em `db/schema.sql`.
+Diagramas de apoio à implementação. Todos refletem o código em `backend/app` e o
+schema em `database/schema.sql`.
 
 ## Casos de uso
 

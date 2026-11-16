@@ -33,9 +33,7 @@ class Resposta:
 class Sessao:
     def __init__(self, base: str) -> None:
         self.base = base.rstrip("/")
-        self.abridor = urllib.request.build_opener(
-            urllib.request.HTTPCookieProcessor(CookieJar())
-        )
+        self.abridor = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(CookieJar()))
 
     def get(self, caminho: str) -> Resposta:
         with self.abridor.open(self.base + caminho, timeout=15) as resposta:

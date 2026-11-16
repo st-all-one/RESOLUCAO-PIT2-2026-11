@@ -44,7 +44,7 @@ Todo RNF tem métrica e forma de verificação. RNF sem métrica não entra no c
 | ID | Requisito | Métrica | Verificação |
 |---|---|---|---|
 | RNF-MAN-01 | Lint e tipos sem erros | ruff, mypy strict, ESLint strict-type-checked e Stylelint com 0 erros | `make check` |
-| RNF-MAN-02 | Cobertura de testes | ≥ 80% das linhas de `src/app` | `pytest --cov` |
+| RNF-MAN-02 | Cobertura de testes | ≥ 80% das linhas de `backend/app` | `pytest --cov` |
 | RNF-DAD-01 | Integridade no banco | PK, FK, UNIQUE e CHECK no `schema.sql`; nenhuma regra só na aplicação | `schema.sql` + testes de violação |
 | RNF-DAD-02 | Atomicidade | Checkout, pagamento e cancelamento alteram pedido, itens, pagamento e estoque na mesma transação | Testes de falha induzida |
 | RNF-DAD-03 | Normalização | Nenhuma tabela em violação de 3FN | Revisão do modelo lógico |
