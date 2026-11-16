@@ -8,7 +8,7 @@ o TypeScript apenas melhora confirmações e o formulário de cartão.
 
 | Papel | E-mail | Senha |
 |---|---|---|
-| Administrador | `admin@cupcake.local` | `Admin@123` |
+| Administrador | `admin@cupcake.projeto` | `adminCupcake` |
 | Cliente | `cliente@cupcake.local` | `Cliente@123` |
 | Entregador | `entregador@cupcake.local` | `Entrega@123` |
 

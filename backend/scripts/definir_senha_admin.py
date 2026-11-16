@@ -17,7 +17,7 @@ from app.services.seguranca import hash_senha, normalizar_email, senha_forte
 
 
 def main() -> int:
-    email = normalizar_email(os.environ.get("ADMIN_EMAIL", "admin@cupcake.local"))
+    email = normalizar_email(os.environ.get("ADMIN_EMAIL", "admin@cupcake.projeto"))
     senha = os.environ.get("ADMIN_SENHA", "")
     if not senha_forte(senha):
         print(

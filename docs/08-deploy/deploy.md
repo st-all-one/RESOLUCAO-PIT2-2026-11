@@ -4,9 +4,8 @@ A aplicação e o MariaDB rodam no mesmo `compose.yaml`. Na primeira subida, o
 MariaDB executa `database/schema.sql` e `database/seed.sql` automaticamente; nas
 seguintes, o volume `cupcake-mariadb-data` preserva os dados.
 
-O modo `production` **recusa iniciar** com segredo de sessão fraco, sem HTTPS ou
-com a senha de demonstração do administrador. Isso evita publicar um cookie
-forjável ou o login `Admin@123` do seed.
+O modo `production` **recusa iniciar** com segredo de sessão fraco ou sem HTTPS.
+Isso evita publicar um cookie forjável.
 
 ## Pré-requisitos na VPS
 

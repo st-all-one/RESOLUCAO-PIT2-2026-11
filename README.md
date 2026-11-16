@@ -29,10 +29,10 @@ make front-build  # compila TypeScript
 make run          # http://127.0.0.1:8000
 ```
 
-Contas de demonstração (seed): `admin@cupcake.local` / `Admin@123`,
+Contas de demonstração (seed): `admin@cupcake.projeto` / `adminCupcake`,
 `cliente@cupcake.local` / `Cliente@123`, `entregador@cupcake.local` / `Entrega@123`.
-Essas senhas são públicas e servem apenas para desenvolvimento; em produção o
-startup recusa a senha do admin do seed até `make admin-senha` ser executado.
+Essas senhas são públicas e servem apenas para demonstração; troque-as antes de
+usar o sistema com dados reais.
 
 ## Produção (VPS com Docker)
 

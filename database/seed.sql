@@ -1,6 +1,6 @@
 -- Cupcake Gourmet — dados de demonstração
 -- Uso: mariadb ... cupcake < database/seed.sql
--- Senhas (hash scrypt): Admin@123, Cliente@123, Entrega@123, Maria@123.
+-- Senhas (hash scrypt): adminCupcake, Cliente@123, Entrega@123, Maria@123.
 
 SET NAMES utf8mb4;
 
@@ -15,8 +15,8 @@ DELETE FROM usuarios;
 
 -- ---------------------------------------------------------------- usuarios
 INSERT INTO usuarios (id, nome, email, senha_hash, telefone, papel, ativo) VALUES
-(1, 'Administrador', 'admin@cupcake.local',
- 'scrypt$16384$8$1$W7405REaV+oVrFYbIhCs+w==$rgaqWH47ECWsb1PiM5ZK46UG+C2lENC6N3OHSFiwUyoW2ftJ+oSRRT8pyRLfEU7QWORdHaHxSIzTgWBttLZxTQ==',
+(1, 'Administrador', 'admin@cupcake.projeto',
+ 'scrypt$16384$8$1$Rf3ey7T9FucvsZAwfPMMug==$aRHElzXyxlehxGEAjelqE9d3RIQgd5fT95KKhrU07kJtmf74/4TVVQs7wOBf1JMG26lmKf5HjY1nyUPtnnQgmg==',
  '11999990000', 'admin', TRUE),
 (2, 'Cliente Demonstração', 'cliente@cupcake.local',
  'scrypt$16384$8$1$ooEA6EIPOZYTReHBRRHkIw==$M2kpv2AHHjNCKXTOe3qUZSUzZoL8FZDFPk4LRJ6jcNfl02eV0JDpneLMNNe0PRcnTKtpHRcHLz3N8Oq83oasFA==',

@@ -12,10 +12,26 @@ from app.services.pedido import ROTULOS_STATUS
 from app.services.preco import formatar_brl, formatar_data
 
 DIRETORIO = Path(__file__).resolve().parent.parent / "templates"
+DIRETORIO_ESTATICOS = DIRETORIO.parent / "static"
 templates = Jinja2Templates(directory=str(DIRETORIO))
+
+
+def _versao_estatica() -> str:
+    """Muda quando CSS/JS mudam, evitando cache antigo no navegador/CDN."""
+    arquivos = (
+        DIRETORIO_ESTATICOS / "css" / "estilo.css",
+        DIRETORIO_ESTATICOS / "js" / "app.js",
+    )
+    try:
+        return str(max(arquivo.stat().st_mtime_ns for arquivo in arquivos))
+    except OSError:
+        return "0"
+
+
 templates.env.filters["brl"] = formatar_brl
 templates.env.filters["data_br"] = formatar_data
 templates.env.globals["csrf_token"] = obter_token
+templates.env.globals["versao_estatica"] = _versao_estatica()
 templates.env.globals["rotulos_status"] = ROTULOS_STATUS
 templates.env.globals["rotulos_campos"] = {
     "nome": "Nome",

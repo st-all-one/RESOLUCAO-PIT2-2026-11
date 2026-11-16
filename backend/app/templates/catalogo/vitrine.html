@@ -7,9 +7,25 @@
 {% endblock %}
 
 {% block conteudo %}
-<section class="secao">
-  <h1>Cupcakes gourmet</h1>
+<section class="destaque">
+  <div class="destaque__texto">
+    <p class="destaque__olho">Feitos hoje, entregues quentes</p>
+    <h1>Cupcakes gourmet</h1>
+    <p class="destaque__descricao">
+      Escolha seus sabores, pague com PIX, cartão ou dinheiro e acompanhe o pedido até a sua porta.
+    </p>
+  </div>
+  {% if produtos|length >= 3 %}
+  <div class="destaque__triptico" aria-hidden="true">
+    {% for produto in produtos[:3] %}
+    <img src="{{ produto.imagem }}" alt="" width="900" height="675"
+         loading="eager" decoding="async">
+    {% endfor %}
+  </div>
+  {% endif %}
+</section>
 
+<section class="secao">
   <form class="busca" method="get" action="/" role="search">
     <div class="campo">
       <label for="q">Buscar</label>
@@ -42,6 +58,12 @@
 </section>
 
 {% if produtos %}
+<div class="vitrine__cabecalho">
+  <h2>Cardápio</h2>
+  <p class="texto-suave">
+    {{ produtos|length }} {% if produtos|length == 1 %}sabor{% else %}sabores{% endif %}
+  </p>
+</div>
 <div class="grade">
   {% for produto in produtos %}
   <article class="cartao produto-card">

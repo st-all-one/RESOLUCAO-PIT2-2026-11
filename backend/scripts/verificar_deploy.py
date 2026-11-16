@@ -77,8 +77,8 @@ def token(pagina: str) -> str:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("url", help="URL base do deploy")
-    parser.add_argument("--email", default="admin@cupcake.local")
-    parser.add_argument("--senha", default="Admin@123")
+    parser.add_argument("--email", default="admin@cupcake.projeto")
+    parser.add_argument("--senha", default="adminCupcake")
     argumentos = parser.parse_args()
     if not argumentos.url.startswith(("http://", "https://")):
         raise SystemExit("a URL deve começar com http:// ou https://")
