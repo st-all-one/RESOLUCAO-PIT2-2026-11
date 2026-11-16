@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block titulo %}Carrinho · Cupcake Gourmet{% endblock %}
+
+{% block conteudo %}
+<h1>Carrinho</h1>
+
+{% if itens %}
+<div class="tabela-responsiva">
+  <table>
+    <thead>
+      <tr>
+        <th>Produto</th>
+        <th>Preço</th>
+        <th>Quantidade</th>
+        <th>Subtotal</th>
+        <th><span class="pular">Ações</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for produto, quantidade in itens %}
+      <tr>
+        <td><a href="/produtos/{{ produto.slug }}">{{ produto.nome }}</a></td>
+        <td>{{ produto.preco|brl }}</td>
+        <td>
+          <form method="post" action="/carrinho/atualizar" class="linha">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+            <input type="hidden" name="produto_id" value="{{ produto.id }}">
+            <label class="pular" for="qtd-{{ produto.id }}">Quantidade de {{ produto.nome }}</label>
+            <input
+              id="qtd-{{ produto.id }}"
+              name="quantidade"
+              type="number"
+              min="1"
+              max="{{ produto.estoque }}"
+              value="{{ quantidade }}"
+            >
+            <button class="botao botao--pequeno botao--secundario" type="submit">Atualizar</button>
+          </form>
+        </td>
+        <td>{{ (produto.preco * quantidade)|brl }}</td>
+        <td>
+          <form method="post" action="/carrinho/remover">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+            <input type="hidden" name="produto_id" value="{{ produto.id }}">
+            <button class="link" type="submit">Remover</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<section class="cartao">
+  <p class="resumo-linha"><span>Subtotal</span><strong>{{ subtotal|brl }}</strong></p>
+  <p class="resumo-linha"><span>Frete</span><strong>{{ frete|brl }}</strong></p>
+  <p class="resumo-linha linha-total"><span>Total</span><strong>{{ total|brl }}</strong></p>
+  <div class="acoes">
+    <a class="botao botao--secundario" href="/">Continuar comprando</a>
+    <a class="botao" href="/checkout">Ir para o checkout</a>
+  </div>
+</section>
+{% else %}
+<div class="cartao estado-vazio">
+  <p>Seu carrinho está vazio.</p>
+  <a class="botao" href="/">Ver cupcakes</a>
+</div>
+{% endif %}
+{% endblock %}

@@ -14,7 +14,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.staticfiles import StaticFiles
 
-from app.controllers import auth
+from app.controllers import auth, carrinho, catalogo
 from app.core.acesso import RedirecionarParaLogin
 from app.core.config import settings
 from app.core.contexto import ContextoMiddleware
@@ -60,6 +60,8 @@ def criar_app() -> FastAPI:
         name="static",
     )
     app.include_router(auth.router)
+    app.include_router(catalogo.router)
+    app.include_router(carrinho.router)
 
     @app.exception_handler(ErroAplicacao)
     async def tratar_erro_aplicacao(request: Request, exc: ErroAplicacao) -> Response:

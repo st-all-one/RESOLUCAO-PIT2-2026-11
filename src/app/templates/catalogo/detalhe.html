@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block titulo %}{{ produto.nome }} · Cupcake Gourmet{% endblock %}
+
+{% block conteudo %}
+<nav class="texto-suave" aria-label="Trilha de navegação">
+  <a href="/">Vitrine</a> / {{ produto.categoria.nome }}
+</nav>
+
+<article class="cartao">
+  <span class="produto-card__categoria">{{ produto.categoria.nome }}</span>
+  <h1>{{ produto.nome }}</h1>
+  <p>{{ produto.descricao }}</p>
+  <p class="texto-suave"><strong>Alergênicos:</strong> {{ produto.alergenicos }}</p>
+  <p class="produto-card__preco">{{ produto.preco|brl }}</p>
+
+  {% if produto.esgotado %}
+  <p><span class="selo selo--esgotado">Esgotado</span></p>
+  <p class="texto-suave">Este produto volta ao estoque em breve.</p>
+  {% else %}
+  <p class="texto-suave">{{ produto.estoque }} unidades disponíveis.</p>
+  <form method="post" action="/carrinho/adicionar" class="linha">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+    <input type="hidden" name="produto_id" value="{{ produto.id }}">
+    <input type="hidden" name="voltar" value="/produtos/{{ produto.slug }}">
+    <div class="campo">
+      <label for="quantidade">Quantidade</label>
+      <input
+        id="quantidade"
+        name="quantidade"
+        type="number"
+        min="1"
+        max="{{ produto.estoque }}"
+        value="1"
+        required
+      >
+    </div>
+    <button class="botao" type="submit">Adicionar ao carrinho</button>
+  </form>
+  {% endif %}
+</article>
+{% endblock %}

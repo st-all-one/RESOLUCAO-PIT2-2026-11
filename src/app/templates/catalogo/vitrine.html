@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block titulo %}Vitrine · Cupcake Gourmet{% endblock %}
+
+{% block conteudo %}
+<section class="secao">
+  <h1>Cupcakes gourmet</h1>
+
+  <form class="linha" method="get" action="/" role="search">
+    <div class="campo">
+      <label for="q">Buscar</label>
+      <input
+        id="q"
+        name="q"
+        type="search"
+        value="{{ termo }}"
+        placeholder="nome ou descrição"
+        maxlength="120"
+      >
+    </div>
+    <div class="campo">
+      <label for="categoria">Categoria</label>
+      <select id="categoria" name="categoria">
+        <option value="">Todas</option>
+        {% for item in categorias %}
+        <option value="{{ item.slug }}" {% if item.slug == categoria_selecionada %}selected{% endif %}>
+          {{ item.nome }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    <button class="botao" type="submit">Filtrar</button>
+    {% if termo or categoria_selecionada %}
+    <a class="botao botao--secundario" href="/">Limpar</a>
+    {% endif %}
+  </form>
+</section>
+
+{% if produtos %}
+<div class="grade">
+  {% for produto in produtos %}
+  <article class="cartao produto-card">
+    <span class="produto-card__categoria">{{ produto.categoria.nome }}</span>
+    <h2><a href="/produtos/{{ produto.slug }}">{{ produto.nome }}</a></h2>
+    <p class="texto-suave">{{ produto.descricao }}</p>
+    <p class="produto-card__preco">{{ produto.preco|brl }}</p>
+
+    {% if produto.esgotado %}
+    <span class="selo selo--esgotado">Esgotado</span>
+    {% else %}
+    <form method="post" action="/carrinho/adicionar" class="produto-card__acoes">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+      <input type="hidden" name="produto_id" value="{{ produto.id }}">
+      <input type="hidden" name="quantidade" value="1">
+      <input
+        type="hidden"
+        name="voltar"
+        value="{{ request.url.path }}{% if request.url.query %}?{{ request.url.query }}{% endif %}"
+      >
+      <button class="botao botao--pequeno" type="submit">Adicionar</button>
+    </form>
+    {% endif %}
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<div class="cartao estado-vazio">
+  <p>Nenhum cupcake encontrado{% if termo %} para “{{ termo }}”{% endif %}.</p>
+  <a class="botao" href="/">Ver todos</a>
+</div>
+{% endif %}
+{% endblock %}

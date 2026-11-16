@@ -415,6 +415,13 @@ th {
   font-weight: 700;
 }
 
+.resumo-linha {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 0 0.5rem;
+}
+
 .acoes {
   display: flex;
   flex-wrap: wrap;
