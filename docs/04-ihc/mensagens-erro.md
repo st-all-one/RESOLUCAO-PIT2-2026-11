@@ -3,9 +3,7 @@
 Toda mensagem exibida ao usuário tem código estável, texto, causa e ação esperada.
 O código é renderizado em `data-codigo` para permitir teste automatizado e rastreio.
 
-Formato de implementação: `core/mensagens.py` mantém o mapa `código → texto`; os
-controllers levantam `ErroAplicacao(codigo)` e o handler central converte em flash
-message + HTTP status. Nenhuma stack trace chega ao usuário.
+Formato de implementação: `core/problemas.py` mantém o `CATALOGO` (`código → status, título, detalhe`); os controllers levantam `ErroAplicacao(codigo)` e o handler central negocia HTML ou `application/problem+json`. Mensagens de sucesso/ajuste usam `avisar`/`avisar_codigo`, que gravam um flash na sessão e redirecionam com 303; o middleware drena o flash na requisição seguinte. Nenhuma stack trace chega ao usuário.
 
 ## Autenticação e autorização
 
@@ -19,6 +17,8 @@ message + HTTP status. Nenhuma stack trace chega ao usuário.
 | `ERR-AUTH-006` | Esta conta está desativada. Procure o administrador. | `ativo = false` | Contatar a loja |
 | `ERR-AUTH-007` | Você não tem permissão para acessar esta área. | Papel insuficiente | Voltar à área permitida |
 | `ERR-AUTH-008` | Sua sessão expirou. Entre novamente. | Sessão ausente, expirada ou CSRF inválido | Refazer o login |
+| `ERR-AUTH-009` | Autenticação necessária. | Rota protegida acessada sem sessão | Entrar na conta |
+| `ERR-AUTH-010` | Muitas tentativas de acesso. Aguarde alguns minutos. | 5 falhas por conta e 30 por IP em 15 min | Aguardar e tentar novamente |
 
 ## Catálogo e carrinho
 
@@ -63,6 +63,8 @@ message + HTTP status. Nenhuma stack trace chega ao usuário.
 | `ERR-ADM-005` | Você não pode desativar a própria conta. | Auto-bloqueio | Pedir a outro administrador |
 | `ERR-ADM-006` | Usuário não encontrado. | ID inexistente | Voltar à lista |
 | `ERR-ADM-007` | O produto possui histórico de pedidos e não pode ser excluído. | FK `RESTRICT` | Desativar o produto |
+| `ERR-ADM-008` | Já existe um produto com esse nome. | Unicidade de produto | Usar outro nome |
+| `ERR-ADM-009` | Categoria não encontrada. | ID inexistente | Voltar à lista |
 | `ERR-ENT-001` | Esta entrega não está atribuída a você. | Entregador diferente | Ver apenas as próprias entregas |
 
 ## Sistema
@@ -72,6 +74,7 @@ message + HTTP status. Nenhuma stack trace chega ao usuário.
 | `ERR-SYS-001` | Não foi possível concluir a operação. Tente novamente. | Exceção não prevista | Repetir; se persistir, contatar a loja |
 | `ERR-SYS-002` | Serviço temporariamente indisponível. | Banco inacessível | Aguardar e tentar novamente |
 | `ERR-SYS-003` | Página não encontrada. | Rota inexistente | Voltar à vitrine |
+| `ERR-SYS-004` | Este endereço não aceita o método usado. | Método HTTP incorreto | Usar o método indicado em `Allow` |
 | `ERR-VAL-001` | Dados inválidos. Confira os campos destacados. | Payload malformado fora das validações específicas | Corrigir e reenviar |
 
 ## Transporte: Problem Details (RFC 9457)
@@ -122,16 +125,22 @@ obrigatórios: `codigo` e, em validação de formulário, `campos`.
 | `ERR-AUTH-002` | 409 | `ERR-CAR-002` | 409 |
 | `ERR-AUTH-003..005` | 422 | `ERR-CAR-003` | 409 |
 | `ERR-AUTH-006..008` | 403 | `ERR-CHK-001..003` | 422 |
-| `ERR-CAT-001` | 404 | `ERR-PAG-001` | 402 |
-| `ERR-CAT-002` | 409 | `ERR-PAG-002` | 422 |
-| `ERR-CAT-003` | 422 | `ERR-PAG-003..004` | 409 |
-| `ERR-PED-001` | 404 | `ERR-ADM-001..002` | 409 |
-| `ERR-PED-002..003` | 409 | `ERR-ADM-003..004` | 422 |
-| `ERR-PED-004` | 422 | `ERR-ADM-005` | 409 |
-| `ERR-ENT-001` | 403 | `ERR-ADM-006` | 404 |
-| `ERR-SYS-001` | 500 | `ERR-ADM-007` | 409 |
-| `ERR-SYS-002` | 503 | `ERR-SYS-003` | 404 |
+| `ERR-AUTH-009` | 401 | `ERR-PAG-001` | 402 |
+| `ERR-AUTH-010` | 429 | `ERR-PAG-002` | 422 |
+| `ERR-CAT-001` | 404 | `ERR-PAG-003..004` | 409 |
+| `ERR-CAT-002` | 409 | `ERR-ADM-001..002` | 409 |
+| `ERR-CAT-003` | 422 | `ERR-ADM-003..004` | 422 |
+| `ERR-PED-001` | 404 | `ERR-ADM-005` | 409 |
+| `ERR-PED-002..003` | 409 | `ERR-ADM-006` | 404 |
+| `ERR-PED-004` | 422 | `ERR-ADM-007..008` | 409 |
+| `ERR-ENT-001` | 403 | `ERR-ADM-009` | 404 |
+| `ERR-SYS-001` | 500 | `ERR-SYS-002` | 503 |
+| `ERR-SYS-003` | 404 | `ERR-SYS-004` | 405 |
 | `ERR-VAL-001` | 422 | | |
+
+Códigos usados apenas como flash + 303 (`ERR-ADM-002`, `ERR-ADM-007`, `ERR-CAT-002`,
+`ERR-CAT-003`, `ERR-CAR-003`, `ERR-PAG-001`) não geram corpo Problem Details; o
+status da tabela vale quando a falha é levantada como `ErroAplicacao`.
 
 ### Implementação
 

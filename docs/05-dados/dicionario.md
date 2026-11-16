@@ -13,7 +13,7 @@
 | `pagamentos` | 9 | 3 |
 | `pedidos` | 15 | 3 |
 | `produtos` | 11 | 4 |
-| `usuarios` | 9 | 2 |
+| `usuarios` | 10 | 2 |
 
 ## `categorias`
 
@@ -157,6 +157,7 @@
 | `telefone` | `varchar(11)` | sim | `NULL` | — | Telefone de contato com DDD, somente dígitos. |
 | `papel` | `varchar(20)` | não | `'cliente'` | cliente | entregador | admin | Perfil de acesso do usuário. |
 | `ativo` | `tinyint(1)` | não | `1` | 0 = inativo, 1 = ativo | Indica se a conta pode autenticar. |
+| `sessao_versao` | `int(11)` | não | `0` | inteiro ≥ 0 | Versão da sessão; incrementada no logout invalida cookies antigos. |
 | `criado_em` | `timestamp` | não | `current_timestamp()` | — | Data e hora de criação da conta. |
 | `atualizado_em` | `timestamp` | não | `current_timestamp()` (on update current_timestamp()) | — | Data e hora da última alteração. |
 
