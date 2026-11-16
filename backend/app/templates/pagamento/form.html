@@ -13,14 +13,15 @@
   <form method="post" action="/pedidos/{{ pedido.id }}/pagamento" class="campos" data-pagamento>
     <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
 
+    {% set metodo_atual = metodo|default('pix') %}
     <fieldset class="campo">
       <legend>Forma de pagamento</legend>
       <label>
-        <input type="radio" name="metodo" value="pix" checked>
+        <input type="radio" name="metodo" value="pix" {% if metodo_atual == 'pix' %}checked{% endif %}>
         PIX — aprovação imediata simulada
       </label>
       <label>
-        <input type="radio" name="metodo" value="cartao">
+        <input type="radio" name="metodo" value="cartao" {% if metodo_atual == 'cartao' %}checked{% endif %}>
         Cartão de crédito simulado
       </label>
     </fieldset>
@@ -32,9 +33,10 @@
         name="numero_cartao"
         type="text"
         inputmode="numeric"
-        autocomplete="off"
+        autocomplete="cc-number"
         pattern="[0-9 ]{13,23}"
-        aria-describedby="ajuda-cartao"
+        aria-describedby="ajuda-cartao{% if problema_dict and 'numero_cartao' in problema_dict.campos %} erro-numero_cartao{% endif %}"
+        {% if problema_dict and 'numero_cartao' in problema_dict.campos %}aria-invalid="true"{% endif %}
       >
       <span id="ajuda-cartao" class="campo__ajuda">
         Teste: 4242 4242 4242 4242 aprova; cartão válido com final 0000 é recusado.

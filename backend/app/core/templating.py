@@ -17,6 +17,26 @@ templates.env.filters["brl"] = formatar_brl
 templates.env.filters["data_br"] = formatar_data
 templates.env.globals["csrf_token"] = obter_token
 templates.env.globals["rotulos_status"] = ROTULOS_STATUS
+templates.env.globals["rotulos_campos"] = {
+    "nome": "Nome",
+    "email": "E-mail",
+    "senha": "Senha",
+    "confirmacao": "Confirmação de senha",
+    "cep": "CEP",
+    "logradouro": "Logradouro",
+    "numero": "Número",
+    "complemento": "Complemento",
+    "bairro": "Bairro",
+    "cidade": "Cidade",
+    "uf": "UF",
+    "telefone": "Telefone",
+    "numero_cartao": "Número do cartão",
+    "categoria_id": "Categoria",
+    "preco": "Preço",
+    "estoque": "Estoque",
+    "entregador_id": "Entregador",
+    "papel": "Papel",
+}
 
 
 def contexto(request: Request, **extra: object) -> dict[str, object]:

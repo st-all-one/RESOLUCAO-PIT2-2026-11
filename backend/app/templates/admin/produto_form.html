@@ -39,15 +39,17 @@
   <div class="campo">
     <label for="alergenicos">Alergênicos</label>
     <input id="alergenicos" name="alergenicos" type="text" required maxlength="255"
+           aria-describedby="ajuda-alergenicos"
            value="{{ valores.get('alergenicos', '') }}">
-    <span class="campo__ajuda">Informe os ingredientes alergênicos ou “Sem alergênicos declarados”.</span>
+    <span id="ajuda-alergenicos" class="campo__ajuda">Informe os ingredientes alergênicos ou “Sem alergênicos declarados”.</span>
   </div>
 
   <div class="campo">
     <label for="preco">Preço (R$)</label>
     <input id="preco" name="preco" type="text" inputmode="decimal" required
+           aria-describedby="ajuda-preco"
            value="{{ valores.get('preco', '') }}">
-    <span class="campo__ajuda">Use ponto ou vírgula como separador decimal.</span>
+    <span id="ajuda-preco" class="campo__ajuda">Use ponto ou vírgula como separador decimal.</span>
   </div>
 
   <div class="campo">

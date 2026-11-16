@@ -10,7 +10,7 @@
   {% if erro.campos %}
   <ul class="problema__campos">
     {% for campo, mensagem in erro.campos.items() %}
-    <li><strong>{{ campo }}</strong>: {{ mensagem }}</li>
+    <li id="erro-{{ campo }}"><strong>{{ rotulos_campos.get(campo, campo) }}</strong>: {{ mensagem }}</li>
     {% endfor %}
   </ul>
   {% endif %}

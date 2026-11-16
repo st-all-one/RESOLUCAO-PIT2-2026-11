@@ -75,7 +75,7 @@
 
     <div class="campo">
       <label for="entregador_id">Entregador</label>
-      <select id="entregador_id" name="entregador_id">
+      <select id="entregador_id" name="entregador_id" aria-describedby="ajuda-entregador">
         <option value="">Selecione…</option>
         {% for entregador in entregadores %}
         <option value="{{ entregador.id }}"
@@ -84,7 +84,7 @@
         </option>
         {% endfor %}
       </select>
-      <span class="campo__ajuda">Obrigatório ao marcar “Saiu para entrega”.</span>
+      <span id="ajuda-entregador" class="campo__ajuda">Obrigatório ao marcar “Saiu para entrega”.</span>
     </div>
 
     <div class="campo">

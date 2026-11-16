@@ -8,6 +8,7 @@
   {% include "componentes/erro_form.html" %}
 
   <form method="post" action="/login" class="campos">
+    {% set erros = problema_dict.campos if problema_dict else {} %}
     <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
     <input type="hidden" name="next" value="{{ proximo }}">
 
@@ -20,6 +21,7 @@
         autocomplete="email"
         required
         value="{{ valores.get('email', '') }}"
+        {% if 'email' in erros %}aria-invalid="true" aria-describedby="erro-email"{% endif %}
       >
     </div>
 
@@ -32,6 +34,7 @@
         autocomplete="current-password"
         required
         minlength="8"
+        {% if 'senha' in erros %}aria-invalid="true" aria-describedby="erro-senha"{% endif %}
       >
     </div>
 
