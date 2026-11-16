@@ -3,7 +3,7 @@ PIP := .venv/bin/pip
 DB := docker compose exec -T mariadb mariadb -uroot -pcupcake_root cupcake
 
 .DEFAULT_GOAL := help
-.PHONY: help install db-up db-down db-reset schema seed run test cov lint fmt typecheck front-build audit check
+.PHONY: help install db-up db-down db-reset schema seed run up down logs ps test cov lint fmt typecheck front-build audit check
 
 help: ## Lista os alvos disponíveis
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
@@ -17,7 +17,7 @@ db-up: ## Sobe o MariaDB (localhost:3307)
 	docker compose up -d --wait mariadb
 
 db-down: ## Para o MariaDB
-	docker compose down
+	docker compose down mariadb
 
 db-reset: ## Recria o schema e recarrega o seed
 	$(DB) < db/schema.sql
@@ -34,6 +34,18 @@ dicionario: ## Regenera docs/05-dados/dicionario.md a partir do banco
 
 run: ## Sobe a aplicação em modo desenvolvimento
 	$(PY) -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+
+up: ## Sobe banco e aplicação em containers (VPS)
+	docker compose up -d --build
+
+down: ## Para aplicação e banco
+	docker compose down
+
+logs: ## Acompanha os logs da aplicação
+	docker compose logs -f app
+
+ps: ## Mostra o estado dos containers
+	docker compose ps
 
 test: ## Roda a suíte de testes
 	$(PY) -m pytest

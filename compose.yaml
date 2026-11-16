@@ -6,20 +6,52 @@ services:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
     environment:
-      MARIADB_ROOT_PASSWORD: cupcake_root
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-cupcake_root}
       MARIADB_DATABASE: cupcake
       MARIADB_USER: cupcake
-      MARIADB_PASSWORD: cupcake
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD:-cupcake}
     ports:
       - "127.0.0.1:3307:3306"
     volumes:
       - cupcake-mariadb-data:/var/lib/mysql
-      - ./db/init:/docker-entrypoint-initdb.d:ro
+      - ./db/init/01-banco-de-teste.sql:/docker-entrypoint-initdb.d/01-banco-de-teste.sql:ro
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/10-schema.sql:ro
+      - ./db/seed.sql:/docker-entrypoint-initdb.d/20-seed.sql:ro
     healthcheck:
-      test: ["CMD", "mariadb-admin", "ping", "-h", "127.0.0.1", "-pcupcake_root"]
+      test: ["CMD-SHELL", "mariadb-admin ping -h 127.0.0.1 -p\"$$MARIADB_ROOT_PASSWORD\""]
       interval: 3s
       timeout: 3s
       retries: 40
+
+  app:
+    build: .
+    container_name: cupcake-app
+    restart: unless-stopped
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      APP_SECRET: ${APP_SECRET:-dev-insecure-change-me}
+      APP_BASE_URL: ${APP_BASE_URL:-http://127.0.0.1:8000}
+      DATABASE_URL: mariadb+pymysql://cupcake:${MARIADB_PASSWORD:-cupcake}@mariadb:3306/cupcake?charset=utf8mb4
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-false}
+      FRETE_VALOR: ${FRETE_VALOR:-8.00}
+      FRETE_GRATIS_ACIMA: ${FRETE_GRATIS_ACIMA:-120.00}
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
 volumes:
   cupcake-mariadb-data:

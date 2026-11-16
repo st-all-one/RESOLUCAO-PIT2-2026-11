@@ -1,63 +1,99 @@
-# Deploy — Cupcake Gourmet 2.0
+# Deploy em VPS com Docker
 
-## Requisitos
+A aplicação e o MariaDB rodam no mesmo `compose.yaml`. Na primeira subida, o
+MariaDB executa `db/schema.sql` e `db/seed.sql` automaticamente; nas seguintes,
+o volume `cupcake-mariadb-data` preserva os dados.
 
-- Imagem com o `Dockerfile` da raiz (multi-stage: Node compila o TypeScript,
-  Python instala o pacote e serve a aplicação).
-- MariaDB 11.4 (ou MySQL 8 compatível) acessível pela aplicação.
-- Variáveis de ambiente:
+## Pré-requisitos na VPS
 
-| Variável | Obrigatória | Exemplo |
-|---|---|---|
-| `APP_SECRET` | sim | chave aleatória de 32+ bytes |
-| `DATABASE_URL` | sim | `mariadb+pymysql://usuario:senha@host:3306/banco?charset=utf8mb4` |
-| `APP_ENV` | recomendada | `production` |
-| `APP_BASE_URL` | recomendada | `https://cupcake.exemplo.com` |
-| `SESSION_COOKIE_SECURE` | sim em HTTPS | `true` |
-| `FRETE_VALOR` / `FRETE_GRATIS_ACIMA` | não | `8.00` / `120.00` |
+- Docker Engine e plugin `docker compose`.
+- Porta escolhida liberada no firewall (padrão `8000`).
+- Repositório clonado.
 
-## Banco
-
-1. Crie o banco `cupcake` com `utf8mb4`.
-2. Aplique `db/schema.sql` e, se quiser demonstração, `db/seed.sql`:
+## Primeira subida
 
 ```bash
-mariadb -h HOST -u USER -p BANCO < db/schema.sql
-mariadb -h HOST -u USER -p BANCO < db/seed.sql
+cp .env.example .env
+# edite o .env:
+#   APP_SECRET=<chave aleatória de 32+ bytes>
+#   MARIADB_PASSWORD=<senha forte>
+#   MARIADB_ROOT_PASSWORD=<senha forte>
+#   APP_BASE_URL=http://SEU_IP_OU_DOMINIO:8000
+#   SESSION_COOKIE_SECURE=false   (true apenas com HTTPS)
+make up
+make ps
+curl http://127.0.0.1:8000/health   # {"status":"ok","db":"ok"}
 ```
 
-3. O banco `cupcake_test` **não** é necessário em produção.
+`make up` executa `docker compose up -d --build`: compila o TypeScript, instala
+o pacote Python, sobe o MariaDB, espera o healthcheck e só então inicia a
+aplicação (`depends_on: condition: service_healthy`).
 
-## Build e execução local da imagem
+## Operação
+
+```bash
+make logs     # logs da aplicação
+make ps       # estado dos containers
+make down     # para aplicação e banco
+make up       # aplica atualizações (rebuild da imagem)
+```
+
+Atualização:
+
+```bash
+git pull
+make up
+```
+
+## Dados
+
+- O schema roda uma única vez, quando o volume está vazio. Para recriar do zero
+  **apagando os dados**: `docker compose down -v` e depois `make up`.
+- Backup lógico:
+
+```bash
+docker exec cupcake-mariadb mariadb-dump -uroot -p"$MARIADB_ROOT_PASSWORD" cupcake > backup.sql
+```
+
+- Restauração: `docker exec -i cupcake-mariadb mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" cupcake < backup.sql`.
+
+## HTTPS
+
+Para usar domínio e HTTPS, coloque um proxy reverso na frente (Caddy ou Nginx)
+apontando para `127.0.0.1:8000` e ajuste:
+
+```env
+APP_BASE_URL=https://cupcake.seu-dominio.com
+SESSION_COOKIE_SECURE=true
+```
+
+Sem HTTPS, mantenha `SESSION_COOKIE_SECURE=false`, caso contrário o navegador
+não envia o cookie de sessão e o login não persiste.
+
+## Verificação pós-deploy
+
+1. `GET /health` retorna `{"status":"ok","db":"ok"}`.
+2. Vitrine lista os 12 produtos do seed.
+3. Login com `admin@cupcake.local` / `Admin@123`.
+4. Fluxo completo: adicionar ao carrinho, checkout, PIX, acompanhar pedido.
+5. Administração: criar produto, avançar status, conferir relatório.
+6. Entregador: confirmar entrega.
+
+O roteiro com os cinco testadores está em
+`docs/07-laudo/template-laudo-testador.md`.
+
+## Alternativa sem compose
+
+A imagem também roda isolada:
 
 ```bash
 docker build -t cupcake-gourmet .
-docker run --rm --network host \
-  -e APP_SECRET="troque-por-uma-chave-aleatoria" \
-  -e DATABASE_URL="mariadb+pymysql://cupcake:cupcake@127.0.0.1:3307/cupcake?charset=utf8mb4" \
+docker run -d --restart unless-stopped \
+  -p 8000:8000 \
+  -e APP_SECRET="..." \
+  -e DATABASE_URL="mariadb+pymysql://usuario:senha@host:3306/banco?charset=utf8mb4" \
   cupcake-gourmet
 ```
 
-A aplicação responde em `http://127.0.0.1:8000`. Verifique `GET /health`
-(`{"status":"ok","db":"ok"}`).
-
-## Plataformas
-
-Qualquer plataforma que rode container e ofereça MySQL/MariaDB gerenciado serve:
-
-- **Railway**: serviço a partir do repositório (Dockerfile) + plugin MySQL;
-  copie `MYSQLURL` para `DATABASE_URL` e ajuste o esquema `mysql+pymysql://`.
-- **Render**: Web Service (Docker) + banco MySQL externo (ex.: Aiven).
-- **Fly.io**: `fly launch` com o Dockerfile + MySQL gerenciado.
-
-Após o deploy:
-
-1. Aplicar `schema.sql` e `seed.sql` no banco de produção.
-2. Definir `APP_BASE_URL` e `SESSION_COOKIE_SECURE=true`.
-3. Executar o roteiro do laudo com os cinco testadores.
-4. Preencher a URL na tabela de entrega do `README.md`.
-
-## Pendência
-
-O provedor e as credenciais ainda não foram definidos; a imagem e as variáveis
-acima são o contrato necessário para concluir a etapa.
+Nesse caso o banco precisa ser criado e migrado manualmente com
+`db/schema.sql` e, opcionalmente, `db/seed.sql`.

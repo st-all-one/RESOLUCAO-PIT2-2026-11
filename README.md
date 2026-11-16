@@ -32,6 +32,20 @@ make run          # http://127.0.0.1:8000
 Contas de demonstração (seed): `admin@cupcake.local` / `Admin@123`,
 `cliente@cupcake.local` / `Cliente@123`, `entregador@cupcake.local` / `Entrega@123`.
 
+## Produção (VPS com Docker)
+
+O `compose.yaml` sobe aplicação + MariaDB; o schema e o seed são aplicados na
+primeira inicialização do volume.
+
+```bash
+cp .env.example .env    # defina APP_SECRET e as senhas do MariaDB
+make up                 # docker compose up -d --build
+make logs
+```
+
+Guia completo (HTTPS, backup, atualização e verificação) em
+[docs/08-deploy/deploy.md](docs/08-deploy/deploy.md).
+
 ## Qualidade
 
 ```bash
