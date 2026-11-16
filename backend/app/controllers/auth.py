@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Annotated
+from urllib.parse import urlencode
 
 from fastapi import APIRouter, Depends, Form, Query, Request
 from fastapi.responses import Response
@@ -40,10 +41,14 @@ def _ip(request: Request) -> str:
 
 
 @router.get("/cadastro")
-def cadastro_get(request: Request) -> Response:
+def cadastro_get(
+    request: Request,
+    email: Annotated[str, Query()] = "",
+) -> Response:
     if isinstance(getattr(request.state, "usuario", None), Usuario):
         return redirecionar("/")
-    return renderizar(request, "auth/cadastro.html", valores={})
+    valores = {"email": normalizar_email(email)} if email else {}
+    return renderizar(request, "auth/cadastro.html", valores=valores)
 
 
 @router.post("/cadastro")
@@ -141,12 +146,16 @@ def login_post(
         usuario = banco.scalar(select(Usuario).where(Usuario.email == email_limpo))
         if usuario is None:
             verificar_senha(senha, HASH_SEM_CONTA)
-            raise ErroAplicacao(
-                "ERR-AUTH-001",
-                campos={
-                    "email": "E-mail ou senha inválidos.",
-                    "senha": "E-mail ou senha inválidos.",
-                },
+            LIMITE_CONTA.registrar(chave_conta)
+            LIMITE_IP.registrar(ip)
+            return renderizar(
+                request,
+                "auth/login.html",
+                status_code=401,
+                valores=valores,
+                proximo=destino,
+                email_desconhecido=True,
+                cadastro_url=f"/cadastro?{urlencode({'email': email_limpo})}",
             )
         if not verificar_senha(senha, usuario.senha_hash):
             raise ErroAplicacao(

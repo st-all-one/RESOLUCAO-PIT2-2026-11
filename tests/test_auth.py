@@ -71,6 +71,32 @@ def test_login_com_senha_errada(cliente_http: TestClient, dados: dict[str, int])
     assert "ERR-AUTH-001" in resposta.text
 
 
+def test_login_de_conta_desconhecida_sugere_cadastro(
+    cliente_http: TestClient, dados: dict[str, int]
+) -> None:
+    token = token_csrf(cliente_http, "/login")
+    resposta = cliente_http.post(
+        "/login",
+        data={
+            "csrf_token": token,
+            "email": "naoexiste@teste.local",
+            "senha": SENHA,
+            "next": "/",
+        },
+        follow_redirects=False,
+    )
+    assert resposta.status_code == 401
+    assert "Não encontramos uma conta com este e-mail." in resposta.text
+    assert "/cadastro?email=naoexiste%40teste.local" in resposta.text
+    assert "E-mail ou senha inválidos." not in resposta.text
+
+
+def test_cadastro_preenche_email_vindo_do_login(cliente_http: TestClient) -> None:
+    resposta = cliente_http.get("/cadastro?email=naoexiste%40teste.local")
+    assert resposta.status_code == 200
+    assert 'value="naoexiste@teste.local"' in resposta.text
+
+
 def test_login_de_conta_desativada(cliente_http: TestClient, dados: dict[str, int]) -> None:
     executar("UPDATE usuarios SET ativo = 0 WHERE id = :id", id=dados["cliente"])
     token = token_csrf(cliente_http, "/login")

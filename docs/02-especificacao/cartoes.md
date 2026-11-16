@@ -54,14 +54,16 @@ minhas áreas com segurança.
 **Critérios de aceitação**
 - CA1 — DADAS credenciais válidas de conta ativa, QUANDO envio o login, ENTÃO a sessão
   é iniciada e sou levado ao destino interno informado em `next` ou à vitrine.
-- CA2 — DADAS credenciais inválidas, QUANDO envio o login, ENTÃO vejo `ERR-AUTH-001`
-  sem indicação de qual campo está errado.
+- CA2 — DADAS credenciais inválidas de um e-mail cadastrado, QUANDO envio o login,
+  ENTÃO vejo `ERR-AUTH-001` sem indicação de qual campo está errado.
 - CA3 — DADA uma conta com `ativo = false`, QUANDO envio credenciais corretas, ENTÃO
   vejo `ERR-AUTH-006` e nenhuma sessão é criada.
 - CA4 — DADO que estou autenticado, QUANDO solicito logout, ENTÃO a sessão é limpa e
   rotas protegidas passam a redirecionar ao login.
 - CA5 — DADO um acesso anônimo a rota protegida, QUANDO a requisição chega, ENTÃO sou
   redirecionado ao login com `next` seguro (apenas caminho interno).
+- CA6 — DADO um e-mail sem conta, QUANDO envio o login, ENTÃO vejo uma orientação
+  amigável para criar conta, com o e-mail preservado no formulário de cadastro.
 
 **Regras de negócio**
 - RN1 — A sessão é regenerada no login para impedir fixação de sessão.

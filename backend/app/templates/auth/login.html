@@ -6,6 +6,15 @@
 <section class="cartao">
   <h1>Entrar</h1>
   {% include "componentes/erro_form.html" %}
+  {% if email_desconhecido %}
+  <div class="alerta alerta--info" role="status">
+    <span>Não encontramos uma conta com este e-mail.</span>
+    <span>
+      Confira se digitou corretamente ou
+      <a href="{{ cadastro_url }}">crie uma conta com este e-mail</a>.
+    </span>
+  </div>
+  {% endif %}
 
   <form method="post" action="/login" class="campos">
     {% set erros = problema_dict.campos if problema_dict else {} %}

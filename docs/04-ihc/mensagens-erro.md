@@ -20,6 +20,10 @@ Formato de implementação: `core/problemas.py` mantém o `CATALOGO` (`código �
 | `ERR-AUTH-009` | Autenticação necessária. | Rota protegida acessada sem sessão | Entrar na conta |
 | `ERR-AUTH-010` | Muitas tentativas de acesso. Aguarde alguns minutos. | 5 falhas por conta e 30 por IP em 15 min | Aguardar e tentar novamente |
 
+E-mail sem conta não é tratado como erro de credenciais: a tela de login mostra um
+aviso informativo com link para o cadastro e preserva o e-mail digitado. `ERR-AUTH-001`
+fica reservado para senha incorreta de uma conta existente.
+
 ## Catálogo e carrinho
 
 | Código | Texto ao usuário | Causa | Ação esperada |

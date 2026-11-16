@@ -6,7 +6,7 @@ Os testes citados ficam em `tests/` e rodam contra MariaDB real.
 | História | Implementação principal | Verificação |
 |---|---|---|
 | US-01 Cadastro | `controllers/auth.py`, `services/seguranca.py`, `templates/auth/cadastro.html` | `test_auth.py::test_cadastro_autentica_e_grava_hash`, `::test_cadastro_com_email_repetido` |
-| US-02 Login/logout | `controllers/auth.py`, `core/csrf.py`, `core/acesso.py` | `test_auth.py::test_login_e_logout`, `::test_login_com_senha_errada`, `::test_login_de_conta_desativada` |
+| US-02 Login/logout | `controllers/auth.py`, `core/csrf.py`, `core/acesso.py` | `test_auth.py::test_login_e_logout`, `::test_login_com_senha_errada`, `::test_login_de_conta_desconhecida_sugere_cadastro`, `::test_login_de_conta_desativada` |
 | US-03 Vitrine e busca | `controllers/catalogo.py`, `templates/catalogo/vitrine.html` | `test_catalogo.py::test_vitrine_lista_apenas_produtos_ativos`, `::test_busca_textual_filtra`, `::test_filtro_por_categoria` |
 | US-04 Detalhe do produto | `controllers/catalogo.py`, `templates/catalogo/detalhe.html` | `test_catalogo.py::test_detalhe_por_slug`, `::test_detalhe_inexistente_em_json` |
 | US-05 Carrinho | `services/carrinho.py`, `services/carrinho_db.py`, `controllers/carrinho.py` | `test_carrinho.py` (5 testes), `test_servicos.py::test_carrinho_puro_respeita_estoque` |
