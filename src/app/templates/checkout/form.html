@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block titulo %}Checkout · Cupcake Gourmet{% endblock %}
+
+{% block conteudo %}
+<h1>Checkout</h1>
+{% include "componentes/erro_form.html" %}
+
+<div class="grade">
+  <section class="cartao">
+    <h2>Resumo do pedido</h2>
+    <div class="tabela-responsiva">
+      <table>
+        <thead>
+          <tr><th>Item</th><th>Qtd.</th><th>Subtotal</th></tr>
+        </thead>
+        <tbody>
+          {% for produto, quantidade in itens %}
+          <tr>
+            <td>{{ produto.nome }}</td>
+            <td>{{ quantidade }}</td>
+            <td>{{ (produto.preco * quantidade)|brl }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="resumo-linha"><span>Subtotal</span><strong>{{ subtotal|brl }}</strong></p>
+    <p class="resumo-linha"><span>Frete</span><strong>{{ frete|brl }}</strong></p>
+    <p class="resumo-linha linha-total"><span>Total</span><strong>{{ total|brl }}</strong></p>
+    <p class="texto-suave">Frete grátis a partir de R$ 120,00.</p>
+  </section>
+
+  <form method="post" action="/checkout" class="cartao campos">
+    <h2>Endereço de entrega</h2>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+
+    <div class="campo">
+      <label for="cep">CEP</label>
+      <input id="cep" name="cep" type="text" inputmode="numeric" autocomplete="postal-code"
+             required pattern="[0-9]{8}" value="{{ valores.get('cep', '') }}">
+      <span class="campo__ajuda">8 dígitos, sem hífen.</span>
+    </div>
+
+    <div class="campo">
+      <label for="logradouro">Logradouro</label>
+      <input id="logradouro" name="logradouro" type="text" autocomplete="address-line1"
+             required maxlength="160" value="{{ valores.get('logradouro', '') }}">
+    </div>
+
+    <div class="campo">
+      <label for="numero">Número</label>
+      <input id="numero" name="numero" type="text" autocomplete="address-line2"
+             required maxlength="20" value="{{ valores.get('numero', '') }}">
+    </div>
+
+    <div class="campo">
+      <label for="complemento">Complemento (opcional)</label>
+      <input id="complemento" name="complemento" type="text" maxlength="80"
+             value="{{ valores.get('complemento', '') }}">
+    </div>
+
+    <div class="campo">
+      <label for="bairro">Bairro</label>
+      <input id="bairro" name="bairro" type="text" required maxlength="80"
+             value="{{ valores.get('bairro', '') }}">
+    </div>
+
+    <div class="campo">
+      <label for="cidade">Cidade</label>
+      <input id="cidade" name="cidade" type="text" required maxlength="80"
+             value="{{ valores.get('cidade', '') }}">
+    </div>
+
+    <div class="campo">
+      <label for="uf">UF</label>
+      <input id="uf" name="uf" type="text" required maxlength="2" pattern="[A-Za-z]{2}"
+             value="{{ valores.get('uf', '') }}">
+    </div>
+
+    <div class="campo">
+      <label for="telefone">Telefone de contato</label>
+      <input id="telefone" name="telefone" type="tel" inputmode="tel" required
+             value="{{ valores.get('telefone', '') }}">
+      <span class="campo__ajuda">DDD + número, com 10 ou 11 dígitos.</span>
+    </div>
+
+    <button class="botao" type="submit">Confirmar pedido</button>
+  </form>
+</div>
+{% endblock %}

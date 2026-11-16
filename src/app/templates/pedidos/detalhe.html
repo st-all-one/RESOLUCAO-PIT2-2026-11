@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block titulo %}Pedido #{{ pedido.id }} · Cupcake Gourmet{% endblock %}
+
+{% block conteudo %}
+<nav class="texto-suave" aria-label="Trilha de navegação">
+  <a href="/pedidos">Meus pedidos</a> / #{{ pedido.id }}
+</nav>
+
+<h1>Pedido #{{ pedido.id }}</h1>
+<p>
+  <span class="selo selo--{{ pedido.status }}">{{ rotulos_status[pedido.status] }}</span>
+  · {{ pedido.criado_em|data_br }}
+</p>
+
+<div class="grade">
+  <section class="cartao">
+    <h2>Itens</h2>
+    <div class="tabela-responsiva">
+      <table>
+        <thead>
+          <tr><th>Item</th><th>Qtd.</th><th>Preço</th><th>Subtotal</th></tr>
+        </thead>
+        <tbody>
+          {% for item in pedido.itens %}
+          <tr>
+            <td>{{ item.nome_produto }}</td>
+            <td>{{ item.quantidade }}</td>
+            <td>{{ item.preco_unitario|brl }}</td>
+            <td>{{ item.subtotal|brl }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="resumo-linha"><span>Subtotal</span><strong>{{ pedido.subtotal|brl }}</strong></p>
+    <p class="resumo-linha"><span>Frete</span><strong>{{ pedido.frete|brl }}</strong></p>
+    <p class="resumo-linha linha-total"><span>Total</span><strong>{{ pedido.total|brl }}</strong></p>
+  </section>
+
+  <section class="cartao">
+    <h2>Entrega</h2>
+    <p>
+      {{ pedido.logradouro }}, {{ pedido.numero }}{% if pedido.complemento %} — {{ pedido.complemento }}{% endif %}<br>
+      {{ pedido.bairro }} · {{ pedido.cidade }}/{{ pedido.uf }}<br>
+      CEP {{ pedido.cep }} · Tel. {{ pedido.telefone_contato }}
+    </p>
+
+    <h2>Pagamento</h2>
+    {% if pedido.pagamento %}
+    <p>
+      Status:
+      <span class="selo selo--{{ pedido.pagamento.status }}">{{ pedido.pagamento.status }}</span>
+    </p>
+    <p>Valor: {{ pedido.pagamento.valor|brl }}</p>
+    {% if pedido.pagamento.cartao_ultimos4 %}
+    <p>Cartão final {{ pedido.pagamento.cartao_ultimos4 }}</p>
+    {% endif %}
+    {% endif %}
+  </section>
+</div>
+
+<section class="cartao">
+  <h2>Linha do tempo</h2>
+  <ol class="linha-tempo">
+    {% for evento in pedido.historico %}
+    <li>
+      <strong>{{ rotulos_status[evento.status] }}</strong>
+      · {{ evento.criado_em|data_br }}
+      {% if evento.observacao %} — {{ evento.observacao }}{% endif %}
+    </li>
+    {% endfor %}
+  </ol>
+</section>
+
+<div class="acoes">
+  {% if pedido.status == 'recebido' and pedido.pagamento and pedido.pagamento.status != 'aprovado' %}
+  <a class="botao" href="/pedidos/{{ pedido.id }}/pagamento">Pagar agora</a>
+  {% endif %}
+  {% if pedido.status == 'recebido' %}
+  <form method="post" action="/pedidos/{{ pedido.id }}/cancelar" data-confirmar="Cancelar este pedido?">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+    <button class="botao botao--perigo" type="submit">Cancelar pedido</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

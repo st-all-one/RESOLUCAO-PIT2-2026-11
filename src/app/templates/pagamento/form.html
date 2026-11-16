@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block titulo %}Pagamento · Cupcake Gourmet{% endblock %}
+
+{% block conteudo %}
+<h1>Pagamento do pedido #{{ pedido.id }}</h1>
+{% include "componentes/erro_form.html" %}
+
+<section class="cartao">
+  <h2>Total a pagar</h2>
+  <p class="resumo-linha linha-total"><span>Total</span><strong>{{ pedido.total|brl }}</strong></p>
+
+  <form method="post" action="/pedidos/{{ pedido.id }}/pagamento" class="campos" data-pagamento>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+
+    <fieldset class="campo">
+      <legend>Forma de pagamento</legend>
+      <label>
+        <input type="radio" name="metodo" value="pix" checked>
+        PIX — aprovação imediata simulada
+      </label>
+      <label>
+        <input type="radio" name="metodo" value="cartao">
+        Cartão de crédito simulado
+      </label>
+    </fieldset>
+
+    <div class="campo" data-campo-cartao>
+      <label for="numero_cartao">Número do cartão</label>
+      <input
+        id="numero_cartao"
+        name="numero_cartao"
+        type="text"
+        inputmode="numeric"
+        autocomplete="off"
+        pattern="[0-9 ]{13,23}"
+        aria-describedby="ajuda-cartao"
+      >
+      <span id="ajuda-cartao" class="campo__ajuda">
+        Teste: 4242 4242 4242 4242 aprova; cartão válido com final 0000 é recusado.
+      </span>
+    </div>
+
+    <button class="botao" type="submit">Pagar {{ pedido.total|brl }}</button>
+  </form>
+
+  <p class="texto-suave">
+    Nenhum dado de cartão é armazenado: guardamos apenas os quatro últimos dígitos.
+  </p>
+</section>
+{% endblock %}
