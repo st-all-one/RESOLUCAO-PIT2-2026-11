@@ -20,6 +20,7 @@ from app.controllers import (
     carrinho,
     catalogo,
     checkout,
+    entregas,
     pagamento,
     pedidos,
 )
@@ -74,6 +75,7 @@ def criar_app() -> FastAPI:
     app.include_router(pagamento.router)
     app.include_router(pedidos.router)
     app.include_router(admin.router)
+    app.include_router(entregas.router)
 
     @app.exception_handler(ErroAplicacao)
     async def tratar_erro_aplicacao(request: Request, exc: ErroAplicacao) -> Response:

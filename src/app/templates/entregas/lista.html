@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block titulo %}Entregas · Cupcake Gourmet{% endblock %}
+
+{% block conteudo %}
+<h1>Minhas entregas</h1>
+<p class="texto-suave">Pedidos atribuídos a você que saíram para entrega.</p>
+
+{% if pedidos %}
+<div class="grade">
+  {% for pedido in pedidos %}
+  <article class="cartao">
+    <h2>Pedido #{{ pedido.id }}</h2>
+    <p>
+      {{ pedido.logradouro }}, {{ pedido.numero }}{% if pedido.complemento %} — {{ pedido.complemento }}{% endif %}<br>
+      {{ pedido.bairro }} · {{ pedido.cidade }}/{{ pedido.uf }}<br>
+      CEP {{ pedido.cep }}
+    </p>
+    <p>Telefone: <a href="tel:{{ pedido.telefone_contato }}">{{ pedido.telefone_contato }}</a></p>
+    <p class="resumo-linha"><span>Total</span><strong>{{ pedido.total|brl }}</strong></p>
+    <a class="botao" href="/entregas/{{ pedido.id }}">Ver detalhes</a>
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<div class="cartao estado-vazio">
+  <p>Nenhuma entrega em rota no momento.</p>
+</div>
+{% endif %}
+{% endblock %}

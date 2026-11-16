@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block titulo %}Entrega do pedido #{{ pedido.id }} · Cupcake Gourmet{% endblock %}
+
+{% block conteudo %}
+<nav class="texto-suave"><a href="/entregas">Entregas</a> / #{{ pedido.id }}</nav>
+<h1>Entrega do pedido #{{ pedido.id }}</h1>
+<p><span class="selo selo--{{ pedido.status }}">{{ rotulos_status[pedido.status] }}</span></p>
+
+<div class="grade">
+  <section class="cartao">
+    <h2>Endereço</h2>
+    <p>
+      {{ pedido.logradouro }}, {{ pedido.numero }}{% if pedido.complemento %} — {{ pedido.complemento }}{% endif %}<br>
+      {{ pedido.bairro }} · {{ pedido.cidade }}/{{ pedido.uf }}<br>
+      CEP {{ pedido.cep }}
+    </p>
+    <p>Contato: <a href="tel:{{ pedido.telefone_contato }}">{{ pedido.telefone_contato }}</a></p>
+    <p>Cliente: {{ pedido.cliente.nome }}</p>
+  </section>
+
+  <section class="cartao">
+    <h2>Itens</h2>
+    <div class="tabela-responsiva">
+      <table>
+        <thead><tr><th>Item</th><th>Qtd.</th></tr></thead>
+        <tbody>
+          {% for item in pedido.itens %}
+          <tr><td>{{ item.nome_produto }}</td><td>{{ item.quantidade }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="resumo-linha linha-total"><span>Total</span><strong>{{ pedido.total|brl }}</strong></p>
+  </section>
+</div>
+
+{% if pedido.status == 'saiu_entrega' %}
+<form method="post" action="/entregas/{{ pedido.id }}/confirmar" class="cartao"
+      data-confirmar="Confirmar a entrega do pedido #{{ pedido.id }}?">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+  <button class="botao" type="submit">Confirmar entrega</button>
+</form>
+{% else %}
+<p class="texto-suave">Este pedido não está em rota.</p>
+{% endif %}
+{% endblock %}
