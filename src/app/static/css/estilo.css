@@ -143,6 +143,10 @@ a:hover {
   font-size: 0.85rem;
 }
 
+p {
+  margin: 0 0 0.75rem;
+}
+
 .rodape p {
   margin: 0.25rem 0;
 }
@@ -160,10 +164,6 @@ h1 {
 
 h2 {
   font-size: clamp(1.2rem, 3vw, 1.5rem);
-}
-
-p {
-  margin: 0 0 0.75rem;
 }
 
 .texto-suave {
@@ -315,12 +315,12 @@ p {
   border-color: var(--cor-aviso);
 }
 
-.selo--em_preparo {
+.selo--em-preparo {
   color: var(--cor-primaria-escura);
   border-color: var(--cor-primaria);
 }
 
-.selo--saiu_entrega {
+.selo--saiu-entrega {
   color: #1d4e89;
   border-color: #1d4e89;
 }

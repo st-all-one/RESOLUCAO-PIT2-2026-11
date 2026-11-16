@@ -5,7 +5,7 @@
 {% block conteudo %}
 <nav class="texto-suave"><a href="/entregas">Entregas</a> / #{{ pedido.id }}</nav>
 <h1>Entrega do pedido #{{ pedido.id }}</h1>
-<p><span class="selo selo--{{ pedido.status }}">{{ rotulos_status[pedido.status] }}</span></p>
+<p><span class="selo selo--{{ pedido.status|replace('_', '-') }}">{{ rotulos_status[pedido.status] }}</span></p>
 
 <div class="grade">
   <section class="cartao">

@@ -6,7 +6,7 @@
 <nav class="texto-suave"><a href="/admin/pedidos">Pedidos</a> / #{{ pedido.id }}</nav>
 <h1>Pedido #{{ pedido.id }}</h1>
 <p>
-  <span class="selo selo--{{ pedido.status }}">{{ rotulos_status[pedido.status] }}</span>
+  <span class="selo selo--{{ pedido.status|replace('_', '-') }}">{{ rotulos_status[pedido.status] }}</span>
   · {{ pedido.criado_em|data_br }} · {{ pedido.cliente.nome }}
 </p>
 

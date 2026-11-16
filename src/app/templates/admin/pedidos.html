@@ -39,7 +39,7 @@
         <td>#{{ pedido.id }}</td>
         <td>{{ pedido.cliente.nome }}</td>
         <td>{{ pedido.criado_em|data_br }}</td>
-        <td><span class="selo selo--{{ pedido.status }}">{{ rotulos_status[pedido.status] }}</span></td>
+        <td><span class="selo selo--{{ pedido.status|replace('_', '-') }}">{{ rotulos_status[pedido.status] }}</span></td>
         <td>{{ pedido.total|brl }}</td>
         <td><a href="/admin/pedidos/{{ pedido.id }}">Gerenciar</a></td>
       </tr>
