@@ -1,0 +1,18 @@
+{% if erro %}
+<div
+  class="alerta alerta--erro"
+  role="alert"
+  data-codigo="{{ erro.codigo }}"
+  data-problema='{{ problema_dict|tojson }}'
+>
+  <span class="alerta__codigo">{{ erro.codigo }}</span>
+  <span>{{ erro.detalhe }}</span>
+  {% if erro.campos %}
+  <ul class="problema__campos">
+    {% for campo, mensagem in erro.campos.items() %}
+    <li><strong>{{ campo }}</strong>: {{ mensagem }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</div>
+{% endif %}
