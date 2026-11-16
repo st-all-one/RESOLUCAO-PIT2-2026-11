@@ -673,7 +673,7 @@ th {
   line-height: 1.3;
 }
 
-.metodo__texto span {
+.metodo__descricao {
   color: var(--cor-suave);
   font-size: 0.85rem;
 }
