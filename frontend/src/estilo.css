@@ -127,33 +127,8 @@ a:hover {
   transform: translateY(-6px) rotate(-45deg);
 }
 
-.navegacao {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem;
-  font-size: 0.95rem;
-}
-
-.navegacao a {
-  text-decoration: none;
-}
-
 .usuario {
   color: var(--cor-suave);
-}
-
-.contador {
-  display: inline-grid;
-  place-items: center;
-  min-width: 1.4rem;
-  height: 1.4rem;
-  padding: 0 0.35rem;
-  border-radius: 999px;
-  background: var(--cor-primaria);
-  color: #fff;
-  font-size: 0.75rem;
-  font-weight: 700;
 }
 
 .embutido {
@@ -170,6 +145,66 @@ a:hover {
   padding: 0;
   text-decoration: underline;
   text-underline-offset: 0.2em;
+}
+
+.navegacao {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.95rem;
+}
+
+.navegacao a:not(.botao),
+.navegacao .link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.65rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--cor-texto);
+  text-decoration: none;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.navegacao a:not(.botao):hover,
+.navegacao .link:hover {
+  background: var(--cor-fundo);
+  color: var(--cor-primaria);
+}
+
+.navegacao .embutido {
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+}
+
+.navegacao .embutido .link {
+  border-color: var(--cor-borda);
+  color: var(--cor-primaria);
+}
+
+.navegacao .embutido .link:hover {
+  border-color: var(--cor-primaria);
+}
+
+.navegacao .usuario {
+  padding: 0.4rem 0.25rem;
+}
+
+.contador {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.4rem;
+  height: 1.4rem;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background: var(--cor-primaria);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
 }
 
 .conteudo {
@@ -791,19 +826,37 @@ th {
     display: flex;
   }
 
-  .js .navegacao a,
-  .js .navegacao .link,
+  .js .navegacao a:not(.botao),
   .js .navegacao .usuario {
-    display: block;
-    padding: 0.25rem 0;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border-radius: 8px;
+  }
+
+  .js .navegacao a:not(.botao):hover {
+    background: var(--cor-fundo);
   }
 
   .js .navegacao .botao {
+    width: 100%;
     text-align: center;
   }
 
   .js .navegacao .embutido {
     display: block;
+    margin-top: 0.35rem;
+    padding-top: 0.6rem;
+    border-top: 1px solid var(--cor-borda);
+  }
+
+  .js .navegacao .embutido .link {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding: 0.55rem 0.75rem;
+    text-decoration: none;
   }
 
   .rodape {
