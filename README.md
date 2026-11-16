@@ -35,29 +35,46 @@ Contas de demonstração (seed): `admin@cupcake.local` / `Admin@123`,
 ## Qualidade
 
 ```bash
-make check    # ruff + mypy + eslint + stylelint + pytest
+make check    # ruff + mypy + pytest
+make lint     # ruff + ESLint + Stylelint
+make typecheck
+make cov      # cobertura (relatório em coverage.xml)
 make audit    # sniff contra a aplicação em execução
 ```
+
+Resultado atual: 43 testes aprovados, cobertura de 83%, ruff/mypy/ESLint/Stylelint
+sem erros e WCAG AA aprovado no sniff. Detalhes em
+[docs/06-testes/relatorio.md](docs/06-testes/relatorio.md) e
+[docs/07-laudo/laudo-qualidade.md](docs/07-laudo/laudo-qualidade.md).
+
+A suíte usa um banco separado (`cupcake_test`), criado automaticamente pelo
+script `db/init/01-banco-de-teste.sql` na primeira inicialização do volume.
+Não é necessário criar dados: cada teste trunca as tabelas e insere um cenário
+próprio.
 
 ## Estrutura
 
 ```text
 docs/            documentação por fase (planejamento, especificação, UML, IHC, dados, testes, laudo)
-db/              schema.sql e seed.sql
+db/              schema.sql, seed.sql e init do banco de teste
 frontend/src/    TypeScript (fonte)
 src/app/         aplicação FastAPI (models, controllers, services, templates, static)
-tests/           testes automatizados
+tests/           suíte pytest de integração (MariaDB real)
+artifacts/       capturas do sniff usadas no laudo
 ```
 
 ## Documentação
 
 - [Planejamento e revisão do PIT I](docs/01-planejamento/)
 - [Especificação ágil](docs/02-especificacao/)
-- [UML](docs/03-uml/)
+- [Rastreabilidade história → código → teste](docs/02-especificacao/rastreabilidade.md)
+- [UML](docs/03-uml/diagramas.md)
 - [IHC](docs/04-ihc/)
 - [Projeto de dados](docs/05-dados/)
-- [Testes](docs/06-testes/)
-- [Laudo de qualidade](docs/07-laudo/)
+- [Testes](docs/06-testes/relatorio.md)
+- [Laudo de qualidade](docs/07-laudo/laudo-qualidade.md)
+- [Deploy](docs/08-deploy/deploy.md)
+- [Template de laudo dos testadores](docs/07-laudo/template-laudo-testador.md)
 - [Manual de uso](docs/manual-de-uso.md)
 
 ## Entrega
