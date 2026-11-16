@@ -13,7 +13,7 @@ MariaDB 11.4 em Docker, Chromium via sniff 0.5.1.
 | ESLint strict-type-checked | `npm run lint` | 0 erros |
 | Stylelint | incluído em `npm run lint` | 0 erros |
 | pytest | `pytest` | **76 aprovados** |
-| Cobertura | `pytest --cov=app` | **86%** (1557 linhas) |
+| Cobertura | `pytest --cov=app` | **86%** (1559 linhas) |
 | sniff | `sniff capture` + `sniff check` | 0 falhas; contraste AAA |
 
 ## Acessibilidade (sniff)

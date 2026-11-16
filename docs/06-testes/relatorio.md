@@ -32,7 +32,7 @@ GRANT ALL PRIVILEGES ON cupcake_test.* TO 'cupcake'@'%';
 ## Resultado (2026-11-16)
 
 - **76 testes, 76 aprovados** em ~30 s.
-- **Cobertura de linhas: 86%** (`backend/app`, 1557 linhas, 212 sem cobertura).
+- **Cobertura de linhas: 86%** (`backend/app`, 1559 linhas, 213 sem cobertura).
 - Falha rápida em regressões de preço, frete, CSRF, estoque e autorização.
 
 Cobertura por módulo (principais):
