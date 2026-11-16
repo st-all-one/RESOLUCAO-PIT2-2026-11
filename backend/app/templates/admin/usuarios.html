@@ -38,6 +38,7 @@
               <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
               <label for="papel-{{ alvo.id }}" class="pular">Papel</label>
               <select id="papel-{{ alvo.id }}" name="papel">
+                <option value="" disabled>Selecione o papel</option>
                 <option value="cliente" {{ 'selected' if alvo.papel == 'cliente' else '' }}>Cliente</option>
                 <option value="entregador" {{ 'selected' if alvo.papel == 'entregador' else '' }}>Entregador</option>
               </select>

@@ -45,15 +45,74 @@ function configurarPagamento(): void {
   }
 }
 
-function configurarMascaraCartao(): void {
-  const entrada = document.querySelector<HTMLInputElement>("#numero_cartao");
+type Formatador = (valor: string) => string;
+
+function somenteDigitos(valor: string, limite: number): string {
+  return valor.replace(/\D/g, "").slice(0, limite);
+}
+
+function formatarCep(valor: string): string {
+  const digitos = somenteDigitos(valor, 8);
+  return digitos.replace(/^(\d{5})(\d)/, "$1-$2");
+}
+
+function formatarTelefone(valor: string): string {
+  const digitos = somenteDigitos(valor, 11);
+  if (digitos.length === 0) {
+    return "";
+  }
+  if (digitos.length <= 2) {
+    return `(${digitos}`;
+  }
+  const ddd = `(${digitos.slice(0, 2)}) `;
+  const resto = digitos.slice(2);
+  if (resto.length <= 4) {
+    return `${ddd}${resto}`;
+  }
+  const corte = resto.length > 8 ? 5 : 4;
+  return `${ddd}${resto.slice(0, corte)}-${resto.slice(corte)}`;
+}
+
+function formatarPreco(valor: string): string {
+  const limpo = valor.replace(/[^\d,.]/g, "");
+  if (limpo === "" || limpo === "," || limpo === ".") {
+    return "";
+  }
+  const usaVirgula = limpo.includes(",");
+  const semMilhar = usaVirgula ? limpo.replace(/\./g, "") : limpo;
+  const separador = usaVirgula ? "," : ".";
+  const pontos = semMilhar.split(".").length - 1;
+  if (!usaVirgula && pontos > 1) {
+    return semMilhar.replace(/\./g, "");
+  }
+  if (!semMilhar.includes(separador)) {
+    return semMilhar;
+  }
+  const [inteiro = "", ...resto] = semMilhar.split(separador);
+  const centavos = resto.join("").replace(/\D/g, "").slice(0, 2);
+  return `${inteiro === "" ? "0" : inteiro},${centavos}`;
+}
+
+function aplicarMascara(seletor: string, formatar: Formatador): void {
+  const entrada = document.querySelector<HTMLInputElement>(seletor);
   if (entrada === null) {
     return;
   }
-  entrada.addEventListener("input", () => {
-    const digitos = entrada.value.replace(/\D/g, "").slice(0, 19);
-    entrada.value = digitos.replace(/(\d{4})(?=\d)/g, "$1 ");
-  });
+  const aplicar = (): void => {
+    entrada.value = formatar(entrada.value);
+  };
+  entrada.addEventListener("input", aplicar);
+  aplicar();
+}
+
+function configurarMascaras(): void {
+  aplicarMascara("#cep", formatarCep);
+  aplicarMascara("#telefone", formatarTelefone);
+  aplicarMascara("#numero_cartao", (valor) =>
+    somenteDigitos(valor, 19).replace(/(\d{4})(?=\d)/g, "$1 "),
+  );
+  aplicarMascara("#uf", (valor) => valor.replace(/[^a-z]/gi, "").slice(0, 2).toUpperCase());
+  aplicarMascara("#preco", formatarPreco);
 }
 
 interface CepResposta {
@@ -113,9 +172,6 @@ function configurarCep(): void {
     }
   };
 
-  cep.addEventListener("input", () => {
-    cep.value = cep.value.replace(/\D/g, "").slice(0, 8);
-  });
   cep.addEventListener("blur", () => {
     void consultar();
   });
@@ -182,7 +238,7 @@ function iniciar(): void {
   configurarMenu();
   configurarConfirmacoes();
   configurarPagamento();
-  configurarMascaraCartao();
+  configurarMascaras();
   configurarCep();
 }
 

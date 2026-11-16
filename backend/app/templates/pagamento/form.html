@@ -67,6 +67,8 @@
         type="text"
         inputmode="numeric"
         autocomplete="cc-number"
+        placeholder="0000 0000 0000 0000"
+        maxlength="23"
         pattern="[0-9 ]{13,23}"
         aria-describedby="ajuda-cartao{% if problema_dict and 'numero_cartao' in problema_dict.campos %} erro-numero_cartao{% endif %}"
         {% if problema_dict and 'numero_cartao' in problema_dict.campos %}aria-invalid="true"{% endif %}

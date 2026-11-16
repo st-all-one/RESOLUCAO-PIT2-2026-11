@@ -17,7 +17,8 @@
   <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
   <div class="campo">
     <label for="nome-nova">Nome</label>
-    <input id="nome-nova" name="nome" type="text" required minlength="2" maxlength="80">
+    <input id="nome-nova" name="nome" type="text" required minlength="2" maxlength="80"
+           placeholder="Ex.: Veganos">
   </div>
   <button class="botao" type="submit">Criar categoria</button>
 </form>
@@ -43,7 +44,8 @@
               <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
               <label for="nome-{{ categoria.id }}" class="pular">Novo nome</label>
               <input id="nome-{{ categoria.id }}" name="nome" type="text" required
-                     minlength="2" maxlength="80" value="{{ categoria.nome }}">
+                     minlength="2" maxlength="80" placeholder="Novo nome"
+                     value="{{ categoria.nome }}">
               <button class="botao botao--pequeno botao--secundario" type="submit">Renomear</button>
             </form>
             <form method="post" action="/admin/categorias/{{ categoria.id }}/ativo" class="embutido">

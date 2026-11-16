@@ -18,6 +18,7 @@
         name="nome"
         type="text"
         autocomplete="name"
+        placeholder="Ex.: Maria Silva"
         required
         minlength="2"
         maxlength="120"
@@ -33,6 +34,7 @@
         name="email"
         type="email"
         autocomplete="email"
+        placeholder="voce@exemplo.com"
         required
         value="{{ valores.get('email', '') }}"
         {% if 'email' in erros %}aria-invalid="true" aria-describedby="erro-email"{% endif %}
@@ -46,6 +48,7 @@
         name="senha"
         type="password"
         autocomplete="new-password"
+        placeholder="Crie uma senha com 8+ caracteres"
         required
         minlength="8"
         aria-describedby="ajuda-senha{% if 'senha' in erros %} erro-senha{% endif %}"
@@ -63,6 +66,7 @@
         name="confirmacao"
         type="password"
         autocomplete="new-password"
+        placeholder="Repita a senha"
         required
         minlength="8"
         {% if 'confirmacao' in erros %}aria-invalid="true" aria-describedby="erro-confirmacao"{% endif %}

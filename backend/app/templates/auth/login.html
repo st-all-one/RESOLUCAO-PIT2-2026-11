@@ -28,6 +28,7 @@
         name="email"
         type="email"
         autocomplete="email"
+        placeholder="voce@exemplo.com"
         required
         value="{{ valores.get('email', '') }}"
         {% if 'email' in erros %}aria-invalid="true" aria-describedby="erro-email"{% endif %}
@@ -41,6 +42,7 @@
         name="senha"
         type="password"
         autocomplete="current-password"
+        placeholder="Sua senha"
         required
         minlength="8"
         {% if 'senha' in erros %}aria-invalid="true" aria-describedby="erro-senha"{% endif %}

@@ -535,6 +535,12 @@ h2 {
   font: inherit;
 }
 
+.campo input::placeholder,
+.campo textarea::placeholder {
+  color: var(--cor-suave);
+  opacity: 0.75;
+}
+
 .metodo input {
   position: absolute;
   width: 1px;
