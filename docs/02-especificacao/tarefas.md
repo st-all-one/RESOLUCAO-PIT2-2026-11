@@ -67,7 +67,7 @@ e documentação) e não pertencem a uma história de usuário.
 | T-100 | Estrutura do repositório, config, env, Makefile | 4 |
 | T-101 | `schema.sql` + `seed.sql` + dicionário gerado | 8 |
 | T-102 | Lint e tipagem (ruff, mypy strict, ESLint, Stylelint, sniff) | 6 |
-| T-103 | Deploy com MySQL gerenciado e health check | 6 |
+| T-103 | Deploy com MariaDB gerenciado e health check | 6 |
 | T-104 | UML, IHC e mapa de rastreabilidade | 12 |
 | T-105 | Relatório de execução dos testes | 3 |
 | T-106 | Template de laudo e consolidação dos 5 testadores | 6 |

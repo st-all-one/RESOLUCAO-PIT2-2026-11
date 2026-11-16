@@ -26,7 +26,7 @@ src/app/static/js/*.js.map
 
 # Banco local
 *.sqlite3
-mysql-data/
+mariadb-data/
 
 # Editor / SO
 .DS_Store

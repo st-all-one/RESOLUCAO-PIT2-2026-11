@@ -41,7 +41,7 @@ app = ["templates/**/*", "static/**/*"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q --strict-markers"
-markers = ["integration: exige MySQL em execução (ver compose.yaml)"]
+markers = ["integration: exige MariaDB em execução (ver compose.yaml)"]
 
 [tool.ruff]
 target-version = "py313"
@@ -92,3 +92,8 @@ exclude = ["\\.venv", "src/static", "node_modules"]
 [[tool.mypy.overrides]]
 module = ["pymysql.*"]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["scripts.*"]
+disallow_untyped_defs = false
+warn_return_any = false

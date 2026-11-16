@@ -2,19 +2,19 @@
 
 Solução funcional da loja de cupcakes gourmet planejada no PIT I, revisada e
 implementada no PIT II. Aplicação web mobile-first com back-end em Python
-(FastAPI, padrão MVC), banco MySQL e front-end em HTML, CSS e TypeScript.
+(FastAPI, padrão MVC), banco MariaDB e front-end em HTML, CSS e TypeScript.
 
 ## Stack
 
 | Camada | Tecnologia |
 |---|---|
-| Back-end | Python 3.13+, FastAPI, SQLAlchemy 2, PyMySQL |
+| Back-end | Python 3.13+, FastAPI, SQLAlchemy 2 (dialeto MariaDB), PyMySQL |
 | Arquitetura | MVC (`models/`, `controllers/`, `services/`, `templates/`) |
-| Banco | MySQL 8.4, schema versionado em `db/schema.sql` |
+| Banco | MariaDB 11.4, schema versionado em `db/schema.sql` |
 | Front-end | Jinja2, CSS, TypeScript estrito compilado por `tsc` |
-| Testes | pytest + httpx (ASGI), MySQL real |
+| Testes | pytest + httpx (ASGI), MariaDB real |
 | Qualidade | ruff, mypy strict, ESLint strict-type-checked, Stylelint, sniff |
-| Deploy | a definir na fase P10 (serviço com MySQL) |
+| Deploy | a definir na fase P10 (serviço com MariaDB) |
 
 ## Como rodar
 
@@ -23,7 +23,7 @@ Pré-requisitos: Python 3.13+, Node 22+, Docker.
 ```bash
 cp .env.example .env
 make install      # cria .venv, instala dependências Python e Node
-make db-up        # sobe MySQL em 127.0.0.1:3307
+make db-up        # sobe MariaDB em 127.0.0.1:3307
 make db-reset     # aplica schema + seed
 make front-build  # compila TypeScript
 make run          # http://127.0.0.1:8000

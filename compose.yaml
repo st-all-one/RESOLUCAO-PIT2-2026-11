@@ -1,24 +1,24 @@
 services:
-  mysql:
-    image: mysql:8.4
-    container_name: cupcake-mysql
+  mariadb:
+    image: mariadb:11.4
+    container_name: cupcake-mariadb
     command:
       - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_0900_ai_ci
+      - --collation-server=utf8mb4_unicode_ci
     environment:
-      MYSQL_ROOT_PASSWORD: cupcake_root
-      MYSQL_DATABASE: cupcake
-      MYSQL_USER: cupcake
-      MYSQL_PASSWORD: cupcake
+      MARIADB_ROOT_PASSWORD: cupcake_root
+      MARIADB_DATABASE: cupcake
+      MARIADB_USER: cupcake
+      MARIADB_PASSWORD: cupcake
     ports:
       - "127.0.0.1:3307:3306"
     volumes:
-      - cupcake-mysql-data:/var/lib/mysql
+      - cupcake-mariadb-data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-pcupcake_root"]
+      test: ["CMD", "mariadb-admin", "ping", "-h", "127.0.0.1", "-pcupcake_root"]
       interval: 3s
       timeout: 3s
       retries: 40
 
 volumes:
-  cupcake-mysql-data:
+  cupcake-mariadb-data:

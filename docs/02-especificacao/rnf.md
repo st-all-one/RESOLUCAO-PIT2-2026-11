@@ -36,6 +36,7 @@ Todo RNF tem métrica e forma de verificação. RNF sem métrica não entra no c
 |---|---|---|---|
 | RNF-DIS-01 | Health check | `GET /health` → 200 com `{status, db}` em < 1 s | Teste + verificação pós-deploy |
 | RNF-DIS-02 | Erro sem vazamento | Nenhuma stack trace na resposta; erro genérico `ERR-SYS-001` | Teste de exceção forçada |
+| RNF-API-01 | Erros padronizados | Toda falha de back-end é `application/problem+json` (RFC 9457) com `type`, `title`, `status`, `detail`, `instance`, `codigo`; HTML negocia e embute o mesmo objeto | Testes de content negotiation por código |
 | RNF-OBS-01 | Log sem PII | Log não contém e-mail, senha, endereço completo nem PAN | Revisão do logger + teste |
 
 ## Manutenibilidade e dados
@@ -53,4 +54,4 @@ Todo RNF tem métrica e forma de verificação. RNF sem métrica não entra no c
 | ID | Requisito | Métrica | Verificação |
 |---|---|---|---|
 | RNF-COM-01 | Navegadores atuais | Chrome/Chromium e Firefox nas duas últimas versões | Teste manual |
-| RNF-COM-02 | SGBD suportado | MySQL 8.4 | `schema.sql` executado do zero |
+| RNF-COM-02 | SGBD suportado | MariaDB 11.4 | `schema.sql` executado do zero |

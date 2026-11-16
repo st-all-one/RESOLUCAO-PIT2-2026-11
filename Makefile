@@ -1,6 +1,6 @@
 PY := .venv/bin/python
 PIP := .venv/bin/pip
-MYSQL := docker compose exec -T mysql mysql -uroot -pcupcake_root
+DB := docker compose exec -T mariadb mariadb -uroot -pcupcake_root cupcake
 
 .DEFAULT_GOAL := help
 .PHONY: help install db-up db-down db-reset schema seed run test cov lint fmt typecheck front-build audit check
@@ -13,21 +13,24 @@ install: ## Cria venv, instala dependências Python e Node
 	$(PIP) install -e ".[dev]"
 	npm install
 
-db-up: ## Sobe o MySQL (localhost:3307)
-	docker compose up -d --wait mysql
+db-up: ## Sobe o MariaDB (localhost:3307)
+	docker compose up -d --wait mariadb
 
-db-down: ## Para o MySQL
+db-down: ## Para o MariaDB
 	docker compose down
 
 db-reset: ## Recria o schema e recarrega o seed
-	$(MYSQL) < db/schema.sql
-	$(MYSQL) < db/seed.sql
+	$(DB) < db/schema.sql
+	$(DB) < db/seed.sql
 
 schema: ## Aplica db/schema.sql
-	$(MYSQL) < db/schema.sql
+	$(DB) < db/schema.sql
 
 seed: ## Aplica db/seed.sql
-	$(MYSQL) < db/seed.sql
+	$(DB) < db/seed.sql
+
+dicionario: ## Regenera docs/05-dados/dicionario.md a partir do banco
+	$(PY) scripts/gerar_dicionario.py
 
 run: ## Sobe a aplicação em modo desenvolvimento
 	$(PY) -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
