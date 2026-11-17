@@ -52,10 +52,18 @@
     <button class="botao" type="submit">Entrar</button>
   </form>
 
-  <p class="login-admin texto-suave">
-    <strong>Acesso administrativo:</strong>
-    <code>admin@cupcake.projeto</code> / <code>adminCupcake</code>
-  </p>
+  <details class="login-contas texto-suave">
+    <summary>Contas de demonstração</summary>
+    <ul>
+      <li><strong>Administrador</strong>: <code>admin@cupcake.projeto</code> / <code>adminCupcake</code></li>
+      <li><strong>Cliente</strong>: <code>cliente@cupcake.local</code> / <code>Cliente@123</code></li>
+      <li><strong>Entregador</strong>: <code>entregador@cupcake.local</code> / <code>Entrega@123</code></li>
+    </ul>
+    <p>
+      A visão do entregador fica em <code>/entregas</code> e mostra os pedidos que o
+      administrador atribuir a essa conta como “Saiu para entrega”.
+    </p>
+  </details>
 
   <p class="texto-suave">Ainda não tem conta? <a href="/cadastro">Criar conta</a></p>
 </section>
