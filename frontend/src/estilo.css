@@ -1455,6 +1455,10 @@ th {
     text-transform: uppercase;
   }
 
+  .tabela-cartoes td .selo {
+    justify-self: start;
+  }
+
   .tabela-cartoes td[data-rotulo="Ações"] {
     grid-template-columns: 1fr;
     margin-top: 0.35rem;
