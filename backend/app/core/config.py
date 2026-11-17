@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from decimal import Decimal
+from pathlib import Path
 
 from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -34,6 +35,9 @@ class Settings(BaseSettings):
 
     frete_valor: Decimal = Decimal("8.00")
     frete_gratis_acima: Decimal = Decimal("120.00")
+
+    # Imagens enviadas pelo admin; em produção o compose monta um volume aqui.
+    diretorio_midias: Path = Path("uploads")
 
     @model_validator(mode="after")
     def _exigir_producao_segura(self) -> Settings:

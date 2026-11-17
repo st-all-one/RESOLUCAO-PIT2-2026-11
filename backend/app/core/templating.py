@@ -37,6 +37,8 @@ templates.env.globals["rotulos_campos"] = {
     "nome": "Nome",
     "email": "E-mail",
     "senha": "Senha",
+    "senha_atual": "Senha atual",
+    "nova": "Nova senha",
     "confirmacao": "Confirmação de senha",
     "cep": "CEP",
     "logradouro": "Logradouro",

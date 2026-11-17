@@ -269,6 +269,30 @@ function configurarMenu(): void {
   });
 }
 
+function configurarSelecaoEndereco(): void {
+  const bloco = document.querySelector<HTMLElement>("[data-campos-endereco]");
+  const opcoes = document.querySelectorAll<HTMLInputElement>("input[name='endereco_id']");
+  if (bloco === null || opcoes.length === 0) {
+    return;
+  }
+  const campos = bloco.querySelectorAll<HTMLInputElement>("input");
+  const atualizar = (): void => {
+    const marcado = document.querySelector<HTMLInputElement>(
+      "input[name='endereco_id']:checked",
+    );
+    const novo = marcado?.value === "novo";
+    bloco.hidden = !novo;
+    for (const campo of campos) {
+      campo.disabled = !novo;
+      campo.required = novo && campo.dataset.obrigatorio === "1";
+    }
+  };
+  for (const opcao of opcoes) {
+    opcao.addEventListener("change", atualizar);
+  }
+  atualizar();
+}
+
 function iniciar(): void {
   document.documentElement.classList.add("js");
   configurarMenu();
@@ -276,6 +300,7 @@ function iniciar(): void {
   configurarPagamento();
   configurarMascaras();
   configurarCep();
+  configurarSelecaoEndereco();
 }
 
 if (document.readyState === "loading") {

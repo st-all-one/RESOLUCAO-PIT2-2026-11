@@ -141,6 +141,16 @@ CATALOGO: dict[str, Definicao] = {
         "Já existe um produto com esse nome.",
     ),
     "ERR-ADM-009": Definicao(404, "Categoria não encontrada", "Categoria não encontrada."),
+    "ERR-ADM-010": Definicao(
+        422,
+        "Imagem inválida",
+        "Envie uma imagem JPG, PNG ou WebP de até 2 MB.",
+    ),
+    "ERR-END-001": Definicao(
+        404,
+        "Endereço não encontrado",
+        "Endereço não encontrado na sua conta.",
+    ),
     "ERR-ENT-001": Definicao(
         403,
         "Entrega não atribuída",

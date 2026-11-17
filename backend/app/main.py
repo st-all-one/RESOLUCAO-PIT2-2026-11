@@ -22,6 +22,7 @@ from app.controllers import (
     carrinho,
     catalogo,
     checkout,
+    conta,
     entregas,
     pagamento,
     pedidos,
@@ -85,10 +86,17 @@ def criar_app() -> FastAPI:
         StaticFiles(directory=str(DIRETORIO_ESTATICOS)),
         name="static",
     )
+    settings.diretorio_midias.mkdir(parents=True, exist_ok=True)
+    app.mount(
+        "/midia",
+        StaticFiles(directory=str(settings.diretorio_midias)),
+        name="midia",
+    )
     app.include_router(auth.router)
     app.include_router(catalogo.router)
     app.include_router(carrinho.router)
     app.include_router(checkout.router)
+    app.include_router(conta.router)
     app.include_router(pagamento.router)
     app.include_router(pedidos.router)
     app.include_router(admin.router)

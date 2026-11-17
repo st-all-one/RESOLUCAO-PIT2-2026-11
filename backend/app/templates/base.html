@@ -46,6 +46,7 @@
         {% if usuario.papel == 'admin' %}<a href="/admin/produtos">Admin</a>{% endif %}
         {% if usuario.papel == 'entregador' %}<a href="/entregas">Entregas</a>{% endif %}
         {% if usuario.papel != 'admin' and usuario.papel != 'entregador' %}<a href="/pedidos">Meus pedidos</a>{% endif %}
+        <a href="/conta" {% if request.url.path.startswith('/conta') %}aria-current="page"{% endif %}>Minha conta</a>
         <span class="usuario">{{ usuario.nome }}</span>
         <form method="post" action="/logout" class="embutido">
           <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">

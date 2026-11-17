@@ -365,3 +365,64 @@ def test_checkout_rejeita_endereco_invalido(
     assert codigo in resposta.text
     assert escalar("SELECT COUNT(*) FROM pedidos") == 0
     assert escalar("SELECT COUNT(*) FROM pagamentos") == 0
+
+
+def test_checkout_oferece_endereco_salvo_e_usa_o_escolhido(
+    cliente_http: TestClient, dados: dict[str, int]
+) -> None:
+    entrar(cliente_http, "cliente@teste.local", SENHA)
+    adicionar_item(cliente_http, dados["baunilha"])
+    finalizar_pedido(cliente_http)
+    adicionar_item(cliente_http, dados["baunilha"])
+
+    pagina = cliente_http.get("/checkout").text
+    assert "Endereço salvo na sua conta" in pagina
+    assert "Rua das Flores, 123" in pagina
+
+    endereco_id = escalar(
+        "SELECT id FROM enderecos WHERE usuario_id=:id",
+        id=dados["cliente"],
+    )
+    resposta = postar(
+        cliente_http,
+        "/checkout",
+        {
+            **ENDERECO,
+            "cep": "99999999",
+            "logradouro": "Rua Adulterada",
+            "endereco_id": str(endereco_id),
+        },
+        pagina="/checkout",
+    )
+    assert resposta.status_code == 303
+    pedido_id = escalar("SELECT MAX(id) FROM pedidos")
+    assert escalar("SELECT cep FROM pedidos WHERE id=:id", id=pedido_id) == "01310100"
+    assert escalar("SELECT logradouro FROM pedidos WHERE id=:id", id=pedido_id) == "Rua das Flores"
+
+
+def test_checkout_nao_aceita_endereco_de_outra_conta(
+    cliente_http: TestClient, dados: dict[str, int]
+) -> None:
+    executar(
+        """
+        INSERT INTO enderecos (usuario_id, cep, logradouro, numero, bairro, cidade, uf, principal)
+        VALUES (:usuario_id, '01001000', 'Praça da Sé', '1', 'Sé', 'São Paulo', 'SP', 1)
+        """,
+        usuario_id=dados["outro"],
+    )
+    endereco_alheio = escalar(
+        "SELECT id FROM enderecos WHERE usuario_id=:id",
+        id=dados["outro"],
+    )
+    entrar(cliente_http, "cliente@teste.local", SENHA)
+    adicionar_item(cliente_http, dados["baunilha"])
+
+    resposta = postar(
+        cliente_http,
+        "/checkout",
+        {**ENDERECO, "endereco_id": str(endereco_alheio)},
+        pagina="/checkout",
+    )
+    assert resposta.status_code == 422
+    assert "ERR-CHK-001" in resposta.text
+    assert escalar("SELECT COUNT(*) FROM pedidos") == 0

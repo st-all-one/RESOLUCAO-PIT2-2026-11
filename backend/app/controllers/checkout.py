@@ -37,9 +37,10 @@ from app.models import (
 )
 from app.services.carrinho import Carrinho, definir, gravar_carrinho, ler_carrinho, remover
 from app.services.carrinho_db import carregar_itens
+from app.services.endereco import EnderecoValidado, validar_endereco
 from app.services.identificador import codigo_pedido
 from app.services.preco import calcular_frete, somar_itens
-from app.services.validacao import normalizar_cep, normalizar_telefone, normalizar_uf, texto
+from app.services.validacao import normalizar_cep, normalizar_telefone
 
 router = APIRouter(dependencies=[Depends(validar_csrf)])
 VIACEP_URL = "https://viacep.com.br/ws/{cep}/json/"
@@ -73,7 +74,7 @@ def _alterar_item(banco: Session, carrinho: Carrinho, item: str) -> Carrinho:
     if produto_id not in carrinho:
         raise ErroAplicacao("ERR-CAT-001")
     produto = banco.get(Produto, produto_id)
-    if produto is None:
+    if produto is None or produto.excluido_em is not None:
         raise ErroAplicacao("ERR-CAT-001")
     atual = carrinho.get(produto_id, 0)
     nova = atual + (1 if acao == "mais" else -1)
@@ -92,6 +93,39 @@ def _contexto(
         gratis_acima=settings.frete_gratis_acima,
     )
     return itens, subtotal, frete, subtotal + frete, ajustado
+
+
+def _enderecos(banco: Session, usuario_id: int) -> list[Endereco]:
+    return list(
+        banco.scalars(
+            select(Endereco)
+            .where(Endereco.usuario_id == usuario_id)
+            .order_by(Endereco.principal.desc(), Endereco.criado_em.desc())
+        ).all()
+    )
+
+
+def _valores_checkout(
+    usuario: Usuario,
+    enderecos: list[Endereco],
+    *,
+    endereco_id: str = "",
+) -> dict[str, str]:
+    """Campos do formulário; o endereço salvo é escolhido explicitamente."""
+    selecionado = endereco_id
+    if not selecionado and enderecos:
+        selecionado = str(enderecos[0].id)
+    return {
+        "endereco_id": selecionado,
+        "cep": "",
+        "logradouro": "",
+        "numero": "",
+        "complemento": "",
+        "bairro": "",
+        "cidade": "",
+        "uf": "",
+        "telefone": usuario.telefone or "",
+    }
 
 
 @router.get("/cep/{cep}")
@@ -123,22 +157,7 @@ def checkout_get(
     if not itens:
         avisar_codigo(request, "ERR-CAR-001")
         return redirecionar("/carrinho")
-    endereco = banco.scalar(
-        select(Endereco)
-        .where(Endereco.usuario_id == usuario.id)
-        .order_by(Endereco.principal.desc(), Endereco.criado_em.desc())
-        .limit(1)
-    )
-    valores: dict[str, str] = {
-        "cep": endereco.cep if endereco else "",
-        "logradouro": endereco.logradouro if endereco else "",
-        "numero": endereco.numero if endereco else "",
-        "complemento": (endereco.complemento or "") if endereco else "",
-        "bairro": endereco.bairro if endereco else "",
-        "cidade": endereco.cidade if endereco else "",
-        "uf": endereco.uf if endereco else "",
-        "telefone": usuario.telefone or "",
-    }
+    enderecos = _enderecos(banco, usuario.id)
     return renderizar(
         request,
         "checkout/form.html",
@@ -146,7 +165,8 @@ def checkout_get(
         subtotal=subtotal,
         frete=frete,
         total=total,
-        valores=valores,
+        enderecos=enderecos,
+        valores=_valores_checkout(usuario, enderecos),
         flash=mensagens,
     )
 
@@ -164,9 +184,12 @@ def checkout_post(
     cidade: Annotated[str, Form()] = "",
     uf: Annotated[str, Form()] = "",
     telefone: Annotated[str, Form()] = "",
+    endereco_id: Annotated[str, Form()] = "",
     item: Annotated[str, Form()] = "",
 ) -> Response:
+    enderecos = _enderecos(banco, usuario.id)
     valores = {
+        "endereco_id": endereco_id,
         "cep": cep,
         "logradouro": logradouro,
         "numero": numero,
@@ -191,6 +214,7 @@ def checkout_post(
                 subtotal=subtotal,
                 frete=frete,
                 total=total,
+                enderecos=enderecos,
             )
         gravar_carrinho(request.session, carrinho)
         itens, subtotal, frete, total, ajustado = _contexto(banco, carrinho)
@@ -209,6 +233,7 @@ def checkout_post(
                 subtotal=subtotal,
                 frete=frete,
                 total=total,
+                enderecos=enderecos,
             )
         return renderizar(
             request,
@@ -218,6 +243,7 @@ def checkout_post(
             subtotal=subtotal,
             frete=frete,
             total=total,
+            enderecos=enderecos,
         )
 
     itens, subtotal, frete, total, ajustado = _contexto(banco, carrinho)
@@ -235,47 +261,54 @@ def checkout_post(
             subtotal=subtotal,
             frete=frete,
             total=total,
+            enderecos=enderecos,
         )
 
     try:
-        cep_limpo = normalizar_cep(cep)
-        if cep_limpo is None:
-            raise ErroAplicacao("ERR-CHK-002", campos={"cep": "Informe 8 dígitos."})
-        uf_limpa = normalizar_uf(uf)
-        if uf_limpa is None:
-            raise ErroAplicacao("ERR-CHK-003", campos={"uf": "Informe a UF com 2 letras."})
         telefone_limpo = normalizar_telefone(telefone)
         if telefone_limpo is None:
             raise ErroAplicacao(
                 "ERR-CHK-001",
                 campos={"telefone": "Informe DDD e telefone."},
             )
-        logradouro_limpo = texto(logradouro, maximo=160)
-        numero_limpo = texto(numero, maximo=20)
-        bairro_limpo = texto(bairro, maximo=80)
-        cidade_limpa = texto(cidade, maximo=80)
-        if (
-            logradouro_limpo is None
-            or numero_limpo is None
-            or bairro_limpo is None
-            or cidade_limpa is None
-        ):
-            faltando = {
-                nome: "Campo obrigatório."
-                for nome, valor in (
-                    ("logradouro", logradouro_limpo),
-                    ("numero", numero_limpo),
-                    ("bairro", bairro_limpo),
-                    ("cidade", cidade_limpa),
+        endereco_salvo: Endereco | None = None
+        if endereco_id and endereco_id != "novo":
+            try:
+                escolhido = int(endereco_id)
+            except ValueError:
+                raise ErroAplicacao(
+                    "ERR-CHK-001",
+                    campos={"cep": "Selecione um endereço válido."},
+                ) from None
+            endereco_salvo = banco.scalar(
+                select(Endereco).where(
+                    Endereco.id == escolhido,
+                    Endereco.usuario_id == usuario.id,
                 )
-                if valor is None
-            }
-            raise ErroAplicacao("ERR-CHK-001", campos=faltando)
-        complemento_limpo = complemento.strip() or None
-        if complemento_limpo is not None and len(complemento_limpo) > 80:
-            raise ErroAplicacao(
-                "ERR-CHK-001",
-                campos={"complemento": "Máximo de 80 caracteres."},
+            )
+            if endereco_salvo is None:
+                raise ErroAplicacao(
+                    "ERR-CHK-001",
+                    campos={"cep": "Selecione um endereço válido."},
+                )
+            endereco_validado = EnderecoValidado(
+                cep=endereco_salvo.cep,
+                logradouro=endereco_salvo.logradouro,
+                numero=endereco_salvo.numero,
+                complemento=endereco_salvo.complemento,
+                bairro=endereco_salvo.bairro,
+                cidade=endereco_salvo.cidade,
+                uf=endereco_salvo.uf,
+            )
+        else:
+            endereco_validado = validar_endereco(
+                cep=cep,
+                logradouro=logradouro,
+                numero=numero,
+                complemento=complemento,
+                bairro=bairro,
+                cidade=cidade,
+                uf=uf,
             )
         if not itens:
             raise ErroAplicacao("ERR-CAR-001")
@@ -289,6 +322,7 @@ def checkout_post(
             subtotal=subtotal,
             frete=frete,
             total=total,
+            enderecos=enderecos,
         )
 
     pedido = Pedido(
@@ -296,13 +330,13 @@ def checkout_post(
         cliente_id=usuario.id,
         status=StatusPedido.RECEBIDO,
         frete=frete,
-        cep=cep_limpo,
-        logradouro=logradouro_limpo,
-        numero=numero_limpo,
-        complemento=complemento_limpo,
-        bairro=bairro_limpo,
-        cidade=cidade_limpa,
-        uf=uf_limpa,
+        cep=endereco_validado.cep,
+        logradouro=endereco_validado.logradouro,
+        numero=endereco_validado.numero,
+        complemento=endereco_validado.complemento,
+        bairro=endereco_validado.bairro,
+        cidade=endereco_validado.cidade,
+        uf=endereco_validado.uf,
         telefone_contato=telefone_limpo,
     )
     banco.add(pedido)
@@ -334,35 +368,36 @@ def checkout_post(
         )
     )
 
-    existente = banco.scalar(
-        select(Endereco).where(
-            Endereco.usuario_id == usuario.id,
-            Endereco.cep == cep_limpo,
-            Endereco.numero == numero_limpo,
-        )
-    )
-    if existente is None:
-        possui_principal = (
-            banco.scalar(
-                select(func.count())
-                .select_from(Endereco)
-                .where(Endereco.usuario_id == usuario.id, Endereco.principal.is_(True))
-            )
-            or 0
-        )
-        banco.add(
-            Endereco(
-                usuario_id=usuario.id,
-                cep=cep_limpo,
-                logradouro=logradouro_limpo,
-                numero=numero_limpo,
-                complemento=complemento_limpo,
-                bairro=bairro_limpo,
-                cidade=cidade_limpa,
-                uf=uf_limpa,
-                principal=possui_principal == 0,
+    if endereco_salvo is None:
+        existente = banco.scalar(
+            select(Endereco).where(
+                Endereco.usuario_id == usuario.id,
+                Endereco.cep == endereco_validado.cep,
+                Endereco.numero == endereco_validado.numero,
             )
         )
+        if existente is None:
+            possui_principal = (
+                banco.scalar(
+                    select(func.count())
+                    .select_from(Endereco)
+                    .where(Endereco.usuario_id == usuario.id, Endereco.principal.is_(True))
+                )
+                or 0
+            )
+            banco.add(
+                Endereco(
+                    usuario_id=usuario.id,
+                    cep=endereco_validado.cep,
+                    logradouro=endereco_validado.logradouro,
+                    numero=endereco_validado.numero,
+                    complemento=endereco_validado.complemento,
+                    bairro=endereco_validado.bairro,
+                    cidade=endereco_validado.cidade,
+                    uf=endereco_validado.uf,
+                    principal=possui_principal == 0,
+                )
+            )
     if not usuario.telefone:
         persistido = banco.get(Usuario, usuario.id)
         if persistido is not None:
