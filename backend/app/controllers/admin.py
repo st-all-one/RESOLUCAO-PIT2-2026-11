@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from datetime import date, datetime, time
+from datetime import UTC, date, datetime, time
 from decimal import Decimal, InvalidOperation
 from typing import Annotated
 from zoneinfo import ZoneInfo
 
-from fastapi import APIRouter, Depends, Form, Query, Request
+from fastapi import APIRouter, Depends, File, Form, Query, Request, UploadFile
 from fastapi.responses import Response
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
@@ -35,6 +35,7 @@ from app.models import (
     StatusPedido,
     Usuario,
 )
+from app.services import midia
 from app.services.operacoes import cancelar_pedido, registrar_historico
 from app.services.pedido import transicoes_disponiveis, validar_transicao
 from app.services.slug import gerar_slug
@@ -113,13 +114,26 @@ def raiz() -> Response:
 
 # ------------------------------------------------------------------ produtos
 @router.get("/produtos")
-def listar_produtos(request: Request, banco: Sessao) -> Response:
+def listar_produtos(
+    request: Request,
+    banco: Sessao,
+    lixeira: Annotated[int, Query(ge=0, le=1)] = 0,
+) -> Response:
+    filtro = Produto.excluido_em.is_not(None) if lixeira else Produto.excluido_em.is_(None)
     produtos = list(
         banco.scalars(
-            select(Produto).options(selectinload(Produto.categoria)).order_by(Produto.nome)
+            select(Produto)
+            .options(selectinload(Produto.categoria))
+            .where(filtro)
+            .order_by(Produto.nome)
         ).all()
     )
-    return renderizar(request, "admin/produtos.html", produtos=produtos)
+    return renderizar(
+        request,
+        "admin/produtos.html",
+        produtos=produtos,
+        lixeira=bool(lixeira),
+    )
 
 
 @router.get("/produtos/novo")
@@ -134,7 +148,7 @@ def novo_produto_get(request: Request, banco: Sessao) -> Response:
 
 
 @router.post("/produtos/novo")
-def novo_produto_post(
+async def novo_produto_post(
     request: Request,
     banco: Sessao,
     nome: Annotated[str, Form()] = "",
@@ -144,6 +158,7 @@ def novo_produto_post(
     preco: Annotated[str, Form()] = "",
     estoque: Annotated[str, Form()] = "",
     ativo: Annotated[str, Form()] = "",
+    imagem: Annotated[UploadFile | None, File()] = None,
 ) -> Response:
     valores = {
         "nome": nome,
@@ -176,11 +191,25 @@ def novo_produto_post(
             categorias=categorias,
             valores=valores,
         )
+    caminho_imagem = midia.IMAGEM_PADRAO
+    if imagem is not None and imagem.filename:
+        try:
+            caminho_imagem = await midia.salvar_imagem(imagem, slug)
+        except ErroAplicacao as erro:
+            return renderizar_form(
+                request,
+                "admin/produto_form.html",
+                erro=erro,
+                produto=None,
+                categorias=categorias,
+                valores=valores,
+            )
     banco.add(
         Produto(
             categoria_id=categoria.id,
             nome=nome_limpo,
             slug=slug,
+            imagem=caminho_imagem,
             descricao=descricao_limpa,
             alergenicos=alergenicos_limpos,
             preco=preco_dec,
@@ -214,7 +243,7 @@ def editar_produto_get(request: Request, banco: Sessao, produto_id: int) -> Resp
 
 
 @router.post("/produtos/{produto_id}/editar")
-def editar_produto_post(
+async def editar_produto_post(
     request: Request,
     banco: Sessao,
     produto_id: int,
@@ -225,6 +254,8 @@ def editar_produto_post(
     preco: Annotated[str, Form()] = "",
     estoque: Annotated[str, Form()] = "",
     ativo: Annotated[str, Form()] = "",
+    imagem: Annotated[UploadFile | None, File()] = None,
+    remover_imagem: Annotated[str, Form()] = "",
 ) -> Response:
     produto = _produto(banco, produto_id)
     valores = {
@@ -259,9 +290,27 @@ def editar_produto_post(
             categorias=categorias,
             valores=valores,
         )
+    nova_imagem = produto.imagem
+    if remover_imagem == "on":
+        midia.remover_imagem(produto.imagem)
+        nova_imagem = midia.IMAGEM_PADRAO
+    elif imagem is not None and imagem.filename:
+        try:
+            nova_imagem = await midia.salvar_imagem(imagem, slug)
+        except ErroAplicacao as erro:
+            return renderizar_form(
+                request,
+                "admin/produto_form.html",
+                erro=erro,
+                produto=produto,
+                categorias=categorias,
+                valores=valores,
+            )
+        midia.remover_imagem(produto.imagem)
     produto.categoria_id = categoria.id
     produto.nome = nome_limpo
     produto.slug = slug
+    produto.imagem = nova_imagem
     produto.descricao = descricao_limpa
     produto.alergenicos = alergenicos_limpos
     produto.preco = preco_dec
@@ -283,14 +332,27 @@ def alternar_produto(banco: Sessao, produto_id: int) -> Response:
 @router.post("/produtos/{produto_id}/excluir")
 def excluir_produto(request: Request, banco: Sessao, produto_id: int) -> Response:
     produto = _produto(banco, produto_id)
-    try:
-        banco.delete(produto)
-        banco.commit()
-        avisar(request, "Produto excluído.", tipo="info")
-    except IntegrityError:
-        banco.rollback()
-        avisar_codigo(request, "ERR-ADM-007")
+    if produto.excluido_em is not None:
+        avisar(request, "Este produto já está na lixeira.", tipo="info")
+        return redirecionar("/admin/produtos?lixeira=1")
+    produto.ativo = False
+    produto.excluido_em = datetime.now(UTC).replace(tzinfo=None)
+    banco.commit()
+    avisar(request, "Produto movido para a lixeira. Você pode restaurá-lo depois.", tipo="info")
     return redirecionar("/admin/produtos")
+
+
+@router.post("/produtos/{produto_id}/restaurar")
+def restaurar_produto(request: Request, banco: Sessao, produto_id: int) -> Response:
+    produto = _produto(banco, produto_id)
+    if produto.excluido_em is None:
+        avisar(request, "Este produto não está na lixeira.", tipo="info")
+        return redirecionar("/admin/produtos")
+    produto.excluido_em = None
+    produto.ativo = produto.estoque > 0
+    banco.commit()
+    avisar(request, "Produto restaurado. Revise os dados e ative quando quiser.")
+    return redirecionar("/admin/produtos?lixeira=1")
 
 
 # ---------------------------------------------------------------- categorias

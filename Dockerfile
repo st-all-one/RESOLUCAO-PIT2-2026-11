@@ -25,7 +25,9 @@ RUN pip install .
 
 COPY database ./database
 
-RUN useradd --create-home --uid 10001 app
+RUN useradd --create-home --uid 10001 app \
+    && mkdir -p /app/uploads \
+    && chown -R app:app /app/uploads
 USER app
 
 EXPOSE 8000

@@ -130,11 +130,6 @@ CATALOGO: dict[str, Definicao] = {
         "Você não pode desativar a própria conta.",
     ),
     "ERR-ADM-006": Definicao(404, "Usuário não encontrado", "Usuário não encontrado."),
-    "ERR-ADM-007": Definicao(
-        409,
-        "Produto em uso",
-        "O produto possui histórico de pedidos e não pode ser excluído.",
-    ),
     "ERR-ADM-008": Definicao(
         409,
         "Produto duplicado",

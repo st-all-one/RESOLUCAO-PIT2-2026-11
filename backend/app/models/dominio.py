@@ -83,6 +83,7 @@ class Produto(Base):
     preco: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
     estoque: Mapped[int] = mapped_column(nullable=False, default=0)
     ativo: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    excluido_em: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     criado_em: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.now())
     atualizado_em: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, server_default=func.now(), onupdate=func.now()

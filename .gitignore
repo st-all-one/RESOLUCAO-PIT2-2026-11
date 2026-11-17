@@ -38,3 +38,6 @@ mariadb-data/
 # Relatórios gerados
 sniff-report.jsonl
 artifacts/
+
+# Imagens enviadas em desenvolvimento (produção usa volume Docker)
+uploads/

@@ -5,12 +5,7 @@
 {% block conteudo %}
 <h1>Usuários</h1>
 
-<nav class="acoes" aria-label="Seções administrativas">
-  <a class="botao botao--secundario" href="/admin/produtos">Produtos</a>
-  <a class="botao botao--secundario" href="/admin/categorias">Categorias</a>
-  <a class="botao botao--secundario" href="/admin/pedidos">Pedidos</a>
-  <a class="botao botao--secundario" href="/admin/relatorio">Relatório</a>
-</nav>
+{% include "admin/_abas.html" %}
 
 <div class="tabela-responsiva">
   <table>

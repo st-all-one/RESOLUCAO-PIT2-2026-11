@@ -40,6 +40,8 @@ services:
       FRETE_GRATIS_ACIMA: ${FRETE_GRATIS_ACIMA:-120.00}
     ports:
       - "${APP_BIND:-127.0.0.1}:${APP_PORT:-8000}:8000"
+    volumes:
+      - cupcake-uploads:/app/uploads
     healthcheck:
       test:
         [
@@ -55,3 +57,4 @@ services:
 
 volumes:
   cupcake-mariadb-data:
+  cupcake-uploads:

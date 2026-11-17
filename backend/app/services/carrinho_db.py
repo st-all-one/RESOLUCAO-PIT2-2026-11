@@ -26,6 +26,7 @@ def carregar_itens(
         produto = produtos.get(produto_id)
         if (
             produto is None
+            or produto.excluido_em is not None
             or not produto.ativo
             or produto.categoria is None
             or not produto.categoria.ativo

@@ -9,8 +9,33 @@
 
 <form method="post"
       action="{{ '/admin/produtos/' ~ produto.id ~ '/editar' if produto else '/admin/produtos/novo' }}"
+      enctype="multipart/form-data"
       class="cartao campos">
   <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+
+  <div class="campo">
+    <label for="imagem">Imagem do produto</label>
+    <div class="midia-campo">
+      {% if produto %}
+      <img class="previa-imagem" src="{{ produto.imagem }}" alt="Imagem atual de {{ produto.nome }}"
+           width="240" height="180" loading="lazy">
+      {% endif %}
+      <div class="midia-campo__controles">
+        <input id="imagem" name="imagem" type="file"
+               accept="image/jpeg,image/png,image/webp"
+               aria-describedby="ajuda-imagem">
+        <span id="ajuda-imagem" class="campo__ajuda">
+          JPG, PNG ou WebP de até 2 MB. Sem envio, mantém a imagem atual.
+        </span>
+        {% if produto %}
+        <label class="opcao-perigo">
+          <input type="checkbox" name="remover_imagem">
+          <span>Remover imagem atual</span>
+        </label>
+        {% endif %}
+      </div>
+    </div>
+  </div>
 
   <div class="campo">
     <label for="nome">Nome</label>
@@ -62,10 +87,10 @@
   </div>
 
   <div class="campo">
-    <label>
+    <label class="alternador">
       <input type="checkbox" name="ativo"
              {{ 'checked' if valores.get('ativo') or not produto else '' }}>
-      Produto ativo na vitrine
+      <span>Produto ativo na vitrine</span>
     </label>
   </div>
 

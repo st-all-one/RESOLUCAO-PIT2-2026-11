@@ -1,0 +1,12 @@
+<nav class="abas" aria-label="Seções administrativas">
+  <a class="aba" href="/admin/produtos"
+     {% if request.url.path.startswith('/admin/produtos') %}aria-current="page"{% endif %}>Produtos</a>
+  <a class="aba" href="/admin/categorias"
+     {% if request.url.path.startswith('/admin/categorias') %}aria-current="page"{% endif %}>Categorias</a>
+  <a class="aba" href="/admin/pedidos"
+     {% if request.url.path.startswith('/admin/pedidos') %}aria-current="page"{% endif %}>Pedidos</a>
+  <a class="aba" href="/admin/relatorio"
+     {% if request.url.path.startswith('/admin/relatorio') %}aria-current="page"{% endif %}>Relatório</a>
+  <a class="aba" href="/admin/usuarios"
+     {% if request.url.path.startswith('/admin/usuarios') %}aria-current="page"{% endif %}>Usuários</a>
+</nav>

@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 from decimal import Decimal
+from pathlib import Path
 
 from fastapi.testclient import TestClient
 
+from app.core.config import settings
 from app.main import app
 from tests.apoio import (
     adicionar_item,
@@ -15,6 +17,7 @@ from tests.apoio import (
     finalizar_pedido,
     pagar,
     postar,
+    token_csrf,
 )
 from tests.conftest import SENHA
 
@@ -180,7 +183,9 @@ def test_categoria_inexistente_responde_404(
     assert "ERR-ADM-009" in resposta.text
 
 
-def test_nao_exclui_produto_com_historico(cliente_http: TestClient, dados: dict[str, int]) -> None:
+def test_exclusao_logica_preserva_produto_e_restaura(
+    cliente_http: TestClient, dados: dict[str, int]
+) -> None:
     with TestClient(app) as cliente:
         entrar(cliente, "cliente@teste.local", SENHA)
         criar_pedido_pago(cliente, dados["baunilha"])
@@ -194,7 +199,32 @@ def test_nao_exclui_produto_com_historico(cliente_http: TestClient, dados: dict[
     )
     assert resposta.status_code == 303
     assert escalar("SELECT COUNT(*) FROM produtos WHERE id=:id", id=dados["baunilha"]) == 1
-    assert "ERR-ADM-007" in cliente_http.get("/admin/produtos").text
+    assert (
+        escalar("SELECT excluido_em IS NOT NULL FROM produtos WHERE id=:id", id=dados["baunilha"])
+        == 1
+    )
+    assert "Cupcake Baunilha" not in cliente_http.get("/").text
+    assert cliente_http.get("/produtos/cupcake-baunilha").status_code == 404
+    assert "Cupcake Baunilha" not in cliente_http.get("/admin/produtos").text
+    assert "Cupcake Baunilha" in cliente_http.get("/admin/produtos?lixeira=1").text
+
+    resposta = postar(
+        cliente_http,
+        f"/admin/produtos/{dados['baunilha']}/restaurar",
+        {},
+        pagina="/admin/produtos?lixeira=1",
+    )
+    assert resposta.status_code == 303
+    assert escalar("SELECT excluido_em FROM produtos WHERE id=:id", id=dados["baunilha"]) is None
+    assert escalar("SELECT ativo FROM produtos WHERE id=:id", id=dados["baunilha"]) == 1
+    assert cliente_http.get("/produtos/cupcake-baunilha").status_code == 200
+    assert (
+        escalar(
+            "SELECT COUNT(*) FROM itens_pedido WHERE produto_id=:id",
+            id=dados["baunilha"],
+        )
+        == 1
+    )
 
 
 def test_nao_exclui_categoria_com_produtos(cliente_http: TestClient, dados: dict[str, int]) -> None:
@@ -224,3 +254,95 @@ def test_relatorio_ignora_pedido_nao_pago(cliente_http: TestClient, dados: dict[
         pagina = admin.get("/admin/relatorio").text
     assert "R$ 28,00" in pagina
     assert "R$ 18,00" not in pagina
+
+
+PNG = b"\x89PNG\r\n\x1a\n" + b"\x00" * 128
+JPEG = b"\xff\xd8\xff\xe0" + b"\x00" * 128
+
+
+def _arquivo(caminho: str) -> Path:
+    return settings.diretorio_midias / Path(caminho).name
+
+
+def test_admin_cria_e_troca_imagem_do_produto(
+    cliente_http: TestClient, dados: dict[str, int]
+) -> None:
+    entrar(cliente_http, "admin@teste.local", SENHA)
+    token = token_csrf(cliente_http, "/admin/produtos/novo")
+    resposta = cliente_http.post(
+        "/admin/produtos/novo",
+        data={
+            "csrf_token": token,
+            **NOVO_PRODUTO,
+            "categoria_id": str(dados["tradicionais"]),
+        },
+        files={"imagem": ("cupcake.png", PNG, "image/png")},
+        follow_redirects=False,
+    )
+    assert resposta.status_code == 303
+    produto_id = escalar("SELECT id FROM produtos WHERE slug=:slug", slug="cupcake-novo")
+    imagem = escalar("SELECT imagem FROM produtos WHERE id=:id", id=produto_id)
+    assert isinstance(imagem, str)
+    assert imagem.startswith("/midia/")
+    assert _arquivo(imagem).exists()
+    assert cliente_http.get(imagem).status_code == 200
+
+    token = token_csrf(cliente_http, f"/admin/produtos/{produto_id}/editar")
+    resposta = cliente_http.post(
+        f"/admin/produtos/{produto_id}/editar",
+        data={
+            "csrf_token": token,
+            **NOVO_PRODUTO,
+            "nome": "Cupcake Novo Renomeado",
+            "categoria_id": str(dados["tradicionais"]),
+        },
+        files={"imagem": ("nova.jpg", JPEG, "image/jpeg")},
+        follow_redirects=False,
+    )
+    assert resposta.status_code == 303
+    nova = escalar("SELECT imagem FROM produtos WHERE id=:id", id=produto_id)
+    assert isinstance(nova, str)
+    assert nova.startswith("/midia/")
+    assert nova != imagem
+    assert _arquivo(nova).exists()
+    assert not _arquivo(imagem).exists()
+
+    token = token_csrf(cliente_http, f"/admin/produtos/{produto_id}/editar")
+    resposta = cliente_http.post(
+        f"/admin/produtos/{produto_id}/editar",
+        data={
+            "csrf_token": token,
+            **NOVO_PRODUTO,
+            "nome": "Cupcake Novo Renomeado",
+            "categoria_id": str(dados["tradicionais"]),
+            "remover_imagem": "on",
+        },
+        follow_redirects=False,
+    )
+    assert resposta.status_code == 303
+    assert (
+        escalar("SELECT imagem FROM produtos WHERE id=:id", id=produto_id)
+        == "/static/img/produtos/padrao.jpg"
+    )
+    assert not _arquivo(nova).exists()
+
+
+def test_admin_rejeita_arquivo_que_nao_e_imagem(
+    cliente_http: TestClient, dados: dict[str, int]
+) -> None:
+    entrar(cliente_http, "admin@teste.local", SENHA)
+    token = token_csrf(cliente_http, "/admin/produtos/novo")
+    resposta = cliente_http.post(
+        "/admin/produtos/novo",
+        data={
+            "csrf_token": token,
+            **NOVO_PRODUTO,
+            "nome": "Cupcake com Texto",
+            "categoria_id": str(dados["tradicionais"]),
+        },
+        files={"imagem": ("nota.txt", b"isto nao e uma imagem", "text/plain")},
+        follow_redirects=False,
+    )
+    assert resposta.status_code == 422
+    assert "ERR-ADM-010" in resposta.text
+    assert escalar("SELECT COUNT(*) FROM produtos WHERE slug=:slug", slug="cupcake-com-texto") == 0

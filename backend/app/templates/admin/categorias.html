@@ -5,12 +5,7 @@
 {% block conteudo %}
 <h1>Categorias</h1>
 
-<nav class="acoes" aria-label="Seções administrativas">
-  <a class="botao botao--secundario" href="/admin/produtos">Produtos</a>
-  <a class="botao botao--secundario" href="/admin/pedidos">Pedidos</a>
-  <a class="botao botao--secundario" href="/admin/relatorio">Relatório</a>
-  <a class="botao botao--secundario" href="/admin/usuarios">Usuários</a>
-</nav>
+{% include "admin/_abas.html" %}
 
 <form method="post" action="/admin/categorias" class="cartao campos">
   <h2>Nova categoria</h2>

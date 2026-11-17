@@ -3,19 +3,32 @@
 {% block titulo %}Admin · Produtos{% endblock %}
 
 {% block conteudo %}
-<h1>Produtos</h1>
-
-<nav class="acoes" aria-label="Seções administrativas">
+<div class="pagina-cabecalho">
+  <div>
+    <h1>Produtos</h1>
+    <p class="texto-suave">Gerencie o catálogo da vitrine e restaure itens da lixeira.</p>
+  </div>
   <a class="botao" href="/admin/produtos/novo">Novo produto</a>
-  <a class="botao botao--secundario" href="/admin/categorias">Categorias</a>
-  <a class="botao botao--secundario" href="/admin/pedidos">Pedidos</a>
-  <a class="botao botao--secundario" href="/admin/relatorio">Relatório</a>
-  <a class="botao botao--secundario" href="/admin/usuarios">Usuários</a>
+</div>
+
+{% include "admin/_abas.html" %}
+
+<nav class="filtros" aria-label="Situação dos produtos">
+  <a class="filtro" href="/admin/produtos"
+     {% if not lixeira %}aria-current="page"{% endif %}>Ativos e inativos</a>
+  <a class="filtro" href="/admin/produtos?lixeira=1"
+     {% if lixeira %}aria-current="page"{% endif %}>Lixeira</a>
 </nav>
+
+{% if lixeira %}
+<p class="alerta alerta--info" role="status">
+  Produtos excluídos ficam aqui e podem ser restaurados a qualquer momento.
+</p>
+{% endif %}
 
 {% if produtos %}
 <div class="tabela-responsiva">
-  <table>
+  <table class="tabela-cartoes">
     <thead>
       <tr>
         <th>Produto</th><th>Categoria</th><th>Preço</th><th>Estoque</th><th>Situação</th><th>Ações</th>
@@ -24,12 +37,23 @@
     <tbody>
       {% for produto in produtos %}
       <tr>
-        <td><a href="/produtos/{{ produto.slug }}">{{ produto.nome }}</a></td>
-        <td>{{ produto.categoria.nome }}</td>
-        <td>{{ produto.preco|brl }}</td>
-        <td>{{ produto.estoque }}</td>
-        <td>
-          {% if not produto.ativo %}
+        <td data-rotulo="Produto">
+          <div class="produto-linha">
+            <img class="produto-linha__imagem" src="{{ produto.imagem }}" alt="" width="64" height="48" loading="lazy">
+            {% if produto.excluido_em %}
+            <span>{{ produto.nome }}</span>
+            {% else %}
+            <a href="/produtos/{{ produto.slug }}">{{ produto.nome }}</a>
+            {% endif %}
+          </div>
+        </td>
+        <td data-rotulo="Categoria">{{ produto.categoria.nome }}</td>
+        <td data-rotulo="Preço">{{ produto.preco|brl }}</td>
+        <td data-rotulo="Estoque">{{ produto.estoque }}</td>
+        <td data-rotulo="Situação">
+          {% if produto.excluido_em %}
+          <span class="selo selo--cancelado">Na lixeira</span>
+          {% elif not produto.ativo %}
           <span class="selo selo--cancelado">Inativo</span>
           {% elif produto.estoque == 0 %}
           <span class="selo selo--esgotado">Esgotado</span>
@@ -37,9 +61,16 @@
           <span class="selo selo--aprovado">Ativo</span>
           {% endif %}
         </td>
-        <td>
+        <td data-rotulo="Ações">
           <div class="acoes">
-            <a class="botao botao--pequeno botao--secundario" href="/admin/produtos/{{ produto.id }}/editar">Editar</a>
+            {% if produto.excluido_em %}
+            <form method="post" action="/admin/produtos/{{ produto.id }}/restaurar" class="embutido">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
+              <button class="botao botao--pequeno" type="submit">Restaurar</button>
+            </form>
+            {% else %}
+            <a class="botao botao--pequeno botao--secundario"
+               href="/admin/produtos/{{ produto.id }}/editar">Editar</a>
             <form method="post" action="/admin/produtos/{{ produto.id }}/ativo" class="embutido">
               <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
               <button class="botao botao--pequeno botao--secundario" type="submit">
@@ -47,10 +78,13 @@
               </button>
             </form>
             <form method="post" action="/admin/produtos/{{ produto.id }}/excluir" class="embutido"
-                  data-confirmar="Excluir {{ produto.nome }}?">
+                  data-confirmar-titulo="Mover para a lixeira"
+                  data-confirmar="O produto {{ produto.nome }} sairá da vitrine e irá para a lixeira. Você poderá restaurá-lo depois."
+                  data-confirmar-acao="Mover para a lixeira">
               <input type="hidden" name="csrf_token" value="{{ csrf_token(request) }}">
               <button class="botao botao--pequeno botao--perigo" type="submit">Excluir</button>
             </form>
+            {% endif %}
           </div>
         </td>
       </tr>
@@ -60,8 +94,13 @@
 </div>
 {% else %}
 <div class="cartao estado-vazio">
+  {% if lixeira %}
+  <p>A lixeira está vazia.</p>
+  <a class="botao" href="/admin/produtos">Voltar aos produtos</a>
+  {% else %}
   <p>Nenhum produto cadastrado.</p>
   <a class="botao" href="/admin/produtos/novo">Cadastrar o primeiro</a>
+  {% endif %}
 </div>
 {% endif %}
 {% endblock %}

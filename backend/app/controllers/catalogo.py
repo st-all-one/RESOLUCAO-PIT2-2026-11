@@ -32,7 +32,11 @@ def vitrine(
     consulta = (
         select(Produto)
         .join(Produto.categoria)
-        .where(Produto.ativo.is_(True), Categoria.ativo.is_(True))
+        .where(
+            Produto.ativo.is_(True),
+            Produto.excluido_em.is_(None),
+            Categoria.ativo.is_(True),
+        )
     )
     if termo:
         consulta = consulta.where(
@@ -67,6 +71,7 @@ def detalhe_produto(request: Request, banco: Sessao, slug: str) -> Response:
         .where(
             Produto.slug == slug,
             Produto.ativo.is_(True),
+            Produto.excluido_em.is_(None),
             Categoria.ativo.is_(True),
         )
     )

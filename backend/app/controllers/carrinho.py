@@ -75,7 +75,12 @@ def adicionar_item(
     produto = banco.scalar(
         select(Produto)
         .join(Produto.categoria)
-        .where(Produto.id == produto_id, Produto.ativo.is_(True), Categoria.ativo.is_(True))
+        .where(
+            Produto.id == produto_id,
+            Produto.ativo.is_(True),
+            Produto.excluido_em.is_(None),
+            Categoria.ativo.is_(True),
+        )
     )
     if produto is None:
         raise ErroAplicacao("ERR-CAT-001")
@@ -101,7 +106,7 @@ def atualizar_item(
     quantidade: Annotated[int, Form()],
 ) -> Response:
     produto = banco.get(Produto, produto_id)
-    if produto is None:
+    if produto is None or produto.excluido_em is not None:
         raise ErroAplicacao("ERR-CAT-001")
     carrinho = ler_carrinho(request.session)
     try:

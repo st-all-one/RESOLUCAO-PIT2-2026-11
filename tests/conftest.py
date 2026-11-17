@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import tempfile
 from collections.abc import Iterator
 from decimal import Decimal
 from pathlib import Path
@@ -10,6 +11,7 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parents[1]
 os.environ.setdefault("APP_ENV", "test")
 os.environ.setdefault("APP_SECRET", "segredo-de-teste-com-32-caracteres")
+os.environ.setdefault("DIRETORIO_MIDIAS", tempfile.mkdtemp(prefix="cupcake-midias-"))
 os.environ["DATABASE_URL"] = os.environ.get(
     "TEST_DATABASE_URL",
     "mariadb+pymysql://cupcake:cupcake@127.0.0.1:3307/cupcake_test?charset=utf8mb4",

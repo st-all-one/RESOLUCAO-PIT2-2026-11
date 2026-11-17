@@ -62,6 +62,7 @@ CREATE TABLE produtos (
     preco         DECIMAL(10, 2)  NOT NULL,
     estoque       INT             NOT NULL DEFAULT 0,
     ativo         BOOLEAN         NOT NULL DEFAULT TRUE,
+    excluido_em   TIMESTAMP       NULL DEFAULT NULL,
     criado_em     TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
     atualizado_em TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP
                                   ON UPDATE CURRENT_TIMESTAMP,
