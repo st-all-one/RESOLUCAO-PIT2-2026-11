@@ -11,7 +11,8 @@ make deploy-check URL=http://SEU_IP_OU_DOMINIO:8000
 ```
 
 O primeiro `make up` aplica `database/schema.sql` e `database/seed.sql` no volume
-novo. Subidas seguintes preservam os dados.
+novo. Subidas seguintes preservam os dados. As imagens enviadas pelo admin vivem
+no volume `cupcake-uploads`, montado em `/app/uploads`.
 
 ## Atualização
 
@@ -32,6 +33,10 @@ docker exec cupcake-mariadb mariadb-dump -uroot -p"$MARIADB_ROOT_PASSWORD" cupca
 
 # restauração
 docker exec -i cupcake-mariadb mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" cupcake < backup.sql
+
+# imagens enviadas (volume)
+docker run --rm -v cupcake-uploads:/dados -v "$PWD":/backup alpine \
+  tar czf /backup/uploads.tar.gz -C /dados .
 ```
 
 Teste a restauração em um banco separado antes de confiar no backup.
@@ -55,6 +60,8 @@ docker compose logs -f mariadb        # banco
 | 502 no proxy | app não subiu | `docker compose logs app` |
 | Volume cheio | logs/dados | `docker system df`, limpar imagens antigas |
 | Seed ausente | volume já existia vazio | aplicar `database/schema.sql` e `seed.sql` manualmente |
+| Imagem enviada some após deploy | volume `cupcake-uploads` não montado | conferir `docker inspect cupcake-app` e o `compose.yaml` |
+| Produto excluído não aparece | está na lixeira | `/admin/produtos?lixeira=1` → Restaurar |
 
 ## Rollback
 

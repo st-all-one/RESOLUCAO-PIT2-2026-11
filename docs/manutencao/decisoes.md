@@ -50,3 +50,20 @@ mais lenta que testes unitários puros.
 **Decisão**: catálogo `ERR-*`, status HTTP próprio e corpo JSON padronizado, com
 negociação HTML/JSON. **Consequências**: contrato estável e testável; todo erro
 novo precisa de código e documentação.
+
+## ADR-08 — Imagens de produto em volume, servidas por `/midia`
+
+**Contexto**: o admin precisa trocar imagens sem rebuild; a imagem do container
+é read-only para o usuário da aplicação. **Decisão**: gravar em
+`settings.diretorio_midias` (volume `cupcake-uploads`), validar assinatura do
+arquivo e gerar nome aleatório; o banco guarda o caminho. **Consequências**:
+troca imediata e sem deploy; backup passa a incluir o volume; o conteúdo não é
+versionado.
+
+## ADR-09 — Exclusão lógica de produto
+
+**Contexto**: excluir apagava o item e o histórico de pedidos ficava órfão (ou a
+FK impedia a exclusão). **Decisão**: `produtos.excluido_em` marca a lixeira;
+catálogo, carrinho e listagem padrão filtram; o admin restaura. **Consequências**:
+nenhuma venda histórica perde referência, e o catálogo pode ser corrigido sem
+perda de dados; linhas antigas exigem uma migração simples.

@@ -15,6 +15,11 @@ PIT II. Cada linha é uma decisão com justificativa, não um log de commits.
 | 2.0 | 2026-11-15 | Arquitetura | MVC com FastAPI + Jinja2 + TypeScript estrito | Linguagem da lista sugerida; separação explícita de models/controllers/views |
 | 2.0 | 2026-11-15 | IHC | Mensagens de erro catalogadas com código, causa e ação | O material cobra telas de erro e mensagens claras |
 | 2.0 | 2026-11-15 | Qualidade | ruff + mypy strict + ESLint strict-type-checked + Stylelint + sniff | Requisito do autor do projeto: tipagem forte e lint rigoroso nas duas pontas |
+| 2.1 | 2026-11-17 | Escopo | 4 histórias abertas (US-16..19) a partir de 5 laudos externos | O ciclo KaiZen exige que o feedback de uso vire requisito rastreável, não ajuste informal |
+| 2.1 | 2026-11-17 | Conta | `/conta` para dados, senha e endereços | Lacuna apontada: só era possível editar dados no cadastro |
+| 2.1 | 2026-11-17 | Checkout | Endereço salvo explícito e carrinho preservado no login | Evita perda de carrinho e endereço "herdado" de outra conta no mesmo dispositivo |
+| 2.1 | 2026-11-17 | Catálogo | Upload de imagem e exclusão lógica com lixeira | Admin precisava trocar imagem sem rebuild e recuperar item excluído |
+| 2.1 | 2026-11-17 | UI mobile | Cartões no admin e correção do overflow do checkout | Dois laudos relataram uso ruim no celular |
 
 ## Decisões que mudaram o plano original
 

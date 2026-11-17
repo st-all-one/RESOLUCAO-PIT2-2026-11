@@ -27,10 +27,12 @@
 | `backend/app/core/acesso.py` | login obrigatório, papéis, redirect |
 | `backend/app/core/problemas.py` | catálogo `ERR-*` e Problem Details |
 | `backend/app/core/templating.py` | Jinja, filtros (`brl`, `data_br`) e contexto |
-| `backend/app/controllers/` | um arquivo por área: `auth`, `catalogo`, `carrinho`, `checkout`, `pagamento`, `pedidos`, `admin`, `entregas`, `comum` |
+| `backend/app/controllers/` | um arquivo por área: `auth`, `conta`, `catalogo`, `carrinho`, `checkout`, `pagamento`, `pedidos`, `admin`, `entregas`, `comum` |
 | `backend/app/services/preco.py` | formatação, soma, frete |
 | `backend/app/services/carrinho.py` | carrinho puro sobre `dict` |
 | `backend/app/services/carrinho_db.py` | carrega produtos e ajusta carrinho à realidade do banco |
+| `backend/app/services/endereco.py` | validação única do endereço (checkout e conta) |
+| `backend/app/services/midia.py` | valida e grava imagens enviadas pelo admin |
 | `backend/app/services/pagamento.py` | Luhn e simulação PIX/cartão |
 | `backend/app/services/pedido.py` | rótulos e transições de status |
 | `backend/app/services/operacoes.py` | histórico, estoque, cancelamento |
@@ -38,8 +40,9 @@
 | `backend/app/services/slug.py` | slug estável |
 | `backend/app/services/validacao.py` | CEP, UF, telefone, texto |
 | `backend/app/models/dominio.py` | mapeamento das 8 tabelas |
-| `backend/app/templates/` | Jinja por feature + `base.html` + componentes + erros |
+| `backend/app/templates/` | Jinja por feature (`conta/` inclusive) + `base.html` + componentes + erros |
 | `backend/app/static/` | **gerado**: CSS copiado e JS compilado |
+| `uploads/` | imagens enviadas em desenvolvimento; `/app/uploads` no container |
 | `backend/scripts/gerar_dicionario.py` | gera `docs/05-dados/dicionario.md` |
 | `backend/scripts/verificar_deploy.py` | smoke test de uma URL publicada |
 
@@ -47,7 +50,7 @@
 
 | Caminho | Responsabilidade |
 |---|---|
-| `frontend/src/app.ts` | confirmações, máscara de cartão, alternância PIX/cartão |
+| `frontend/src/app.ts` | confirmações, máscaras, CEP, alternância PIX/cartão e endereço salvo |
 | `frontend/src/estilo.css` | fonte única dos estilos mobile-first |
 | `frontend/scripts/copiar-estaticos.mjs` | copia o CSS para o backend |
 | `frontend/package.json` | build, watch, typecheck e lint |
@@ -75,5 +78,6 @@
 | `tests/test_auth.py` | cadastro, login, CSRF |
 | `tests/test_carrinho.py` | totais, frete, limites |
 | `tests/test_catalogo.py` | vitrine, busca, detalhe |
+| `tests/test_conta.py` | dados, senha e endereços do cliente |
 | `tests/test_servicos.py` | funções puras |
 | `tests/test_saude.py` | health e Problem Details |

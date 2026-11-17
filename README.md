@@ -14,7 +14,7 @@ implementada no PIT II. Aplicação web mobile-first com back-end em Python
 | Front-end | Jinja2, CSS, TypeScript estrito compilado por `tsc` |
 | Testes | pytest + httpx (ASGI), MariaDB real |
 | Qualidade | ruff, mypy strict, ESLint strict-type-checked, Stylelint, sniff |
-| Deploy | a definir na fase P10 (serviço com MariaDB) |
+| Deploy | Docker Compose + MariaDB em VPS com TLS (https://cupcake.dvmax.stream) |
 
 ## Como rodar
 
@@ -45,7 +45,8 @@ ficar atrás de um proxy TLS. O passo a passo, incluindo a troca da senha do
 administrador antes da primeira subida, está em `docs/08-deploy/deploy.md`.
 
 Guia completo (HTTPS, backup, atualização e verificação) em
-[docs/08-deploy/deploy.md](docs/08-deploy/deploy.md).
+[docs/08-deploy/deploy.md](docs/08-deploy/deploy.md). As imagens enviadas pelo
+admin ficam no volume `cupcake-uploads`, servido em `/midia`.
 
 ## Qualidade
 
@@ -57,7 +58,7 @@ make cov      # cobertura (relatório em coverage.xml)
 make audit    # sniff contra a aplicação em execução
 ```
 
-Resultado atual: 76 testes aprovados, cobertura de 86%, ruff/mypy/ESLint/Stylelint
+Resultado atual: 88 testes aprovados, cobertura de 88%, ruff/mypy/ESLint/Stylelint
 sem erros e contraste WCAG AAA aprovado no sniff. Detalhes em
 [docs/06-testes/relatorio.md](docs/06-testes/relatorio.md) e
 [docs/07-laudo/laudo-qualidade.md](docs/07-laudo/laudo-qualidade.md).
@@ -98,8 +99,8 @@ artifacts/       capturas do sniff usadas no laudo (gerado)
 | Item | Valor |
 |---|---|
 | Repositório | https://github.com/st-all-one/RESOLUCAO-PIT2-2026-11 |
-| Solução em funcionamento | _a preencher no deploy_ |
+| Solução em funcionamento | https://cupcake.dvmax.stream |
 | Vídeo narrado (≥ 5 min) | _a preencher_ |
 | Vídeo das correções (≤ 5 min) | _a preencher_ |
 
-Entrega prevista: 2026-11-16.
+Entrega: 2026-11-16. Ciclo de correções a partir dos laudos: 2026-11-17.

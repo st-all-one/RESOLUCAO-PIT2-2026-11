@@ -20,6 +20,10 @@ Os testes citados ficam em `tests/` e rodam contra MariaDB real.
 | US-13 Relatório | `controllers/admin.py`, `templates/admin/relatorio.html` | `test_admin.py::test_relatorio_soma_pedidos_pagos` |
 | US-14 Entregas | `controllers/entregas.py`, `templates/entregas/*` | `test_entregas.py` (3 testes) |
 | US-15 Usuários | `controllers/admin.py`, `templates/admin/usuarios.html` | `test_admin.py::test_admin_nao_altera_a_propria_conta`, `test_auth.py::test_login_de_conta_desativada` |
+| US-16 Conta e endereços | `controllers/conta.py`, `services/endereco.py`, `templates/conta/index.html` | `test_conta.py` (6 testes) |
+| US-17 Carrinho no login | `controllers/auth.py::_iniciar_sessao` | `test_auth.py::test_login_preserva_carrinho_montado_como_visitante`, `::test_cadastro_preserva_carrinho_montado_como_visitante` |
+| US-18 Imagem e lixeira | `controllers/admin.py`, `services/midia.py`, `templates/admin/produtos.html` | `test_admin.py::test_admin_cria_e_troca_imagem_do_produto`, `::test_admin_rejeita_arquivo_que_nao_e_imagem`, `::test_exclusao_logica_preserva_produto_e_restaura` |
+| US-19 Endereço e mobile | `controllers/checkout.py`, `templates/checkout/form.html`, `frontend/src` | `test_compra.py::test_checkout_oferece_endereco_salvo_e_usa_o_escolhido`, `::test_checkout_nao_aceita_endereco_de_outra_conta` |
 
 ## Requisitos não funcionais
 

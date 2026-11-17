@@ -21,8 +21,12 @@ Ordem de entrega definida por risco e valor: primeiro o fluxo que gera receita
 | 13 | US-14 | Entregas do entregador | Entrega | 5 | B |
 | 14 | US-10 | Administração de categorias | Administração | 3 | C |
 | 15 | US-15 | Administração de usuários | Administração | 3 | C |
+| 16 | US-16 | Edição de conta, senha e endereços | Conta e acesso | 5 | B |
+| 17 | US-17 | Carrinho preservado ao entrar | Vitrine e carrinho | 2 | A |
+| 18 | US-18 | Imagem e lixeira de produtos | Administração | 5 | B |
+| 19 | US-19 | Endereço explícito e telas mobile | Pedido e pagamento | 5 | B |
 
-**Total:** 68 pontos.
+**Total:** 85 pontos.
 
 ## Distribuição em ondas
 
@@ -31,6 +35,7 @@ Ordem de entrega definida por risco e valor: primeiro o fluxo que gera receita
 | 1 — Contrato e dados | US-01, US-02, US-11, US-12 (modelo) | Banco, autenticação e catálogo administrativo |
 | 2 — Fluxo do cliente | US-03, US-04, US-05, US-06, US-07, US-08, US-09 | Compra ponta a ponta |
 | 3 — Operação | US-10, US-12, US-13, US-14, US-15 | Administração, relatório e entrega |
+| 4 — Ciclo de feedback | US-16, US-17, US-18, US-19 | Correções e lacunas apontadas pelos testadores |
 
 ## Critério de corte
 

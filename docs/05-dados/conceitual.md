@@ -127,3 +127,9 @@ erDiagram
    fechado precisa preservar o valor praticado.
 4. **Histórico como entidade própria.** Auditoria de transições não cabe em colunas do
    pedido sem perder o "quem e quando".
+
+## Regra de exclusão
+
+Produtos não são removidos fisicamente pela aplicação. A exclusão é lógica
+(`excluido_em`), permitindo restaurar o item e preservar a rastreabilidade dos
+itens de pedidos históricos.

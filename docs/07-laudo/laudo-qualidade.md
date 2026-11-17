@@ -1,6 +1,6 @@
 # Laudo de qualidade — Cupcake Gourmet 2.0
 
-Data da execução: 2026-11-16. Ambiente: Linux, Python 3.15, Node 22,
+Data da execução: 2026-11-17 (após o ciclo de feedback dos testadores). Ambiente: Linux, Python 3.15, Node 22,
 MariaDB 11.4 em Docker, Chromium via sniff 0.5.1.
 
 ## Ferramentas e resultado
@@ -9,11 +9,11 @@ MariaDB 11.4 em Docker, Chromium via sniff 0.5.1.
 |---|---|---|
 | ruff (lint) | `ruff check .` | 0 erros |
 | ruff (formato) | `ruff format --check .` | 79 arquivos formatados |
-| mypy strict | `mypy src tests scripts` | 0 erros em 50 arquivos |
+| mypy strict | `mypy backend/app tests backend/scripts` | 0 erros em 54 arquivos |
 | ESLint strict-type-checked | `npm run lint` | 0 erros |
 | Stylelint | incluído em `npm run lint` | 0 erros |
-| pytest | `pytest` | **76 aprovados** |
-| Cobertura | `pytest --cov=app` | **86%** (1559 linhas) |
+| pytest | `pytest` | **88 aprovados** |
+| Cobertura | `pytest --cov=app` | **88%** (1809 linhas) |
 | sniff | `sniff capture` + `sniff check` | 0 falhas; contraste AAA |
 
 ## Acessibilidade (sniff)
@@ -56,14 +56,16 @@ com `--depth 8` para incluir a árvore da página.
 
 | Risco | Mitigação atual |
 |---|---|
-| Deploy público ainda não realizado | Dockerfile multi-stage pronto; provedor com MariaDB a definir |
-| Cobertura de `admin.py` em 54% | Fluxos principais testados; ramos de erro no roteiro manual |
+| Deploy público | <https://cupcake.dvmax.stream> com HTTPS e health check |
+| Cobertura de `admin.py` em 69% | Fluxos principais e upload/lixeira testados; ramos de erro no roteiro manual |
 | Contraste AAA | Paleta escurecida; menor razão 7,04:1 |
-| Testadores externos não recrutados | Template em `docs/07-laudo/template-laudo-testador.md` |
+| Feedback de testadores | Cinco laudos consolidados em `docs/07-laudo/feedback-testadores.md` |
+| Overflow mobile | Corrigido e medido em viewport 390×844; `scrollWidth == clientWidth` |
 
 ## Parecer
 
-A solução atende aos requisitos funcionais das 15 histórias e aos requisitos não
-funcionais de segurança, consistência de estoque, acessibilidade AA/AAA de
-contraste e qualidade estática. Está apta à validação com usuários e ao deploy, condicionada à
-configuração do provedor.
+A solução atende aos requisitos funcionais das 19 histórias (15 planejadas + 4
+abertas no ciclo de feedback) e aos requisitos não funcionais de segurança,
+consistência de estoque, acessibilidade AA/AAA de contraste e qualidade estática.
+Os cinco laudos foram endereçados e publicados em
+<https://cupcake.dvmax.stream>.

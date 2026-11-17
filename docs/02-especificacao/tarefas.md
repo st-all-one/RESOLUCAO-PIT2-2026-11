@@ -59,6 +59,17 @@ e documentação) e não pertencem a uma história de usuário.
 | T-049 | Gestão de papéis e ativação | US-15 | 4 |
 | T-050 | Template de usuários | US-15 | 3 |
 | T-051 | Testes de usuários | US-15 | 3 |
+| T-052 | Preservar carrinho no login/cadastro | US-17 | 2 |
+| T-053 | Área `/conta`: dados e senha | US-16 | 6 |
+| T-054 | CRUD de endereços do cliente | US-16 | 5 |
+| T-055 | Seleção explícita de endereço no checkout | US-19 | 5 |
+| T-056 | Upload e remoção de imagem do produto | US-18 | 5 |
+| T-057 | Exclusão lógica e lixeira de produtos | US-18 | 4 |
+| T-058 | Cartões responsivos no admin | US-19 | 3 |
+| T-059 | Correção de overflow do checkout | US-19 | 2 |
+| T-060 | Divulgação do acesso do entregador | US-14 | 1 |
+| T-061 | Testes de regressão do ciclo de feedback | US-16..19 | 6 |
+| T-062 | Atualização de docs, laudo e dicionário | T-106 | 4 |
 
 ## Tarefas habilitadoras
 

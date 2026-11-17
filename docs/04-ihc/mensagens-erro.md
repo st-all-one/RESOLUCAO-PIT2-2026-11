@@ -68,10 +68,11 @@ fica reservado para senha incorreta de uma conta existente.
 | `ERR-ADM-004` | O estoque não pode ser negativo. | Estoque < 0 | Corrigir o estoque |
 | `ERR-ADM-005` | Você não pode desativar a própria conta. | Auto-bloqueio | Pedir a outro administrador |
 | `ERR-ADM-006` | Usuário não encontrado. | ID inexistente | Voltar à lista |
-| `ERR-ADM-007` | O produto possui histórico de pedidos e não pode ser excluído. | FK `RESTRICT` | Desativar o produto |
+| `ERR-ADM-010` | Envie uma imagem JPG, PNG ou WebP de até 2 MB. | Arquivo ausente, grande demais ou sem assinatura de imagem | Enviar outro arquivo |
 | `ERR-ADM-008` | Já existe um produto com esse nome. | Unicidade de produto | Usar outro nome |
 | `ERR-ADM-009` | Categoria não encontrada. | ID inexistente | Voltar à lista |
 | `ERR-ENT-001` | Esta entrega não está atribuída a você. | Entregador diferente | Ver apenas as próprias entregas |
+| `ERR-END-001` | Endereço não encontrado na sua conta. | Endereço inexistente ou de outro usuário | Voltar à conta e escolher um endereço próprio |
 
 ## Sistema
 
@@ -138,14 +139,15 @@ obrigatórios: `codigo` e, em validação de formulário, `campos`.
 | `ERR-CAT-003` | 422 | `ERR-ADM-003..004` | 422 |
 | `ERR-PED-001` | 404 | `ERR-ADM-005` | 409 |
 | `ERR-PED-002..003` | 409 | `ERR-ADM-006` | 404 |
-| `ERR-PED-004` | 422 | `ERR-ADM-007..008` | 409 |
+| `ERR-PED-004` | 422 | `ERR-ADM-008` | 409 |
 | `ERR-ENT-001` | 403 | `ERR-ADM-009` | 404 |
+| `ERR-END-001` | 404 | `ERR-ADM-010` | 422 |
 | `ERR-SYS-001` | 500 | `ERR-SYS-002` | 503 |
 | `ERR-SYS-003` | 404 | `ERR-SYS-004` | 405 |
 | `ERR-VAL-001` | 422 | | |
 
-Códigos usados apenas como flash + 303 (`ERR-ADM-002`, `ERR-ADM-007`, `ERR-CAT-002`,
-`ERR-CAT-003`, `ERR-CAR-003`, `ERR-PAG-001`) não geram corpo Problem Details; o
+Códigos usados apenas como flash + 303 (`ERR-ADM-002`, `ERR-CAT-002`, `ERR-CAT-003`,
+`ERR-CAR-003`, `ERR-PAG-001`) não geram corpo Problem Details; o
 status da tabela vale quando a falha é levantada como `ErroAplicacao`.
 
 ### Implementação

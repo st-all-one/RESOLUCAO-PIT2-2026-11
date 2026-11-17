@@ -20,8 +20,9 @@ MariaDB (database/schema.sql)
 - **Controller** lê formulário, valida formato, chama serviço/modelo, grava flash
   e decide o redirect. Não contém cálculo de preço nem regra de transição.
 - **Service** é testável sem HTTP. `preco`, `carrinho`, `pagamento`, `pedido`,
-  `slug`, `validacao` e `seguranca` são funções/dataclasses sem dependência de
-  request. `operacoes` e `carrinho_db` tocam o banco de forma transacional.
+  `slug`, `validacao`, `endereco` e `seguranca` são funções/dataclasses sem
+  dependência de request. `operacoes`, `carrinho_db` e `midia` tocam banco ou
+  disco de forma controlada.
 - **Model** é mapeamento e propriedades derivadas (`Pedido.total`,
   `ItemPedido.subtotal`). Nada de acesso a sessão HTTP.
 - **Template** só formata dados recebidos; sem consulta ao banco.
@@ -48,7 +49,7 @@ MariaDB (database/schema.sql)
 | Domínio ↔ banco | Serviço recebe `Session`; nunca abre conexão própria |
 | Template ↔ banco | Proibido consultar banco no Jinja |
 | Frontend ↔ backend | Contrato são rotas, nomes de campo e códigos de erro |
-| Sessão ↔ banco | Carrinho vive na sessão; pedido persistido é a fonte de verdade |
+| Sessão ↔ banco | Carrinho vive na sessão e é preservado ao autenticar; pedido persistido é a fonte de verdade |
 
 ## Estáticos
 
@@ -63,6 +64,13 @@ frontend/src/estilo.css ──cópia──▶ backend/app/static/css/estilo.css
 O build é `npm --prefix frontend run build` (`make front-build`). Em
 desenvolvimento, rode-o após alterar TS/CSS. A imagem Docker faz o build no stage
 `frontend` e copia o resultado para o runtime.
+
+## Imagens enviadas
+
+Imagens de produto enviadas pelo admin não entram no pacote estático: ficam em
+`settings.diretorio_midias` (padrão `uploads/`, `/app/uploads` no container) e são
+servidas em `/midia`. O volume `cupcake-uploads` preserva os arquivos entre
+builds; o banco guarda apenas o caminho (`/static/...` ou `/midia/...`).
 
 ## Onde a consistência é garantida
 

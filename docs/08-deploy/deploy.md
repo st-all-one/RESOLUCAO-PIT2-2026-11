@@ -64,6 +64,32 @@ A aplicação escuta apenas em `127.0.0.1`; não a exponha diretamente na intern
 Com `SESSION_COOKIE_SECURE=true` (ou `APP_BASE_URL=https://...`), o cookie de
 sessão só trafega por HTTPS e a aplicação envia HSTS.
 
+## Instância publicada (2026-11-17)
+
+| Item | Valor |
+|---|---|
+| URL | <https://cupcake.dvmax.stream> |
+| Stack | `/opt/stacks/cupcake-gourmet` (Docker Compose) |
+| Porta interna | `127.0.0.1:23020` → Caddy/Cloudflare |
+| Dados do banco | volume `cupcake-gourmet_cupcake-mariadb-data` |
+| Imagens enviadas | volume `cupcake-gourmet_cupcake-uploads` → `/app/uploads` |
+| Health check | `GET /health` |
+
+Atualização:
+
+```bash
+cd /opt/stacks/cupcake-gourmet
+git pull
+docker compose up -d --build
+```
+
+Antes de subir uma versão com schema novo, aplique a migração correspondente:
+
+```bash
+docker exec -i cupcake-mariadb mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" cupcake \
+  < database/migracoes/2026-11-17-exclusao-logica-produto.sql
+```
+
 ## Operação
 
 ```bash
@@ -86,7 +112,9 @@ make up
   **apagando os dados**: `docker compose down -v` e depois `make up`.
 - Em um banco existente, aplique as migrações pendentes em
   `database/migracoes/` antes de subir a nova versão (por exemplo,
-  `2026-11-15-sessao-versao.sql`).
+  `2026-11-15-sessao-versao.sql` e `2026-11-17-exclusao-logica-produto.sql`).
+- As imagens enviadas ficam no volume `cupcake-uploads` (`/app/uploads`); elas
+  sobrevivem ao rebuild, mas entram no backup do volume.
 - Backup lógico:
 
 ```bash
@@ -108,7 +136,8 @@ senha do seed não é mais válida em produção. Roteiro manual complementar:
 2. A vitrine lista os produtos do seed.
 3. Login com o administrador e a senha definida em `make admin-senha`.
 4. Fluxo completo: adicionar ao carrinho, checkout, PIX, acompanhar pedido.
-5. Administração: criar produto, avançar status, conferir relatório.
+5. Administração: criar produto com imagem, trocar a imagem, excluir e
+   restaurar da lixeira, avançar status, conferir relatório.
 6. Entregador: confirmar entrega.
 
 O roteiro com os cinco testadores está em

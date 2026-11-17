@@ -29,10 +29,10 @@ CREATE DATABASE IF NOT EXISTS cupcake_test
 GRANT ALL PRIVILEGES ON cupcake_test.* TO 'cupcake'@'%';
 ```
 
-## Resultado (2026-11-16)
+## Resultado (2026-11-17)
 
-- **76 testes, 76 aprovados** em ~30 s.
-- **Cobertura de linhas: 86%** (`backend/app`, 1559 linhas, 213 sem cobertura).
+- **88 testes, 88 aprovados** em ~12 s (execução local sem cobertura).
+- **Cobertura de linhas: 88%** (`backend/app`, 1809 linhas, 222 sem cobertura).
 - Falha rápida em regressões de preço, frete, CSRF, estoque e autorização.
 
 Cobertura por módulo (principais):
@@ -46,10 +46,14 @@ Cobertura por módulo (principais):
 | `services/identificador.py` | 100% |
 | `core/db.py`, `core/templating.py` | 100% |
 | `controllers/auth.py` | 91% |
-| `controllers/checkout.py` | 82% |
+| `controllers/conta.py` | 91% |
+| `controllers/checkout.py` | 83% |
+| `controllers/entregas.py` | 97% |
 | `controllers/pagamento.py` | 90% |
-| `controllers/admin.py` | 61% |
-| `main.py` | 79% |
+| `controllers/admin.py` | 69% |
+| `services/endereco.py` | 90% |
+| `services/midia.py` | 83% |
+| `main.py` | 80% |
 
 `controllers/admin.py` concentra muitos ramos de erro (exclusões protegidas,
 validações de formulário); os fluxos principais estão cobertos e os ramos
@@ -63,8 +67,9 @@ restantes são exercitados manualmente no roteiro do laudo.
 | `test_catalogo.py` | vitrine, busca, categoria, detalhe, 404 JSON |
 | `test_auth.py` | cadastro, hash, login/logout, conta inativa, CSRF |
 | `test_carrinho.py` | totais, frete grátis, limite de estoque, atualização e remoção |
-| `test_compra.py` | PIX, cartão inválido, recusa final 0000, estoque esgotado, cancelamento, isolamento, CEP, itens no checkout, código público |
-| `test_admin.py` | autorização, CRUD, transições, relatório, autoproteção do admin |
+| `test_compra.py` | PIX, cartão inválido, recusa final 0000, estoque esgotado, cancelamento, isolamento, CEP, itens no checkout, código público, endereço salvo e isolamento de endereço |
+| `test_admin.py` | autorização, CRUD, transições, relatório, autoproteção do admin, upload de imagem, lixeira e restauração |
+| `test_conta.py` | dados cadastrais, unicidade de e-mail, troca de senha, endereços e isolamento |
 | `test_entregas.py` | lista, confirmação e isolamento entre entregadores |
 | `test_servicos.py` | dinheiro, frete, Luhn, slug, validação, senha, máquina de estados |
 

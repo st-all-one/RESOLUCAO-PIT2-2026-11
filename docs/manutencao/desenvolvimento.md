@@ -56,10 +56,18 @@ O projeto não usa ferramenta de migração. O fluxo é:
 2. Ajuste `backend/app/models/dominio.py`.
 3. Atualize `database/seed.sql` se necessário.
 4. Rode `make db-reset` em desenvolvimento.
-5. Em produção, aplique a mudança manualmente e registre no histórico de
-   revisões; `docker compose down -v` apaga dados.
+5. Em produção, aplique a mudança manualmente (ou a migração em
+   `database/migracoes/`) e registre no histórico de revisões; `docker compose
+   down -v` apaga dados.
 6. Atualize o dicionário: `make dicionario`.
 7. Teste os CHECKs e FKs afetados.
+
+### Imagens de produto
+
+- O admin grava em `settings.diretorio_midias` (padrão `uploads/`); o volume
+  `cupcake-uploads` guarda os arquivos em produção.
+- Formatos aceitos: JPG, PNG e WebP de até 2 MB, validados pela assinatura.
+- Não há upload público: só o formulário autenticado de admin chama o serviço.
 
 ### Alterar CSS ou TypeScript
 
@@ -89,6 +97,7 @@ O projeto não usa ferramenta de migração. O fluxo é:
 | Relatório vazio | datas em America/Sao_Paulo convertidas para UTC |
 | Testes falham na conexão | MariaDB em 3307 e `cupcake_test` criado |
 | Template não atualiza | uvicorn sem `--reload`? reinicie `make run` |
+| Upload 422 `ERR-ADM-010` | arquivo maior que 2 MB ou sem assinatura JPG/PNG/WebP | converter/reduzir a imagem |
 
 ## Armadilhas conhecidas
 

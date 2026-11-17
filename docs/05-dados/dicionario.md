@@ -1,6 +1,6 @@
 # Dicionário de dados
 
-> Gerado automaticamente de `information_schema` em 2026-11-15 22:17. Não editar à mão: rode `make dicionario`.
+> Gerado automaticamente de `information_schema` em 2026-11-17 09:08. Não editar à mão: rode `make dicionario`.
 
 ## Resumo
 
@@ -12,7 +12,7 @@
 | `itens_pedido` | 6 | 2 |
 | `pagamentos` | 9 | 3 |
 | `pedidos` | 16 | 3 |
-| `produtos` | 11 | 4 |
+| `produtos` | 13 | 4 |
 | `usuarios` | 10 | 2 |
 
 ## `categorias`
@@ -102,7 +102,7 @@
 | Coluna | Tipo | Nulo? | Default | Chave / Domínio | Descrição |
 |---|---|---|---|---|---|
 | `id` | `bigint(20) unsigned` | não | — (auto_increment) | PK | Identificador interno do pedido. |
-| `codigo` | `char(8)` | não | — | UQ | Código público não sequencial (UUIDv7 truncado) usado na URL. |
+| `codigo` | `char(8)` | não | — | UQ | Código público curto usado nas URLs do cliente. |
 | `cliente_id` | `bigint(20) unsigned` | não | — | FK → usuarios.id | Cliente que realizou o pedido. |
 | `entregador_id` | `bigint(20) unsigned` | sim | `NULL` | FK → usuarios.id | Entregador atribuído ao despacho. |
 | `status` | `varchar(20)` | não | `'recebido'` | recebido | em_preparo | saiu_entrega | entregue | cancelado | Estado atual do pedido na máquina de estados. |
@@ -132,11 +132,13 @@
 | `categoria_id` | `bigint(20) unsigned` | não | — | FK → categorias.id | Categoria à qual o produto pertence. |
 | `nome` | `varchar(120)` | não | — | — | Nome comercial do cupcake. |
 | `slug` | `varchar(140)` | não | — | UQ | Identificador textual usado na URL do detalhe. |
+| `imagem` | `varchar(255)` | não | `'/static/img/produtos/padrao.jpg'` | /static/img/produtos/... ou /midia/... | Caminho da imagem estática ou enviada pelo admin. |
 | `descricao` | `text` | não | — | — | Descrição comercial do produto. |
 | `alergenicos` | `varchar(255)` | não | — | — | Ingredientes alergênicos declarados. |
 | `preco` | `decimal(10,2)` | não | — | > 0, duas casas decimais | Preço unitário vigente em reais. |
 | `estoque` | `int(11)` | não | `0` | >= 0 | Quantidade disponível para venda. |
 | `ativo` | `tinyint(1)` | não | `1` | 0 = oculto, 1 = visível | Indica se o produto aparece na vitrine. |
+| `excluido_em` | `timestamp` | sim | `NULL` | NULL = disponível; data = na lixeira | Data da exclusão lógica; preenchida = produto na lixeira. |
 | `criado_em` | `timestamp` | não | `current_timestamp()` | — | Data e hora de criação. |
 | `atualizado_em` | `timestamp` | não | `current_timestamp()` (on update current_timestamp()) | — | Data e hora da última alteração. |
 
@@ -158,7 +160,7 @@
 | `telefone` | `varchar(11)` | sim | `NULL` | — | Telefone de contato com DDD, somente dígitos. |
 | `papel` | `varchar(20)` | não | `'cliente'` | cliente | entregador | admin | Perfil de acesso do usuário. |
 | `ativo` | `tinyint(1)` | não | `1` | 0 = inativo, 1 = ativo | Indica se a conta pode autenticar. |
-| `sessao_versao` | `int(11)` | não | `0` | inteiro ≥ 0 | Versão da sessão; incrementada no logout invalida cookies antigos. |
+| `sessao_versao` | `int(11)` | não | `0` | — | Versão da sessão; incrementar invalida logins antigos. |
 | `criado_em` | `timestamp` | não | `current_timestamp()` | — | Data e hora de criação da conta. |
 | `atualizado_em` | `timestamp` | não | `current_timestamp()` (on update current_timestamp()) | — | Data e hora da última alteração. |
 

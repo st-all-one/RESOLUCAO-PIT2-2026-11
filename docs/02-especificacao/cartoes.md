@@ -331,14 +331,14 @@ para manter a vitrine correta.
   reflete a mudança imediatamente.
 - CA4 — DADO um produto ativo, QUANDO o desativo, ENTÃO ele some da vitrine e o acesso
   direto retorna `ERR-CAT-001`.
-- CA5 — DADO um produto com itens em pedidos, QUANDO tento excluir, ENTÃO vejo
-  `ERR-ADM-007`; a saída é desativar.
+- CA5 — DADO um produto com ou sem pedidos, QUANDO excluo, ENTÃO ele sai da vitrine e
+  vai para a lixeira, de onde pode ser restaurado (ver US-18).
 - CA6 — DADO um usuário sem papel `admin`, QUANDO acessa, ENTÃO recebe 403.
 
 **Regras de negócio**
 - RN1 — Preço DECIMAL(10,2) > 0; estoque inteiro ≥ 0.
 - RN2 — Nome e slug únicos; descrição e alergênicos obrigatórios (limites de 2000 e 255).
-- RN3 — Exclusão física bloqueada por FK de itens de pedido.
+- RN3 — Exclusão é lógica (`excluido_em`); a linha e o histórico de itens permanecem.
 
 **RNF:** RNF-DAD-01, RNF-SEG-06.
 
@@ -459,3 +459,111 @@ controlar quem opera a loja.
 - RN3 — Conta inativa não autentica (`ERR-AUTH-006`).
 
 **RNF:** RNF-SEG-04, RNF-DAD-01.
+
+---
+
+## Épico E — Ciclo de feedback (2026-11)
+
+Histórias abertas a partir dos cinco laudos de teste em
+`docs/07-laudo/feedback-testadores.md`.
+
+### US-16 — Editar conta, senha e endereços
+
+**Requerente:** Cliente · **Prioridade:** B · **Pontos:** 5 · **Telas:** TELA-012
+
+**Ação:** Como cliente, eu quero atualizar meus dados, trocar a senha e gerenciar
+endereços, para não depender do cadastro inicial.
+
+**Critérios de aceitação**
+- CA1 — DADO que estou autenticado, QUANDO abro `/conta`, ENTÃO vejo nome, e-mail e
+  telefone atuais, além dos endereços salvos.
+- CA2 — QUANDO altero nome, e-mail e telefone válidos, ENTÃO os dados persistem e o
+  cabeçalho reflete o novo nome.
+- CA3 — DADO e-mail de outra conta, QUANDO salvo, ENTÃO vejo `ERR-AUTH-002` e nada muda.
+- CA4 — QUANDO troco a senha com a senha atual correta, ENTÃO a sessão atual continua e
+  as outras sessões são encerradas; com senha atual errada vejo `ERR-AUTH-001`.
+- CA5 — QUANDO adiciono endereço, posso defini-lo como principal e removê-lo; o último
+  removido promove outro endereço a principal.
+- CA6 — DADO endereço de outra conta, QUANDO tento alterá-lo, ENTÃO vejo `ERR-END-001`.
+
+**Regras de negócio**
+- RN1 — Telefone é opcional e, quando informado, normalizado para 10 ou 11 dígitos.
+- RN2 — E-mail continua único e normalizado.
+- RN3 — Endereço só é acessível ao `usuario_id` dono.
+
+**RNF:** RNF-SEG-01, RNF-SEG-03, RNF-USA-02.
+
+---
+
+### US-17 — Preservar o carrinho ao entrar
+
+**Requerente:** Visitante · **Prioridade:** A · **Pontos:** 2 · **Telas:** TELA-001,
+TELA-005
+
+**Ação:** Como visitante, eu quero entrar na conta sem perder o carrinho, para concluir
+a compra sem selecionar os itens de novo.
+
+**Critérios de aceitação**
+- CA1 — DADO um carrinho montado sem login, QUANDO entro, ENTÃO os itens continuam no
+  carrinho e o checkout abre normalmente.
+- CA2 — O mesmo vale ao criar a conta no meio da compra.
+- CA3 — A regeneração da sessão no login continua, sem carregar dados da sessão anterior
+  além do carrinho (usuário, CSRF e flash são novos).
+
+**Regras de negócio**
+- RN1 — O carrinho é preservado, mas o identificador de usuário e o token CSRF são
+  recriados.
+
+**RNF:** RNF-SEG-03, RNF-USA-01.
+
+---
+
+### US-18 — Imagem e lixeira de produtos
+
+**Requerente:** Administrador · **Prioridade:** B · **Pontos:** 5 · **Telas:** TELA-009
+
+**Ação:** Como administrador, eu quero enviar a imagem do produto e recuperar itens
+excluídos, para corrigir o catálogo sem perder histórico.
+
+**Critérios de aceitação**
+- CA1 — DADO um JPG, PNG ou WebP de até 2 MB, QUANDO salvo o produto, ENTÃO a imagem é
+  exibida na vitrine e no detalhe.
+- CA2 — DADO arquivo sem assinatura de imagem, QUANDO envio, ENTÃO vejo `ERR-ADM-010` e
+  nenhum produto é criado.
+- CA3 — QUANDO troco a imagem, a anterior enviada é removida do disco.
+- CA4 — QUANDO excluo um produto, ele sai da vitrine e do carrinho, mas continua na
+  lixeira com histórico de pedidos.
+- CA5 — QUANDO restauro, o produto volta ao catálogo (ativo se houver estoque) e as
+  imagens e dados permanecem.
+
+**Regras de negócio**
+- RN1 — Exclusão é lógica (`excluido_em`), nunca `DELETE` físico.
+- RN2 — A validação usa os bytes do arquivo, não o `Content-Type` declarado.
+- RN3 — Nome do arquivo é gerado pelo servidor (slug + aleatório), sem caminho do cliente.
+
+**RNF:** RNF-SEG-05, RNF-USA-02.
+
+---
+
+### US-19 — Endereço explícito e telas mobile
+
+**Requerente:** Cliente · **Prioridade:** B · **Pontos:** 5 · **Telas:** TELA-005,
+TELA-006, TELA-009
+
+**Ação:** Como cliente no celular, eu quero confirmar qual endereço será usado e navegar
+sem overflow lateral.
+
+**Critérios de aceitação**
+- CA1 — DADO que tenho endereços salvos, QUANDO abro o checkout, ENTÃO vejo o endereço da
+  minha conta por extenso, com opção “Outro endereço”.
+- CA2 — QUANDO envio um `endereco_id` de outra conta, ENTÃO vejo `ERR-CHK-001` e nenhum
+  pedido é criado.
+- CA3 — Em viewport de 390 px, o checkout não cria rolagem horizontal na página.
+- CA4 — No mobile, as listas administrativas viram cartões com ações de 44 px.
+
+**Regras de negócio**
+- RN1 — O pedido usa exatamente o endereço escolhido; campos ocultos não sobrescrevem a
+  escolha.
+- RN2 — O telefone é sempre o da conta, visível e editável no pedido.
+
+**RNF:** RNF-USA-01, RNF-USA-03, RNF-USA-04.

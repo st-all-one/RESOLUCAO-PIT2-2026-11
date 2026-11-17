@@ -79,3 +79,11 @@ transitivas do estado atual, e sim atributos do evento:
 
 O dicionário de dados é gerado do `information_schema` e cobre 100% das colunas:
 [`dicionario.md`](dicionario.md).
+
+## Exclusão lógica de produto
+
+`produtos.excluido_em` (NULL = disponível) implementa a lixeira. A linha nunca é
+apagada, então `itens_pedido.produto_id` continua válido e o histórico de vendas
+não perde referência. A vitrine, o detalhe e o carrinho filtram
+`excluido_em IS NULL`; o admin consulta a lixeira e restaura. A exclusão física
+continua possível apenas por manutenção fora da aplicação.
