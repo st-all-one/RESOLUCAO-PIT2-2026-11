@@ -10,7 +10,7 @@ from app.core.config import settings
 from app.core.partida import validar_admin_inicial
 from app.main import app
 from app.services.seguranca import hash_senha
-from tests.apoio import entrar, escalar, executar, token_csrf
+from tests.apoio import adicionar_item, entrar, escalar, executar, token_csrf
 from tests.conftest import SENHA
 
 
@@ -241,3 +241,35 @@ def test_startup_recusa_senha_de_demonstracao(
     monkeypatch.setattr(settings, "app_env", "production")
     with pytest.raises(RuntimeError, match="demonstração"):
         validar_admin_inicial()
+
+
+def test_login_preserva_carrinho_montado_como_visitante(
+    cliente_http: TestClient, dados: dict[str, int]
+) -> None:
+    adicionar_item(cliente_http, dados["baunilha"], 2)
+    entrar(cliente_http, "cliente@teste.local", SENHA, destino="/checkout")
+
+    pagina = cliente_http.get("/carrinho").text
+    assert "Cupcake Baunilha" in pagina
+    assert 'value="2"' in pagina
+    assert cliente_http.get("/checkout").status_code == 200
+
+
+def test_cadastro_preserva_carrinho_montado_como_visitante(
+    cliente_http: TestClient, dados: dict[str, int]
+) -> None:
+    adicionar_item(cliente_http, dados["baunilha"])
+    token = token_csrf(cliente_http, "/cadastro")
+    resposta = cliente_http.post(
+        "/cadastro",
+        data={
+            "csrf_token": token,
+            "nome": "Cliente com Carrinho",
+            "email": "carrinho@teste.local",
+            "senha": SENHA,
+            "confirmacao": SENHA,
+        },
+        follow_redirects=False,
+    )
+    assert resposta.status_code == 303
+    assert "Cupcake Baunilha" in cliente_http.get("/carrinho").text

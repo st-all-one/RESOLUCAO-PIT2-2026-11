@@ -22,6 +22,7 @@ from app.core.csrf import validar_csrf
 from app.core.limites import LimiteTentativas
 from app.core.problemas import ErroAplicacao
 from app.models import Papel, Usuario
+from app.services.carrinho import gravar_carrinho, ler_carrinho
 from app.services.seguranca import (
     HASH_SEM_CONTA,
     email_valido,
@@ -38,6 +39,16 @@ LIMITE_IP = LimiteTentativas(maximo=30, janela=15 * 60)
 
 def _ip(request: Request) -> str:
     return request.client.host if request.client else "desconhecido"
+
+
+def _iniciar_sessao(request: Request, usuario: Usuario) -> None:
+    """Autentica sem descartar o carrinho montado antes do login."""
+    carrinho = ler_carrinho(request.session)
+    request.session.clear()
+    request.session["usuario_id"] = usuario.id
+    request.session["sessao_versao"] = usuario.sessao_versao
+    if carrinho:
+        gravar_carrinho(request.session, carrinho)
 
 
 @router.get("/cadastro")
@@ -99,9 +110,7 @@ def cadastro_post(
         )
         return renderizar_form(request, "auth/cadastro.html", erro=erro_email, valores=valores)
 
-    request.session.clear()
-    request.session["usuario_id"] = usuario.id
-    request.session["sessao_versao"] = usuario.sessao_versao
+    _iniciar_sessao(request, usuario)
     avisar(request, "Conta criada com sucesso. Bem-vindo(a)!")
     return redirecionar("/")
 
@@ -180,9 +189,7 @@ def login_post(
         )
 
     LIMITE_CONTA.limpar(chave_conta)
-    request.session.clear()
-    request.session["usuario_id"] = usuario.id
-    request.session["sessao_versao"] = usuario.sessao_versao
+    _iniciar_sessao(request, usuario)
     avisar(request, f"Bem-vindo(a), {usuario.nome}!")
     return redirecionar(destino)
 
